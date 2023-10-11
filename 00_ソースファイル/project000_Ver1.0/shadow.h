@@ -60,8 +60,10 @@ public:
 
 	// メンバ関数
 	void SetScalingOrigin(const D3DXVECTOR3& rSize);	// 元の大きさ設定
-	HRESULT SetDrawInfo(void);		// 描画情報設定
-	void DeleteObjectParent(void);	// 親オブジェクト削除
+	HRESULT SetDrawInfo(void);			// 描画情報設定
+	D3DXVECTOR3 SetDrawPosition(void);	// 描画位置設定
+	void DeleteObjectParent(void);		// 親オブジェクト削除
+	bool CollisionBuilding(D3DXVECTOR3& rPos, float& rDrawPos);	// ビルとの当たり判定
 
 private:
 	// メンバ関数

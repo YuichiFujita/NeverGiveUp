@@ -23,6 +23,7 @@
 #include "shadow.h"
 #include "stage.h"
 #include "field.h"
+#include "building.h"
 
 //************************************************************
 //	定数宣言
@@ -42,6 +43,7 @@ namespace
 		const float	JUMP		= 20.0f;	// プレイヤージャンプ量
 		const float	GRAVITY		= 1.0f;		// プレイヤー重力
 		const float	RADIUS		= 20.0f;	// プレイヤー半径
+		const float HEIGHT		= 100.0f;	// プレイヤー縦幅
 	}
 
 	// プレイヤー他クラス情報
@@ -430,6 +432,268 @@ CPlayer::EMotion CPlayer::UpdateNormal(void)
 }
 
 //============================================================
+//	ビルとの当たり判定
+//============================================================
+bool CPlayer::CollisionBuilding(D3DXVECTOR3& rPos)
+{
+	// 変数を宣言
+	D3DXVECTOR3 sizeMinPlayer = D3DXVECTOR3(basic::RADIUS, 0.0f, basic::RADIUS);			// プレイヤー最小大きさ
+	D3DXVECTOR3 sizeMaxPlayer = D3DXVECTOR3(basic::RADIUS, basic::HEIGHT, basic::RADIUS);	// プレイヤー最大大きさ
+	bool bLand = false;	// 着地状況
+
+	// 重力を加算
+	m_move.y -= basic::GRAVITY;
+
+		// 移動量を加算
+	rPos.y += m_move.y;
+
+	for (int nCntPri = 0; nCntPri < MAX_PRIO; nCntPri++)
+	{ // 優先順位の総数分繰り返す
+
+		// ポインタを宣言
+		CObject *pObjectTop = CObject::GetTop(nCntPri);	// 先頭オブジェクト
+
+		if (pObjectTop != NULL)
+		{ // 先頭が存在する場合
+
+			// ポインタを宣言
+			CObject *pObjCheck = pObjectTop;	// オブジェクト確認用
+
+			while (pObjCheck != NULL)
+			{ // オブジェクトが使用されている場合繰り返す
+
+				// 変数を宣言
+				D3DXVECTOR3 posBuild = VEC3_ZERO;		// ビル位置
+				D3DXVECTOR3 sizeMinBuild = VEC3_ZERO;	// ビル最小大きさ
+				D3DXVECTOR3 sizeMaxBuild = VEC3_ZERO;	// ビル最大大きさ
+				bool bUp = false;	// 上の当たり判定
+				bool bSide = false;	// 横の当たり判定
+
+				// ポインタを宣言
+				CObject *pObjectNext = pObjCheck->GetNext();	// 次オブジェクト
+
+				if (pObjCheck->GetLabel() != CObject::LABEL_BUILDING)
+				{ // オブジェクトラベルがビルではない場合
+
+					// 次のオブジェクトへのポインタを代入
+					pObjCheck = pObjectNext;
+
+					// 次の繰り返しに移行
+					continue;
+				}
+
+				// ビルの位置を設定
+				posBuild = pObjCheck->GetVec3Position();
+
+				// ビルの最小の大きさを設定
+				sizeMinBuild = pObjCheck->GetVec3Sizing();
+				sizeMinBuild.y = 0.0f;	// 縦の大きさを初期化
+
+				// ビルの最大の大きさを設定
+				sizeMaxBuild = pObjCheck->GetVec3Sizing();
+				sizeMaxBuild.y *= 2.0f;	// 縦の大きさを倍にする
+
+				// ビルとの当たり判定
+				collision::ResponseBox3D
+				( // 引数
+					rPos,			// 判定位置
+					m_oldPos,		// 判定過去位置
+					posBuild,		// 判定目標位置
+					sizeMaxPlayer,	// 判定サイズ(右・上・後)
+					sizeMinPlayer,	// 判定サイズ(左・下・前)
+					sizeMaxBuild,	// 判定目標サイズ(右・上・後)
+					sizeMinBuild,	// 判定目標サイズ(左・下・前)
+					&m_move,		// 移動量
+					&bUp,			// 上からの判定
+					&bSide			// 横からの判定
+				);
+
+				if (bUp)
+				{ // 上から当たっていた場合
+
+					// 着地している状況にする
+					bLand = true;
+				}
+
+				// 次のオブジェクトへのポインタを代入
+				pObjCheck = pObjectNext;
+			}
+		}
+	}
+
+	// 移動量を加算
+	rPos.x += m_move.x;
+
+	for (int nCntPri = 0; nCntPri < MAX_PRIO; nCntPri++)
+	{ // 優先順位の総数分繰り返す
+
+		// ポインタを宣言
+		CObject *pObjectTop = CObject::GetTop(nCntPri);	// 先頭オブジェクト
+
+		if (pObjectTop != NULL)
+		{ // 先頭が存在する場合
+
+			// ポインタを宣言
+			CObject *pObjCheck = pObjectTop;	// オブジェクト確認用
+
+			while (pObjCheck != NULL)
+			{ // オブジェクトが使用されている場合繰り返す
+
+				// 変数を宣言
+				D3DXVECTOR3 posBuild = VEC3_ZERO;		// ビル位置
+				D3DXVECTOR3 sizeMinBuild = VEC3_ZERO;	// ビル最小大きさ
+				D3DXVECTOR3 sizeMaxBuild = VEC3_ZERO;	// ビル最大大きさ
+				bool bUp = false;	// 上の当たり判定
+				bool bSide = false;	// 横の当たり判定
+
+				// ポインタを宣言
+				CObject *pObjectNext = pObjCheck->GetNext();	// 次オブジェクト
+
+				if (pObjCheck->GetLabel() != CObject::LABEL_BUILDING)
+				{ // オブジェクトラベルがビルではない場合
+
+					// 次のオブジェクトへのポインタを代入
+					pObjCheck = pObjectNext;
+
+					// 次の繰り返しに移行
+					continue;
+				}
+
+				// ビルの位置を設定
+				posBuild = pObjCheck->GetVec3Position();
+
+				// ビルの最小の大きさを設定
+				sizeMinBuild = pObjCheck->GetVec3Sizing();
+				sizeMinBuild.y = 0.0f;	// 縦の大きさを初期化
+
+				// ビルの最大の大きさを設定
+				sizeMaxBuild = pObjCheck->GetVec3Sizing();
+				sizeMaxBuild.y *= 2.0f;	// 縦の大きさを倍にする
+
+				// ビルとの当たり判定
+				collision::ResponseBox3D
+				( // 引数
+					rPos,			// 判定位置
+					m_oldPos,		// 判定過去位置
+					posBuild,		// 判定目標位置
+					sizeMaxPlayer,	// 判定サイズ(右・上・後)
+					sizeMinPlayer,	// 判定サイズ(左・下・前)
+					sizeMaxBuild,	// 判定目標サイズ(右・上・後)
+					sizeMinBuild,	// 判定目標サイズ(左・下・前)
+					&m_move,		// 移動量
+					&bUp,			// 上からの判定
+					&bSide			// 横からの判定
+				);
+
+				if (bUp)
+				{ // 上から当たっていた場合
+
+					// 着地している状況にする
+					bLand = true;
+				}
+
+				// 次のオブジェクトへのポインタを代入
+				pObjCheck = pObjectNext;
+			}
+		}
+	}
+
+	// 移動量を加算
+	rPos.z += m_move.z;
+
+	for (int nCntPri = 0; nCntPri < MAX_PRIO; nCntPri++)
+	{ // 優先順位の総数分繰り返す
+
+		// ポインタを宣言
+		CObject *pObjectTop = CObject::GetTop(nCntPri);	// 先頭オブジェクト
+
+		if (pObjectTop != NULL)
+		{ // 先頭が存在する場合
+
+			// ポインタを宣言
+			CObject *pObjCheck = pObjectTop;	// オブジェクト確認用
+
+			while (pObjCheck != NULL)
+			{ // オブジェクトが使用されている場合繰り返す
+
+				// 変数を宣言
+				D3DXVECTOR3 posBuild = VEC3_ZERO;		// ビル位置
+				D3DXVECTOR3 sizeMinBuild = VEC3_ZERO;	// ビル最小大きさ
+				D3DXVECTOR3 sizeMaxBuild = VEC3_ZERO;	// ビル最大大きさ
+				bool bUp = false;	// 上の当たり判定
+				bool bSide = false;	// 横の当たり判定
+
+				// ポインタを宣言
+				CObject *pObjectNext = pObjCheck->GetNext();	// 次オブジェクト
+
+				if (pObjCheck->GetLabel() != CObject::LABEL_BUILDING)
+				{ // オブジェクトラベルがビルではない場合
+
+					// 次のオブジェクトへのポインタを代入
+					pObjCheck = pObjectNext;
+
+					// 次の繰り返しに移行
+					continue;
+				}
+
+				// ビルの位置を設定
+				posBuild = pObjCheck->GetVec3Position();
+
+				// ビルの最小の大きさを設定
+				sizeMinBuild = pObjCheck->GetVec3Sizing();
+				sizeMinBuild.y = 0.0f;	// 縦の大きさを初期化
+
+				// ビルの最大の大きさを設定
+				sizeMaxBuild = pObjCheck->GetVec3Sizing();
+				sizeMaxBuild.y *= 2.0f;	// 縦の大きさを倍にする
+
+				// ビルとの当たり判定
+				collision::ResponseBox3D
+				( // 引数
+					rPos,			// 判定位置
+					m_oldPos,		// 判定過去位置
+					posBuild,		// 判定目標位置
+					sizeMaxPlayer,	// 判定サイズ(右・上・後)
+					sizeMinPlayer,	// 判定サイズ(左・下・前)
+					sizeMaxBuild,	// 判定目標サイズ(右・上・後)
+					sizeMinBuild,	// 判定目標サイズ(左・下・前)
+					&m_move,		// 移動量
+					&bUp,			// 上からの判定
+					&bSide			// 横からの判定
+				);
+
+				if (bUp)
+				{ // 上から当たっていた場合
+
+					// 着地している状況にする
+					bLand = true;
+				}
+
+				// 次のオブジェクトへのポインタを代入
+				pObjCheck = pObjectNext;
+			}
+		}
+	}
+
+	// 移動量を減衰
+	if (m_bJump)
+	{ // 空中の場合
+
+		m_move.x += (0.0f - m_move.x) * basic::JUMP_REV;
+		m_move.z += (0.0f - m_move.z) * basic::JUMP_REV;
+	}
+	else
+	{ // 地上の場合
+
+		m_move.x += (0.0f - m_move.x) * basic::LAND_REV;
+		m_move.z += (0.0f - m_move.z) * basic::LAND_REV;
+	}
+
+	// 着地状況を返す
+	return bLand;
+}
+
+//============================================================
 //	過去位置の更新処理
 //============================================================
 void CPlayer::UpdateOldPosition(void)
@@ -584,8 +848,17 @@ bool CPlayer::UpdateLanding(D3DXVECTOR3& rPos)
 	bool bLand = false;	// 着地状況
 
 	// 着地判定
-	if (CScene::GetField()->LandPosition(rPos, m_move)
-	||  CScene::GetStage()->LandPosition(rPos, m_move, 0.0f))
+	if (CollisionBuilding(rPos))
+	{ // ブロックに着地していた場合
+
+		// 着地している状態にする
+		bLand = true;
+
+		// ジャンプしていない状態にする
+		m_bJump = false;
+	}
+	else if (CScene::GetField()->LandPosition(rPos, m_move)
+	||       CScene::GetStage()->LandPosition(rPos, m_move, 0.0f))
 	{ // プレイヤーが着地していた場合
 
 		// 着地している状態にする
@@ -610,6 +883,7 @@ bool CPlayer::UpdateLanding(D3DXVECTOR3& rPos)
 //============================================================
 void CPlayer::UpdatePosition(D3DXVECTOR3& rPos)
 {
+#if 0
 	// 重力を加算
 	m_move.y -= basic::GRAVITY;
 
@@ -629,6 +903,7 @@ void CPlayer::UpdatePosition(D3DXVECTOR3& rPos)
 		m_move.x += (0.0f - m_move.x) * basic::LAND_REV;
 		m_move.z += (0.0f - m_move.z) * basic::LAND_REV;
 	}
+#endif
 }
 
 //============================================================

@@ -21,6 +21,15 @@
 // 判定空間
 namespace collision
 {
+	bool Box2D	// XZ平面の矩形の当たり判定
+	( // 引数
+		D3DXVECTOR3 centerPos,		// 判定位置
+		D3DXVECTOR3 targetPos,		// 判定目標位置
+		D3DXVECTOR3 centerSizeUp,	// 判定サイズ(右・上・後)
+		D3DXVECTOR3 centerSizeDown,	// 判定サイズ(左・下・前)
+		D3DXVECTOR3 targetSizeUp,	// 判定目標サイズ(右・上・後)
+		D3DXVECTOR3 targetSizeDown	// 判定目標サイズ(左・下・前)
+	);
 	bool Box3D	// 3軸の矩形の当たり判定
 	( // 引数
 		D3DXVECTOR3 centerPos,		// 判定位置
@@ -71,6 +80,21 @@ namespace collision
 		D3DXVECTOR3 targetPos,		// 判定目標位置
 		float fCenterRadius,		// 判定半径
 		float fTargetRadius			// 判定目標半径
+	);
+
+	bool ResponseBox3D	// 三軸の矩形の衝突判定
+	( // 引数
+		D3DXVECTOR3& rCenterPos,	// 判定位置
+		D3DXVECTOR3& rCenterPosOld,	// 判定過去位置
+		D3DXVECTOR3 targetPos,		// 判定目標位置
+		D3DXVECTOR3 centerSizeUp,	// 判定サイズ(右・上・後)
+		D3DXVECTOR3 centerSizeDown,	// 判定サイズ(左・下・前)
+		D3DXVECTOR3 targetSizeUp,	// 判定目標サイズ(右・上・後)
+		D3DXVECTOR3 targetSizeDown,	// 判定目標サイズ(左・下・前)
+		D3DXVECTOR3 *pMove = NULL,	// 移動量
+		bool *pUp = NULL,	// 上からの判定
+		bool *pSide = NULL,	// 横からの判定
+		bool *pDown = NULL	// 下からの判定
 	);
 
 	bool InBoxPillar	// 角柱の内側制限

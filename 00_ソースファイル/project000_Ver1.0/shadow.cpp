@@ -12,12 +12,16 @@
 #include "scene.h"
 #include "renderer.h"
 #include "texture.h"
+#include "collision.h"
 #include "field.h"
+#include "stage.h"
+#include "building.h"
 
 //************************************************************
 //	マクロ定義
 //************************************************************
-#define SHADOW_PRIO	(0)		// 影の優先順位
+#define SHADOW_PRIO	(2)		// 影の優先順位
+#define PLUS_POSY	(0.01f)	// ちらつき防止用の縦座標加算量
 
 #define MAX_DIS_HEIGHT	(200.0f)	// 影と親の縦の距離の最大値
 #define MAX_PLUS_SIZE	(120.0f)	// 影の大きさ加算量の最大値
@@ -68,7 +72,7 @@ HRESULT CShadow::Init(void)
 	}
 
 	// Zテストの設定
-	SetFunc(D3DCMP_ALWAYS);
+	SetFunc(D3DCMP_LESSEQUAL);
 
 	// Zバッファの使用状況の設定
 	SetZEnable(false);
@@ -223,14 +227,13 @@ HRESULT CShadow::SetDrawInfo(void)
 
 		// 変数を宣言
 		D3DXVECTOR3 posParent = m_pParentObject->GetVec3Position();	// 親オブジェクト位置
-		D3DXVECTOR3 posShadow = VEC3_ZERO;	// 影位置
+		D3DXVECTOR3 posShadow  = VEC3_ZERO;	// 影位置
 		D3DXVECTOR3 sizeShadow = VEC3_ZERO;	// 影大きさ
 		float fDis = 0.0f;		// 影と親の距離
 		float fAlpha = 0.0f;	// 影の透明度
 
-		// 影の位置を求める
-		posShadow = posParent;	// 親オブジェクトの座標代入
-		posShadow.y = CScene::GetField()->GetPositionHeight(posParent);	// 高さを地面に設定
+		// 描画位置の設定
+		posShadow = SetDrawPosition();
 
 		// 影と親の縦座標の距離を求める
 		fDis = fabsf(posParent.y - posShadow.y);		// 縦の距離を求める
@@ -261,6 +264,42 @@ HRESULT CShadow::SetDrawInfo(void)
 }
 
 //============================================================
+//	描画位置の設定処理
+//============================================================
+D3DXVECTOR3 CShadow::SetDrawPosition(void)
+{
+	// 変数を宣言
+	D3DXVECTOR3 posParent = m_pParentObject->GetVec3Position();	// 親オブジェクト位置
+	D3DXVECTOR3 posShadow = VEC3_ZERO;	// 影位置
+	float fPosHeight = 0.0f;	// ビルの上座標
+
+	// 影の位置を求める
+	posShadow = posParent;	// 親オブジェクトの座標代入
+
+	if (CollisionBuilding(posParent, fPosHeight))
+	{ // ビルの範囲内の場合
+
+		// 高さをビルの上に設定
+		posShadow.y = fPosHeight + PLUS_POSY;
+	}
+	else if (CScene::GetField()->IsPositionRange(posParent))
+	{ // 地面の範囲内の場合
+
+		// 高さを地面に設定
+		posShadow.y = CScene::GetField()->GetPositionHeight(posParent) + PLUS_POSY;
+	}
+	else
+	{ // 全ての範囲外の場合
+
+		// 高さを制限位置に設定
+		posShadow.y = CScene::GetStage()->GetStageLimit().fField + PLUS_POSY;
+	}
+
+	// 影位置を返す
+	return posShadow;
+}
+
+//============================================================
 //	親オブジェクトの設定処理
 //============================================================
 void CShadow::SetParentObject(CObject *pObject)
@@ -276,4 +315,79 @@ void CShadow::DeleteObjectParent(void)
 {
 	// 親オブジェクトをNULLにする
 	m_pParentObject = NULL;
+}
+
+//============================================================
+//	ビルとの当たり判定
+//============================================================
+bool CShadow::CollisionBuilding(D3DXVECTOR3& rPos, float& rDrawPos)
+{
+	for (int nCntPri = 0; nCntPri < MAX_PRIO; nCntPri++)
+	{ // 優先順位の総数分繰り返す
+
+		// ポインタを宣言
+		CObject *pObjectTop = CObject::GetTop(nCntPri);	// 先頭オブジェクト
+
+		if (pObjectTop != NULL)
+		{ // 先頭が存在する場合
+
+			// ポインタを宣言
+			CObject *pObjCheck = pObjectTop;	// オブジェクト確認用
+
+			while (pObjCheck != NULL)
+			{ // オブジェクトが使用されている場合繰り返す
+
+				// 変数を宣言
+				D3DXVECTOR3 posBuild  = VEC3_ZERO;	// ビル位置
+				D3DXVECTOR3 sizeBuild = VEC3_ZERO;	// ビル大きさ
+				bool bHit = false;	// 判定状況
+
+				// ポインタを宣言
+				CObject *pObjectNext = pObjCheck->GetNext();	// 次オブジェクト
+
+				if (pObjCheck->GetLabel() != CObject::LABEL_BUILDING)
+				{ // オブジェクトラベルがビルではない場合
+
+					// 次のオブジェクトへのポインタを代入
+					pObjCheck = pObjectNext;
+
+					// 次の繰り返しに移行
+					continue;
+				}
+
+				// ビルの位置を取得
+				posBuild = pObjCheck->GetVec3Position();
+
+				// ビルの大きさを取得
+				sizeBuild = pObjCheck->GetVec3Sizing();
+
+				// ビルとの当たり判定
+				bHit = collision::Box2D
+				( // 引数
+					rPos,		// 判定位置
+					posBuild,	// 判定目標位置
+					VEC3_ZERO,	// 判定サイズ(右・上・後)
+					VEC3_ZERO,	// 判定サイズ(左・下・前)
+					sizeBuild,	// 判定目標サイズ(右・上・後)
+					sizeBuild	// 判定目標サイズ(左・下・前)
+				);
+
+				if (bHit)
+				{ // 当たっていた場合
+
+					// 描画位置を設定
+					rDrawPos = posBuild.y + (sizeBuild.y * 2.0f);
+
+					// 処理を抜ける
+					return true;
+				}
+
+				// 次のオブジェクトへのポインタを代入
+				pObjCheck = pObjectNext;
+			}
+		}
+	}
+
+	// 当たっていない判定を返す
+	return false;
 }
