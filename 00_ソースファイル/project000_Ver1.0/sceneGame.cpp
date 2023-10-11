@@ -149,7 +149,7 @@ HRESULT CSceneGame::Init(void)
 	CSky::Create(CSky::TEXTURE_NORMAL, VEC3_ZERO, VEC3_ZERO, XCOL_WHITE, POSGRID2(32, 6), 18000.0f, D3DCULL_CW, false);
 
 	// ビルオブジェクトの生成
-	CBuilding::Create(CBuilding::TYPE_NORMAL, D3DXVECTOR3(0.0f, 300.0f, 0.0f), VEC3_ZERO, D3DXVECTOR3(150.0f, 300.0f, 150.0f), XCOL_WHITE);
+	CBuilding::Create(CBuilding::TYPE_NORMAL, VEC3_ZERO, VEC3_ZERO, D3DXVECTOR3(150.0f, 300.0f, 150.0f), XCOL_WHITE);
 
 	//--------------------------------------------------------
 	//	初期設定

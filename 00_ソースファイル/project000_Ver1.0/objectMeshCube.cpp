@@ -72,10 +72,11 @@ const int CObjectMeshCube::aIdxMeshCube[] =			// インデックス設定用
 CObjectMeshCube::CObjectMeshCube()
 {
 	// メンバ変数をクリア
-	m_pVtxBuff = NULL;	// 頂点バッファ
-	m_pIdxBuff = NULL;	// インデックスバッファ
-	m_nNumVtx = 0;		// 必要頂点数
-	m_nNumIdx = 0;		// 必要インデックス数
+	m_pVtxBuff	= NULL;	// 頂点バッファ
+	m_pIdxBuff	= NULL;	// インデックスバッファ
+	m_nNumVtx	= 0;	// 必要頂点数
+	m_nNumIdx	= 0;	// 必要インデックス数
+	m_origin	= ORIGIN_CENTER;	// 原点
 	memset(&m_meshCube, 0, sizeof(m_meshCube));	// メッシュキューブの情報
 }
 
@@ -85,10 +86,11 @@ CObjectMeshCube::CObjectMeshCube()
 CObjectMeshCube::CObjectMeshCube(const CObject::ELabel label, const int nPriority) : CObject(label, nPriority)
 {
 	// メンバ変数をクリア
-	m_pVtxBuff = NULL;	// 頂点バッファ
-	m_pIdxBuff = NULL;	// インデックスバッファ
-	m_nNumVtx = 0;		// 必要頂点数
-	m_nNumIdx = 0;		// 必要インデックス数
+	m_pVtxBuff	= NULL;	// 頂点バッファ
+	m_pIdxBuff	= NULL;	// インデックスバッファ
+	m_nNumVtx	= 0;	// 必要頂点数
+	m_nNumIdx	= 0;	// 必要インデックス数
+	m_origin	= ORIGIN_CENTER;	// 原点
 	memset(&m_meshCube, 0, sizeof(m_meshCube));	// メッシュキューブの情報
 }
 
@@ -110,6 +112,7 @@ HRESULT CObjectMeshCube::Init(void)
 	m_pIdxBuff = NULL;	// インデックスバッファ
 	m_nNumVtx = 0;		// 必要頂点数
 	m_nNumIdx = 0;		// 必要インデックス数
+	m_origin = ORIGIN_CENTER;	// 原点
 
 	// 基本情報の初期化
 	m_meshCube.pos  = VEC3_ZERO;			// 位置
@@ -388,6 +391,7 @@ CObjectMeshCube *CObjectMeshCube::Create
 	const float fBordThick,			// 縁取り太さ
 	const ETexState texState,		// テクスチャ状態
 	const SFaceTex& rTexID,			// テクスチャ種類
+	const EOrigin origin,			// 原点
 	const D3DXVECTOR2& rTexPartX,	// テクスチャ分割数 x
 	const D3DXVECTOR2& rTexPartY,	// テクスチャ分割数 y
 	const D3DXVECTOR2& rTexPartZ,	// テクスチャ分割数 z
@@ -423,6 +427,9 @@ CObjectMeshCube *CObjectMeshCube::Create
 
 		// テクスチャを割当
 		pObjectMeshCube->BindTexture(rTexID);
+
+		// 原点を設定
+		pObjectMeshCube->SetOrigin(origin);
 
 		// 位置を設定
 		pObjectMeshCube->SetVec3Position(rPos);
@@ -724,6 +731,24 @@ D3DXVECTOR2 CObjectMeshCube::GetTexturePatternZ(void) const
 }
 
 //============================================================
+//	原点設定処理
+//============================================================
+void CObjectMeshCube::SetOrigin(const EOrigin origin)
+{
+	// 引数の原点を設定
+	m_origin = origin;
+}
+
+//============================================================
+//	原点取得処理
+//============================================================
+CObjectMeshCube::EOrigin CObjectMeshCube::GetOrigin(void) const
+{
+	// 原点を返す
+	return m_origin;
+}
+
+//============================================================
 //	カリング設定処理
 //============================================================
 void CObjectMeshCube::SetCulling(const D3DCULL cull)
@@ -791,21 +816,45 @@ void CObjectMeshCube::SetVtx(void)
 			for (int nCntSet = 0; nCntSet < NEED_VTX_CUBE; nCntSet++)
 			{ // 必要頂点・インデックス数分繰り返す
 
-				if (nCntSet % NUM_VTX_CUBE == 0)
+				// 変数を宣言
+				int nVtxID = nCntSet % NUM_VTX_CUBE;	// 現在の箱の頂点番号
+				int nBoxID = nCntSet / NUM_VTX_CUBE;	// 現在の箱番号
+
+				if (nVtxID == 0)
 				{ // 頂点の設定が一巡した場合
 
 					// テクスチャ分割数を変更
 					texPart = D3DXVECTOR2
 					( // 引数
-						m_meshCube.aTexPart[nCntSet / NUM_VTX_CUBE].x,	// x
-						m_meshCube.aTexPart[nCntSet / NUM_VTX_CUBE].y	// y
+						m_meshCube.aTexPart[nBoxID].x,	// x
+						m_meshCube.aTexPart[nBoxID].y	// y
 					);
 				}
 
-				// 頂点座標の設定
-				pVtx[0].pos.x = (m_meshCube.size.x * aPosMeshCube[nCntSet % NUM_VTX_CUBE].x) - (fSetBord * fUseBord * -aPosMeshCube[nCntSet % NUM_VTX_CUBE].x);
-				pVtx[0].pos.y = (m_meshCube.size.y * aPosMeshCube[nCntSet % NUM_VTX_CUBE].y) - (fSetBord * fUseBord * -aPosMeshCube[nCntSet % NUM_VTX_CUBE].y);
-				pVtx[0].pos.z = (m_meshCube.size.z * aPosMeshCube[nCntSet % NUM_VTX_CUBE].z) - (fSetBord * fUseBord * -aPosMeshCube[nCntSet % NUM_VTX_CUBE].z);
+				switch (m_origin)
+				{ // 原点ごとの処理
+				case ORIGIN_CENTER:	// 中央
+			
+					// 頂点座標の設定
+					pVtx[0].pos.x = (m_meshCube.size.x * aPosMeshCube[nVtxID].x) - (fSetBord * fUseBord * -aPosMeshCube[nVtxID].x);
+					pVtx[0].pos.y = (m_meshCube.size.y * aPosMeshCube[nVtxID].y) - (fSetBord * fUseBord * -aPosMeshCube[nVtxID].y);
+					pVtx[0].pos.z = (m_meshCube.size.z * aPosMeshCube[nVtxID].z) - (fSetBord * fUseBord * -aPosMeshCube[nVtxID].z);
+			
+					break;
+			
+				case ORIGIN_DOWN:	// 下
+			
+					// 頂点座標の設定
+					pVtx[0].pos.x = (m_meshCube.size.x * aPosMeshCube[nVtxID].x) - (fSetBord * fUseBord * -aPosMeshCube[nVtxID].x);
+					pVtx[0].pos.y = (m_meshCube.size.y * aPosMeshCube[nVtxID].y * 2.0f) * -((nVtxID % 2) - 1) - (fSetBord * fUseBord * -aPosMeshCube[nVtxID].y);
+					pVtx[0].pos.z = (m_meshCube.size.z * aPosMeshCube[nVtxID].z) - (fSetBord * fUseBord * -aPosMeshCube[nVtxID].z);
+			
+					break;
+			
+				default:	// 例外処理
+					assert(false);
+					break;
+				}
 
 				// 法線ベクトルの設定
 				pVtx[0].nor = aNorMeshCube[nCntSet];

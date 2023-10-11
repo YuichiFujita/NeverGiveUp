@@ -65,6 +65,9 @@ HRESULT CBuilding::Init(void)
 		return E_FAIL;
 	}
 
+	// Œ´“_‚ğİ’è
+	SetOrigin(CObjectMeshCube::ORIGIN_DOWN);
+
 	// ‰æ‚èF‚ğİ’è
 	SetBorderColor(XCOL_WHITE);
 

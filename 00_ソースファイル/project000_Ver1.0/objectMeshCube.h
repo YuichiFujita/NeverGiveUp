@@ -30,12 +30,20 @@ public:
 	// デストラクタ
 	~CObjectMeshCube();
 
+	// 原点列挙
+	enum EOrigin
+	{
+		ORIGIN_CENTER = 0,	// 中心原点
+		ORIGIN_DOWN,		// 下原点
+		ORIGIN_MAX,			// この列挙型の総数
+	};
+
 	// 縁取り列挙
 	enum EBorder
 	{
-		BORDER_OFF = 0,	// 縁取りなし
-		BORDER_ON,		// 縁取りあり
-		BORDER_MAX,		// この列挙型の総数
+		BORDER_OFF = 0,		// 縁取りなし
+		BORDER_ON,			// 縁取りあり
+		BORDER_MAX,			// この列挙型の総数
 	};
 
 	// テクスチャ使用列挙
@@ -57,10 +65,10 @@ public:
 	// キューブ分割数列挙
 	enum ECubePart
 	{
-		CUBEPART_X = 0,	// テクスチャ分割数 x
-		CUBEPART_Y,		// テクスチャ分割数 y
-		CUBEPART_Z,		// テクスチャ分割数 z
-		CUBEPART_MAX	// この列挙型の総数
+		CUBEPART_X = 0,		// テクスチャ分割数 x
+		CUBEPART_Y,			// テクスチャ分割数 y
+		CUBEPART_Z,			// テクスチャ分割数 z
+		CUBEPART_MAX		// この列挙型の総数
 	};
 
 	// テクスチャ構造体
@@ -133,6 +141,7 @@ public:
 		const float fBordThick,			// 縁取り太さ
 		const ETexState texState,		// テクスチャ状態
 		const SFaceTex& rTexID,			// テクスチャ種類
+		const EOrigin origin = ORIGIN_CENTER,		// 原点
 		const D3DXVECTOR2& rTexPartX = VEC2_ONE,	// テクスチャ分割数 x
 		const D3DXVECTOR2& rTexPartY = VEC2_ONE,	// テクスチャ分割数 y
 		const D3DXVECTOR2& rTexPartZ = VEC2_ONE,	// テクスチャ分割数 z
@@ -160,6 +169,8 @@ public:
 	void SetTexturePatternZ(const D3DXVECTOR2& rTexPart);	// テクスチャ分割数 z設定
 	D3DXVECTOR2 GetTexturePatternZ(void) const;				// テクスチャ分割数 z取得
 
+	void SetOrigin(const EOrigin origin);	// 原点設定
+	EOrigin GetOrigin(void) const;			// 原点取得
 	void SetCulling(const D3DCULL cull);	// カリング設定
 	D3DCULL GetCulling(void) const;			// カリング取得
 	void SetLighting(const bool bLight);	// ライティング設定
@@ -183,6 +194,7 @@ private:
 	LPDIRECT3DINDEXBUFFER9  m_pIdxBuff;	// インデックスバッファへのポインタ
 
 	SMeshCube m_meshCube;	// メッシュキューブの情報
+	EOrigin m_origin;		// 原点
 	int m_nNumVtx;			// 必要頂点数
 	int m_nNumIdx;			// 必要インデックス数
 };
