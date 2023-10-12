@@ -23,6 +23,7 @@
 #include "stage.h"
 #include "field.h"
 #include "building.h"
+#include "obstacle.h"
 
 #include "effect3D.h"
 #include "particle3D.h"
@@ -423,6 +424,8 @@ CPlayer::EMotion CPlayer::UpdateNormal(void)
 	{ // 当たった場合
 
 		// TODO：死亡状態にする
+
+		CParticle3D::Create(CParticle3D::TYPE_HEAL, posPlayer);
 	}
 
 	// 位置を反映
@@ -957,29 +960,56 @@ bool CPlayer::CollisionObstacle(D3DXVECTOR3& rPos)
 				sizeMaxBuild = pObjCheck->GetVec3Sizing();
 				sizeMaxBuild.y *= 2.0f;	// 縦の大きさを倍にする
 
-#if 0	// TODO：あたり判定
+#if 1	// TODO：あたり判定
 
-				if (!m_bJump)
-				{ // ジャンプ中ではない場合
+				switch (pObjCheck->GetType())
+				{ // 回避法ごとの処理
+				case CObstacle::DODGE_JUMP:		// ジャンプ回避
 
-					// 三軸の矩形の衝突判定
-					bool bHit = collision::Box3D
-					( // 引数
-						rPos,			// 判定位置
-						posBuild,		// 判定目標位置
-						sizeMaxPlayer,	// 判定サイズ(右・上・後)
-						sizeMinPlayer,	// 判定サイズ(左・下・前)
-						sizeMaxBuild,	// 判定目標サイズ(右・上・後)
-						sizeMinBuild	// 判定目標サイズ(左・下・前)
-					);
+					if (!m_bJump)
+					{ // ジャンプ中ではない場合
 
-					if (bHit)
-					{
-						CParticle3D::Create(CParticle3D::TYPE_HEAL, rPos);
+						// 三軸の矩形の衝突判定
+						bHit = collision::Box3D
+						( // 引数
+							rPos,			// 判定位置
+							posBuild,		// 判定目標位置
+							sizeMaxPlayer,	// 判定サイズ(右・上・後)
+							sizeMinPlayer,	// 判定サイズ(左・下・前)
+							sizeMaxBuild,	// 判定目標サイズ(右・上・後)
+							sizeMinBuild	// 判定目標サイズ(左・下・前)
+						);
 					}
+
+					break;
+
+				case CObstacle::DODGE_SLIDE:	// スライディング回避
+
+					//if (!m_bSlide)	// TODO：スライディング状況の作成
+					{ // スライディング中ではない場合
+
+						// 三軸の矩形の衝突判定
+						bHit = collision::Box3D
+						( // 引数
+							rPos,			// 判定位置
+							posBuild,		// 判定目標位置
+							sizeMaxPlayer,	// 判定サイズ(右・上・後)
+							sizeMinPlayer,	// 判定サイズ(左・下・前)
+							sizeMaxBuild,	// 判定目標サイズ(右・上・後)
+							sizeMinBuild	// 判定目標サイズ(左・下・前)
+						);
+					}
+
+					break;
+
+				default:	// 例外処理
+					assert(false);
+					break;
 				}
 
 #endif
+
+				// TODO：スライディング状況の作成、Hit時のプレイヤー処理
 
 				// 次のオブジェクトへのポインタを代入
 				pObjCheck = pObjectNext;
