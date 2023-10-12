@@ -122,7 +122,6 @@ private:
 	EMotion UpdateMove(void);				// 移動量・目標向きの更新
 	void UpdateJump(void);					// ジャンプの更新
 	bool UpdateLanding(D3DXVECTOR3& rPos);	// 着地状況の更新
-	void UpdatePosition(D3DXVECTOR3& rPos);	// 位置の更新
 	void UpdateRotation(D3DXVECTOR3& rRot);	// 向きの更新
 	void UpdateMotion(int nMotion);			// モーション・オブジェクトキャラクターの更新
 

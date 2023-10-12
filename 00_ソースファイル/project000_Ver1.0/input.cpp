@@ -57,7 +57,7 @@ CInput::~CInput()
 //============================================================
 //	初期化処理
 //============================================================
-HRESULT CInput::Init(HINSTANCE hInstance, HWND hWnd)
+HRESULT CInput::Init(HINSTANCE hInstance, HWND /*hWnd*/)
 {
 	// メンバ変数を初期化
 	m_pDevice = NULL;	// DirectInputデバイス

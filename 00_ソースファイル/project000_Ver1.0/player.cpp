@@ -212,7 +212,7 @@ void CPlayer::Draw(void)
 //============================================================
 //	ヒット処理
 //============================================================
-void CPlayer::Hit(const int nDmg)
+void CPlayer::Hit(const int /*nDmg*/)
 {
 
 #if 0	// TODO：Hit処理
@@ -411,14 +411,11 @@ CPlayer::EMotion CPlayer::UpdateNormal(void)
 	// 向き更新
 	UpdateRotation(rotPlayer);
 
-	// 位置更新
-	UpdatePosition(posPlayer);
+	// 着地判定
+	UpdateLanding(posPlayer);
 
 	// ステージ範囲外の補正
 	pStage->LimitPosition(posPlayer, basic::RADIUS);
-
-	// 着地判定
-	UpdateLanding(posPlayer);
 
 	// 位置を反映
 	SetVec3Position(posPlayer);
@@ -564,7 +561,7 @@ void CPlayer::UpdateJump(void)
 	if (m_bJump == false)
 	{ // ジャンプしていない場合
 
-		if (pKeyboard->IsTrigger(DIK_SPACE))
+		if (pKeyboard->IsTrigger(DIK_SPACE) || pPad->IsTrigger(CInputPad::KEY_B))
 		{ // ジャンプの操作が行われた場合
 
 			// 上移動量
@@ -613,34 +610,6 @@ bool CPlayer::UpdateLanding(D3DXVECTOR3& rPos)
 
 	// 着地状況を返す
 	return bLand;
-}
-
-//============================================================
-//	位置の更新処理
-//============================================================
-void CPlayer::UpdatePosition(D3DXVECTOR3& rPos)
-{
-#if 0
-	// 重力を加算
-	m_move.y -= basic::GRAVITY;
-
-	// 移動量を加算
-	rPos += m_move;
-
-	// 移動量を減衰
-	if (m_bJump)
-	{ // 空中の場合
-
-		m_move.x += (0.0f - m_move.x) * basic::JUMP_REV;
-		m_move.z += (0.0f - m_move.z) * basic::JUMP_REV;
-	}
-	else
-	{ // 地上の場合
-
-		m_move.x += (0.0f - m_move.x) * basic::LAND_REV;
-		m_move.z += (0.0f - m_move.z) * basic::LAND_REV;
-	}
-#endif
 }
 
 //============================================================

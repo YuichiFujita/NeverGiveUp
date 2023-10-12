@@ -135,7 +135,7 @@ CObject::~CObject()
 //============================================================
 //	ヒット処理
 //============================================================
-void CObject::Hit(const int nDmg)
+void CObject::Hit(const int /*nDmg*/)
 {
 	// 例外処理
 	assert(false);
@@ -144,7 +144,7 @@ void CObject::Hit(const int nDmg)
 //============================================================
 //	ノックバックヒット処理
 //============================================================
-void CObject::HitKnockBack(const int nDmg, const D3DXVECTOR3& vec)
+void CObject::HitKnockBack(const int /*nDmg*/, const D3DXVECTOR3& /*vec*/)
 {
 	// 例外処理
 	assert(false);
@@ -153,7 +153,7 @@ void CObject::HitKnockBack(const int nDmg, const D3DXVECTOR3& vec)
 //============================================================
 //	テクスチャ割当処理 (インデックス)
 //============================================================
-void CObject::BindTexture(const int nTextureID)
+void CObject::BindTexture(const int /*nTextureID*/)
 {
 	// 例外処理
 	assert(false);
@@ -171,7 +171,7 @@ void CObject::BindTexture(const char *pTexturePass)
 //============================================================
 //	モデル割当処理 (インデックス)
 //============================================================
-void CObject::BindModel(const int nModelID)
+void CObject::BindModel(const int /*nModelID*/)
 {
 	// 例外処理
 	assert(false);
@@ -189,7 +189,7 @@ void CObject::BindModel(const char *pModelPass)
 //============================================================
 //	状態の設定処理
 //============================================================
-void CObject::SetState(const int nState)
+void CObject::SetState(const int /*nState*/)
 {
 	// 例外処理
 	assert(false);
@@ -210,7 +210,7 @@ int CObject::GetState(void) const
 //============================================================
 //	種類の設定処理
 //============================================================
-void CObject::SetType(const int nType)
+void CObject::SetType(const int /*nType*/)
 {
 	// 例外処理
 	assert(false);
@@ -231,7 +231,7 @@ int CObject::GetType(void) const
 //============================================================
 //	半径の設定処理
 //============================================================
-void CObject::SetRadius(const float fRadius)
+void CObject::SetRadius(const float /*fRadius*/)
 {
 	// 例外処理
 	assert(false);
@@ -252,7 +252,7 @@ float CObject::GetRadius(void) const
 //============================================================
 //	縦幅の設定処理
 //============================================================
-void CObject::SetHeight(const float fHeight)
+void CObject::SetHeight(const float /*fHeight*/)
 {
 	// 例外処理
 	assert(false);
@@ -273,7 +273,7 @@ float CObject::GetHeight(void) const
 //============================================================
 //	二軸の位置の設定処理
 //============================================================
-void CObject::SetVec2Position(const D3DXVECTOR2& rPos)
+void CObject::SetVec2Position(const D3DXVECTOR2& /*rPos*/)
 {
 	// 例外処理
 	assert(false);
@@ -294,7 +294,7 @@ D3DXVECTOR2 CObject::GetVec2Position(void) const
 //============================================================
 //	三軸の位置の設定処理
 //============================================================
-void CObject::SetVec3Position(const D3DXVECTOR3& rPos)
+void CObject::SetVec3Position(const D3DXVECTOR3& /*rPos*/)
 {
 	// 例外処理
 	assert(false);
@@ -315,7 +315,7 @@ D3DXVECTOR3 CObject::GetVec3Position(void) const
 //============================================================
 //	向きの設定処理
 //============================================================
-void CObject::SetVec3Rotation(const D3DXVECTOR3& rRot)
+void CObject::SetVec3Rotation(const D3DXVECTOR3& /*rRot*/)
 {
 	// 例外処理
 	assert(false);
@@ -336,7 +336,7 @@ D3DXVECTOR3 CObject::GetVec3Rotation(void) const
 //============================================================
 //	二軸の大きさの設定処理
 //============================================================
-void CObject::SetVec2Sizing(const D3DXVECTOR2& rSize)
+void CObject::SetVec2Sizing(const D3DXVECTOR2& /*rSize*/)
 {
 	// 例外処理
 	assert(false);
@@ -357,7 +357,7 @@ D3DXVECTOR2 CObject::GetVec2Sizing(void) const
 //============================================================
 //	三軸の大きさの設定処理
 //============================================================
-void CObject::SetVec3Sizing(const D3DXVECTOR3& rSize)
+void CObject::SetVec3Sizing(const D3DXVECTOR3& /*rSize*/)
 {
 	// 例外処理
 	assert(false);
@@ -378,7 +378,7 @@ D3DXVECTOR3 CObject::GetVec3Sizing(void) const
 //============================================================
 //	拡大率の設定処理
 //============================================================
-void CObject::SetVec3Scaling(const D3DXVECTOR3& rScale)
+void CObject::SetVec3Scaling(const D3DXVECTOR3& /*rScale*/)
 {
 	// 例外処理
 	assert(false);
@@ -399,7 +399,7 @@ D3DXVECTOR3 CObject::GetVec3Scaling(void) const
 //============================================================
 //	色の設定処理
 //============================================================
-void CObject::SetColor(const D3DXCOLOR& rCol)
+void CObject::SetColor(const D3DXCOLOR& /*rCol*/)
 {
 	// 例外処理
 	assert(false);
