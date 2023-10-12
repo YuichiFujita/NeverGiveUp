@@ -22,31 +22,31 @@
 //************************************************************
 const char *CBuilding::mc_apTextureFile[][6] =	// テクスチャ定数
 {
-	{ // 通常テクスチャ
+	{ // ビル00テクスチャ
 		"data\\TEXTURE\\buildingSide000.png",	// 左テクスチャ
 		"data\\TEXTURE\\buildingSide000.png",	// 右テクスチャ
 		"data\\TEXTURE\\buildingRoof000.png",	// 下テクスチャ
 		"data\\TEXTURE\\buildingRoof000.png",	// 上テクスチャ
 		"data\\TEXTURE\\buildingSide000.png",	// 前テクスチャ
-		"data\\TEXTURE\\buildingSide000.png"	// 後テクスチャ
+		"data\\TEXTURE\\buildingSide000.png",	// 後テクスチャ
 	},
 
-	{ // 通常テクスチャ
+	{ // ビル01テクスチャ
 		"data\\TEXTURE\\buildingSide001.png",	// 左テクスチャ
 		"data\\TEXTURE\\buildingSide001.png",	// 右テクスチャ
 		"data\\TEXTURE\\buildingRoof001.png",	// 下テクスチャ
 		"data\\TEXTURE\\buildingRoof001.png",	// 上テクスチャ
 		"data\\TEXTURE\\buildingSide001.png",	// 前テクスチャ
-		"data\\TEXTURE\\buildingSide001.png"	// 後テクスチャ
+		"data\\TEXTURE\\buildingSide001.png",	// 後テクスチャ
 	},
 
-	{ // 通常テクスチャ
+	{ // ビル02テクスチャ
 		"data\\TEXTURE\\buildingSide002.png",	// 左テクスチャ
 		"data\\TEXTURE\\buildingSide002.png",	// 右テクスチャ
 		"data\\TEXTURE\\buildingRoof002.png",	// 下テクスチャ
 		"data\\TEXTURE\\buildingRoof002.png",	// 上テクスチャ
 		"data\\TEXTURE\\buildingSide002.png",	// 前テクスチャ
-		"data\\TEXTURE\\buildingSide002.png"	// 後テクスチャ
+		"data\\TEXTURE\\buildingSide002.png",	// 後テクスチャ
 	},
 };
 

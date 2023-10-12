@@ -26,10 +26,10 @@ public:
 	// 種類列挙
 	enum EType
 	{
-		TYPE_NORMAL = 0,	// 通常テクスチャ
-		TYPE_NORMA,	// 通常テクスチャ
-		TYPE_NORM,	// 通常テクスチャ
-		TYPE_MAX			// この列挙型の総数
+		TYPE_00 = 0,	// ビル00テクスチャ
+		TYPE_01,		// ビル01テクスチャ
+		TYPE_02,		// ビル02テクスチャ
+		TYPE_MAX		// この列挙型の総数
 	};
 
 	// コンストラクタ

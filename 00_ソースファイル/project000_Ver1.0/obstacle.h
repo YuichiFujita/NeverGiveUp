@@ -53,11 +53,12 @@ public:
 	};
 
 	// オーバーライド関数
-	HRESULT Init(void) override;			// 初期化
-	void Uninit(void) override;				// 終了
-	void Update(void) override;				// 更新
-	void Draw(void) override;				// 描画
-	void SetType(const int nType) override;	// 種類設定
+	HRESULT Init(void) override;	// 初期化
+	void Uninit(void) override;		// 終了
+	void Update(void) override;		// 更新
+	void Draw(void) override;		// 描画
+	int GetType(void) const override;				// 種類取得
+	D3DXVECTOR3 GetVec3Sizing(void) const override;	// 大きさ取得
 
 	// 静的メンバ関数
 	static CObstacle *Create	// 生成
@@ -67,8 +68,12 @@ public:
 		const D3DXVECTOR3& rRot		// 向き
 	);
 
+	// メンバ関数
+	void SetType(const EType type);	// 種類設定
+
 private:
 	// メンバ変数
+	EType m_type;	// 種類
 	EDodge m_dodge;	// 回避法
 
 	// 静的メンバ変数

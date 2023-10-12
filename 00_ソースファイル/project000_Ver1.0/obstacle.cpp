@@ -17,6 +17,8 @@
 //************************************************************
 #define OBSTACLE_PRIO	(1)	// 障害物の優先順位
 
+#define SIZE_OBSTACLE	(D3DXVECTOR3(60.0f, 35.0f, 160.0f))	// 障害物の大きさ
+
 //************************************************************
 //	静的メンバ変数宣言
 //************************************************************
@@ -37,6 +39,7 @@ CObstacle::SModelInfo CObstacle::m_aStatusInfo[] =	// モデル情報
 CObstacle::CObstacle() : CObjectModel(CObject::LABEL_OBSTACLE, OBSTACLE_PRIO)
 {
 	// メンバ変数をクリア
+	m_type = TYPE_NORMAL;	// 種類
 	m_dodge = DODGE_NONE;	// 回避法
 }
 
@@ -54,6 +57,7 @@ CObstacle::~CObstacle()
 HRESULT CObstacle::Init(void)
 {
 	// メンバ変数を初期化
+	m_type = TYPE_NORMAL;	// 種類
 	m_dodge = DODGE_NONE;	// 回避法
 
 	// オブジェクトモデルの初期化
@@ -97,21 +101,21 @@ void CObstacle::Draw(void)
 }
 
 //============================================================
-//	種類の設定処理
+//	種類取得処理
 //============================================================
-void CObstacle::SetType(const int nType)
+int CObstacle::GetType(void) const
 {
-	// 引数の種類の情報を設定
-	if (nType < TYPE_MAX)
-	{ // 種類がある場合
+	// 現在の種類の回避法を返す
+	return m_aStatusInfo[m_type].dodge;
+}
 
-		// モデルを登録・割当
-		BindModel(m_aStatusInfo[nType].pTextureFile);
-
-		// 回避法を設定
-		m_dodge = m_aStatusInfo[nType].dodge;
-	}
-	else { assert(false); }	// 種類オーバー
+//============================================================
+//	大きさ取得処理
+//============================================================
+D3DXVECTOR3 CObstacle::GetVec3Sizing(void) const
+{
+	// 障害物の大きさを返す
+	return SIZE_OBSTACLE;
 }
 
 //============================================================
@@ -163,4 +167,25 @@ CObstacle *CObstacle::Create
 		return pObstacle;
 	}
 	else { assert(false); return NULL; }	// 確保失敗
+}
+
+//============================================================
+//	種類の設定処理
+//============================================================
+void CObstacle::SetType(const EType type)
+{
+	// 引数の種類の情報を設定
+	if (type < TYPE_MAX)
+	{ // 種類がある場合
+
+		// 種類を設定
+		m_type = type;
+
+		// モデルを登録・割当
+		BindModel(m_aStatusInfo[type].pTextureFile);
+
+		// 回避法を設定
+		m_dodge = m_aStatusInfo[type].dodge;
+	}
+	else { assert(false); }	// 種類オーバー
 }
