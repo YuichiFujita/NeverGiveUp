@@ -40,16 +40,23 @@ public:
 	};
 
 	// コンストラクタ
-	CObstacle();
+	CObstacle(const EType type);
 
 	// デストラクタ
 	~CObstacle();
+
+	// ステータス構造体
+	struct SStatusInfo
+	{
+		D3DXVECTOR3 size;	// 大きさ
+		EDodge dodge;		// 回避法
+	};
 
 	// モデル情報構造体
 	struct SModelInfo
 	{
 		const char *pTextureFile;	// モデルファイル名
-		EDodge dodge;	// 回避法
+		SStatusInfo status;			// ステータス情報
 	};
 
 	// オーバーライド関数
@@ -73,8 +80,8 @@ public:
 
 private:
 	// メンバ変数
-	EType m_type;	// 種類
-	EDodge m_dodge;	// 回避法
+	const SStatusInfo m_status;	// ステータス定数
+	const EType m_type;			// 種類定数
 
 	// 静的メンバ変数
 	static SModelInfo m_aStatusInfo[];	// モデル情報
