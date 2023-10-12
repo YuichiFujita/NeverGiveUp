@@ -347,63 +347,6 @@ bool collision::ResponseBox3D
 	// 変数を宣言
 	bool bHit = false;	// 衝突判定結果
 
-	// 前後の当たり判定
-	if (rCenterPos.x + centerSizeUp.x   > targetPos.x - targetSizeDown.x
-	&&  rCenterPos.x - centerSizeDown.x < targetPos.x + targetSizeUp.x
-	&&  rCenterPos.y + centerSizeUp.y   > targetPos.y - targetSizeDown.y
-	&&  rCenterPos.y - centerSizeDown.y < targetPos.y + targetSizeUp.y)
-	{ // 左右と上下の範囲内の場合
-
-		if (rCenterPos.z    + centerSizeUp.z >  targetPos.z - targetSizeDown.z
-		&&  rCenterPosOld.z + centerSizeUp.z <= targetPos.z - targetSizeDown.z)
-		{ // 前からの当たり判定
-
-			// 位置を補正
-			rCenterPos.z = targetPos.z - targetSizeDown.z - centerSizeUp.z;
-
-			// 衝突状態にする
-			bHit = true;
-
-			if (pMove != NULL)
-			{ // ポインタが使用されている場合
-
-				// 移動量を初期化
-				pMove->z = 0.0f;
-			}
-
-			if (pSide != NULL)
-			{ // ポインタが使用されている場合
-
-				// 横に当たっている状態を設定
-				*pSide = true;
-			}
-		}
-		else if (rCenterPos.z    - centerSizeDown.z <  targetPos.z + targetSizeUp.z
-		     &&  rCenterPosOld.z - centerSizeDown.z >= targetPos.z + targetSizeUp.z)
-		{ // 後からの当たり判定
-
-			// 位置を補正
-			rCenterPos.z = targetPos.z + targetSizeUp.z + centerSizeDown.z;
-
-			// 衝突状態にする
-			bHit = true;
-
-			if (pMove != NULL)
-			{ // ポインタが使用されている場合
-
-				// 移動量を初期化
-				pMove->z = 0.0f;
-			}
-
-			if (pSide != NULL)
-			{ // ポインタが使用されている場合
-
-				// 横に当たっている状態を設定
-				*pSide = true;
-			}
-		}
-	}
-
 	// 左右の当たり判定
 	if (rCenterPos.y + centerSizeUp.y   > targetPos.y - targetSizeDown.y
 	&&  rCenterPos.y - centerSizeDown.y < targetPos.y + targetSizeUp.y
@@ -514,6 +457,306 @@ bool collision::ResponseBox3D
 
 				// 上に当たっている状態を設定
 				*pUp = true;
+			}
+		}
+	}
+
+	// 前後の当たり判定
+	if (rCenterPos.x + centerSizeUp.x   > targetPos.x - targetSizeDown.x
+	&&  rCenterPos.x - centerSizeDown.x < targetPos.x + targetSizeUp.x
+	&&  rCenterPos.y + centerSizeUp.y   > targetPos.y - targetSizeDown.y
+	&&  rCenterPos.y - centerSizeDown.y < targetPos.y + targetSizeUp.y)
+	{ // 左右と上下の範囲内の場合
+
+		if (rCenterPos.z    + centerSizeUp.z >  targetPos.z - targetSizeDown.z
+		&&  rCenterPosOld.z + centerSizeUp.z <= targetPos.z - targetSizeDown.z)
+		{ // 前からの当たり判定
+
+			// 位置を補正
+			rCenterPos.z = targetPos.z - targetSizeDown.z - centerSizeUp.z;
+
+			// 衝突状態にする
+			bHit = true;
+
+			if (pMove != NULL)
+			{ // ポインタが使用されている場合
+
+				// 移動量を初期化
+				pMove->z = 0.0f;
+			}
+
+			if (pSide != NULL)
+			{ // ポインタが使用されている場合
+
+				// 横に当たっている状態を設定
+				*pSide = true;
+			}
+		}
+		else if (rCenterPos.z    - centerSizeDown.z <  targetPos.z + targetSizeUp.z
+		     &&  rCenterPosOld.z - centerSizeDown.z >= targetPos.z + targetSizeUp.z)
+		{ // 後からの当たり判定
+
+			// 位置を補正
+			rCenterPos.z = targetPos.z + targetSizeUp.z + centerSizeDown.z;
+
+			// 衝突状態にする
+			bHit = true;
+
+			if (pMove != NULL)
+			{ // ポインタが使用されている場合
+
+				// 移動量を初期化
+				pMove->z = 0.0f;
+			}
+
+			if (pSide != NULL)
+			{ // ポインタが使用されている場合
+
+				// 横に当たっている状態を設定
+				*pSide = true;
+			}
+		}
+	}
+
+	// 衝突判定を返す
+	return bHit;
+}
+
+//============================================================
+//	X軸の衝突判定
+//============================================================
+bool collision::ResponseSingleX
+(
+	D3DXVECTOR3& rCenterPos,	// 判定位置
+	D3DXVECTOR3& rCenterPosOld,	// 判定過去位置
+	D3DXVECTOR3 targetPos,		// 判定目標位置
+	D3DXVECTOR3 centerSizeUp,	// 判定サイズ(右・上・後)
+	D3DXVECTOR3 centerSizeDown,	// 判定サイズ(左・下・前)
+	D3DXVECTOR3 targetSizeUp,	// 判定目標サイズ(右・上・後)
+	D3DXVECTOR3 targetSizeDown,	// 判定目標サイズ(左・下・前)
+	D3DXVECTOR3 *pMove,	// 移動量
+	bool *pLeft,		// 左からの判定
+	bool *pRight		// 右からの判定
+)
+{
+	// 変数を宣言
+	bool bHit = false;	// 衝突判定結果
+
+	// 左右の当たり判定
+	if (rCenterPos.y + centerSizeUp.y   > targetPos.y - targetSizeDown.y
+	&&  rCenterPos.y - centerSizeDown.y < targetPos.y + targetSizeUp.y
+	&&  rCenterPos.z + centerSizeUp.z   > targetPos.z - targetSizeDown.z
+	&&  rCenterPos.z - centerSizeDown.z < targetPos.z + targetSizeUp.z)
+	{ // 上下と前後の範囲内の場合
+
+		if (rCenterPos.x    + centerSizeUp.x >  targetPos.x - targetSizeDown.x
+		&&  rCenterPosOld.x + centerSizeUp.x <= targetPos.x - targetSizeDown.x)
+		{ // 左からの当たり判定
+
+			// 位置を補正
+			rCenterPos.x = targetPos.x - targetSizeDown.x - centerSizeUp.x;
+
+			// 衝突状態にする
+			bHit = true;
+
+			if (pMove != NULL)
+			{ // ポインタが使用されている場合
+
+				// 移動量を初期化
+				pMove->x = 0.0f;
+			}
+
+			if (pLeft != NULL)
+			{ // ポインタが使用されている場合
+
+				// 左に当たっている状態を設定
+				*pLeft = true;
+			}
+		}
+		else if (rCenterPos.x    - centerSizeDown.x <  targetPos.x + targetSizeUp.x
+		     &&  rCenterPosOld.x - centerSizeDown.x >= targetPos.x + targetSizeUp.x)
+		{ // 右からの当たり判定
+			
+			// 位置を補正
+			rCenterPos.x = targetPos.x + targetSizeUp.x + centerSizeDown.x;
+
+			// 衝突状態にする
+			bHit = true;
+
+			if (pMove != NULL)
+			{ // ポインタが使用されている場合
+
+				// 移動量を初期化
+				pMove->x = 0.0f;
+			}
+
+			if (pRight != NULL)
+			{ // ポインタが使用されている場合
+
+				// 右に当たっている状態を設定
+				*pRight = true;
+			}
+		}
+	}
+
+	// 衝突判定を返す
+	return bHit;
+}
+
+//============================================================
+//	Y軸の衝突判定
+//============================================================
+bool collision::ResponseSingleY
+(
+	D3DXVECTOR3& rCenterPos,	// 判定位置
+	D3DXVECTOR3& rCenterPosOld,	// 判定過去位置
+	D3DXVECTOR3 targetPos,		// 判定目標位置
+	D3DXVECTOR3 centerSizeUp,	// 判定サイズ(右・上・後)
+	D3DXVECTOR3 centerSizeDown,	// 判定サイズ(左・下・前)
+	D3DXVECTOR3 targetSizeUp,	// 判定目標サイズ(右・上・後)
+	D3DXVECTOR3 targetSizeDown,	// 判定目標サイズ(左・下・前)
+	D3DXVECTOR3 *pMove,	// 移動量
+	bool *pDown,		// 下からの判定
+	bool *pUp			// 上からの判定
+)
+{
+	// 変数を宣言
+	bool bHit = false;	// 衝突判定結果
+
+	// 上下の当たり判定
+	if (rCenterPos.x + centerSizeUp.x   > targetPos.x - targetSizeDown.x
+	&&  rCenterPos.x - centerSizeDown.x < targetPos.x + targetSizeUp.x
+	&&  rCenterPos.z + centerSizeUp.z   > targetPos.z - targetSizeDown.z
+	&&  rCenterPos.z - centerSizeDown.z < targetPos.z + targetSizeUp.z)
+	{ // 左右と前後の範囲内の場合
+
+		if (rCenterPos.y    + centerSizeUp.y >  targetPos.y - targetSizeDown.y
+		&&  rCenterPosOld.y + centerSizeUp.y <= targetPos.y - targetSizeDown.y)
+		{ // 下からの当たり判定
+
+			// 位置を補正
+			rCenterPos.y = targetPos.y - targetSizeDown.y - centerSizeUp.y;
+
+			// 衝突状態にする
+			bHit = true;
+
+			if (pMove != NULL)
+			{ // ポインタが使用されている場合
+
+				// 移動量を初期化
+				pMove->y = 0.0f;
+			}
+
+			if (pDown != NULL)
+			{ // ポインタが使用されている場合
+
+				// 下に当たっている状態を設定
+				*pDown = true;
+			}
+		}
+		else if (rCenterPos.y    - centerSizeDown.y <  targetPos.y + targetSizeUp.y
+		     &&  rCenterPosOld.y - centerSizeDown.y >= targetPos.y + targetSizeUp.y)
+		{ // 上からの当たり判定
+			
+			// 位置を補正
+			rCenterPos.y = targetPos.y + targetSizeUp.y + centerSizeDown.y;
+
+			// 衝突状態にする
+			bHit = true;
+
+			if (pMove != NULL)
+			{ // ポインタが使用されている場合
+
+				// 移動量を初期化
+				pMove->y = 0.0f;
+			}
+
+			if (pUp != NULL)
+			{ // ポインタが使用されている場合
+
+				// 上に当たっている状態を設定
+				*pUp = true;
+			}
+		}
+	}
+
+	// 衝突判定を返す
+	return bHit;
+}
+
+//============================================================
+//	Z軸の衝突判定
+//============================================================
+bool collision::ResponseSingleZ
+(
+	D3DXVECTOR3& rCenterPos,	// 判定位置
+	D3DXVECTOR3& rCenterPosOld,	// 判定過去位置
+	D3DXVECTOR3 targetPos,		// 判定目標位置
+	D3DXVECTOR3 centerSizeUp,	// 判定サイズ(右・上・後)
+	D3DXVECTOR3 centerSizeDown,	// 判定サイズ(左・下・前)
+	D3DXVECTOR3 targetSizeUp,	// 判定目標サイズ(右・上・後)
+	D3DXVECTOR3 targetSizeDown,	// 判定目標サイズ(左・下・前)
+	D3DXVECTOR3 *pMove,	// 移動量
+	bool *pBefore,		// 前からの判定
+	bool *pAfter		// 後からの判定
+)
+{
+	// 変数を宣言
+	bool bHit = false;	// 衝突判定結果
+
+	// 前後の当たり判定
+	if (rCenterPos.x + centerSizeUp.x   > targetPos.x - targetSizeDown.x
+	&&  rCenterPos.x - centerSizeDown.x < targetPos.x + targetSizeUp.x
+	&&  rCenterPos.y + centerSizeUp.y   > targetPos.y - targetSizeDown.y
+	&&  rCenterPos.y - centerSizeDown.y < targetPos.y + targetSizeUp.y)
+	{ // 左右と上下の範囲内の場合
+
+		if (rCenterPos.z    + centerSizeUp.z >  targetPos.z - targetSizeDown.z
+		&&  rCenterPosOld.z + centerSizeUp.z <= targetPos.z - targetSizeDown.z)
+		{ // 前からの当たり判定
+
+			// 位置を補正
+			rCenterPos.z = targetPos.z - targetSizeDown.z - centerSizeUp.z;
+
+			// 衝突状態にする
+			bHit = true;
+
+			if (pMove != NULL)
+			{ // ポインタが使用されている場合
+
+				// 移動量を初期化
+				pMove->z = 0.0f;
+			}
+
+			if (pBefore != NULL)
+			{ // ポインタが使用されている場合
+
+				// 前に当たっている状態を設定
+				*pBefore = true;
+			}
+		}
+		else if (rCenterPos.z    - centerSizeDown.z <  targetPos.z + targetSizeUp.z
+		     &&  rCenterPosOld.z - centerSizeDown.z >= targetPos.z + targetSizeUp.z)
+		{ // 後からの当たり判定
+
+			// 位置を補正
+			rCenterPos.z = targetPos.z + targetSizeUp.z + centerSizeDown.z;
+
+			// 衝突状態にする
+			bHit = true;
+
+			if (pMove != NULL)
+			{ // ポインタが使用されている場合
+
+				// 移動量を初期化
+				pMove->z = 0.0f;
+			}
+
+			if (pAfter != NULL)
+			{ // ポインタが使用されている場合
+
+				// 後に当たっている状態を設定
+				*pAfter = true;
 			}
 		}
 	}

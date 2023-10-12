@@ -76,6 +76,15 @@ public:
 		STATE_MAX		// この列挙型の総数
 	};
 
+	// 軸列挙
+	enum EAxis
+	{
+		AXIS_X = 0,	// X軸
+		AXIS_Y,		// Y軸
+		AXIS_Z,		// Z軸
+		AXIS_MAX	// この列挙型の総数
+	};
+
 	// コンストラクタ
 	CPlayer();
 
@@ -109,14 +118,16 @@ private:
 	void LoadSetup(void);		// セットアップ
 	EMotion UpdateNormal(void);	// 通常状態時の更新
 
-	void UpdateOldPosition(void);				// 過去位置の更新
-	EMotion UpdateMove(void);					// 移動量・目標向きの更新
-	void UpdateJump(void);						// ジャンプの更新
-	bool UpdateLanding(D3DXVECTOR3& rPos);		// 着地状況の更新
-	void UpdatePosition(D3DXVECTOR3& rPos);		// 位置の更新
-	void UpdateRotation(D3DXVECTOR3& rRot);		// 向きの更新
-	void UpdateMotion(int nMotion);				// モーション・オブジェクトキャラクターの更新
+	void UpdateOldPosition(void);			// 過去位置の更新
+	EMotion UpdateMove(void);				// 移動量・目標向きの更新
+	void UpdateJump(void);					// ジャンプの更新
+	bool UpdateLanding(D3DXVECTOR3& rPos);	// 着地状況の更新
+	void UpdatePosition(D3DXVECTOR3& rPos);	// 位置の更新
+	void UpdateRotation(D3DXVECTOR3& rRot);	// 向きの更新
+	void UpdateMotion(int nMotion);			// モーション・オブジェクトキャラクターの更新
+
 	bool CollisionBuilding(D3DXVECTOR3& rPos);	// ビルとの当たり判定
+	bool ResponseSingleBuilding(const EAxis axis, D3DXVECTOR3& rPos);	// ビルとの一軸ごとの当たり判定
 
 	// 静的メンバ変数
 	static const char *mc_apModelFile[];	// モデル定数

@@ -97,6 +97,46 @@ namespace collision
 		bool *pDown = NULL	// 下からの判定
 	);
 
+	bool ResponseSingleX	// X軸の衝突判定
+	( // 引数
+		D3DXVECTOR3& rCenterPos,	// 判定位置
+		D3DXVECTOR3& rCenterPosOld,	// 判定過去位置
+		D3DXVECTOR3 targetPos,		// 判定目標位置
+		D3DXVECTOR3 centerSizeUp,	// 判定サイズ(右・上・後)
+		D3DXVECTOR3 centerSizeDown,	// 判定サイズ(左・下・前)
+		D3DXVECTOR3 targetSizeUp,	// 判定目標サイズ(右・上・後)
+		D3DXVECTOR3 targetSizeDown,	// 判定目標サイズ(左・下・前)
+		D3DXVECTOR3 *pMove = NULL,	// 移動量
+		bool *pLeft = NULL,			// 左からの判定
+		bool *pRight = NULL			// 右からの判定
+	);
+	bool ResponseSingleY	// Y軸の衝突判定
+	( // 引数
+		D3DXVECTOR3& rCenterPos,	// 判定位置
+		D3DXVECTOR3& rCenterPosOld,	// 判定過去位置
+		D3DXVECTOR3 targetPos,		// 判定目標位置
+		D3DXVECTOR3 centerSizeUp,	// 判定サイズ(右・上・後)
+		D3DXVECTOR3 centerSizeDown,	// 判定サイズ(左・下・前)
+		D3DXVECTOR3 targetSizeUp,	// 判定目標サイズ(右・上・後)
+		D3DXVECTOR3 targetSizeDown,	// 判定目標サイズ(左・下・前)
+		D3DXVECTOR3 *pMove = NULL,	// 移動量
+		bool *pDown = NULL,			// 下からの判定
+		bool *pUp = NULL			// 上からの判定
+	);
+	bool ResponseSingleZ	// Z軸の衝突判定
+	( // 引数
+		D3DXVECTOR3& rCenterPos,	// 判定位置
+		D3DXVECTOR3& rCenterPosOld,	// 判定過去位置
+		D3DXVECTOR3 targetPos,		// 判定目標位置
+		D3DXVECTOR3 centerSizeUp,	// 判定サイズ(右・上・後)
+		D3DXVECTOR3 centerSizeDown,	// 判定サイズ(左・下・前)
+		D3DXVECTOR3 targetSizeUp,	// 判定目標サイズ(右・上・後)
+		D3DXVECTOR3 targetSizeDown,	// 判定目標サイズ(左・下・前)
+		D3DXVECTOR3 *pMove = NULL,	// 移動量
+		bool *pBefore = NULL,		// 前からの判定
+		bool *pAfter = NULL			// 後からの判定
+	);
+
 	bool InBoxPillar	// 角柱の内側制限
 	( // 引数
 		D3DXVECTOR3& rCenterPos,	// 判定位置
