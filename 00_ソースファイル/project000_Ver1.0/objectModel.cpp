@@ -76,6 +76,15 @@ HRESULT CObjectModel::Init(void)
 //============================================================
 void CObjectModel::Uninit(void)
 {
+	// マテリアルへのポインタを破棄
+	if (m_pMat != NULL)
+	{ // ポインタが使用されていた場合
+
+		// メモリ開放
+		delete[] m_pMat;
+		m_pMat = NULL;
+	}
+
 	// オブジェクトモデルを破棄
 	Release();
 }

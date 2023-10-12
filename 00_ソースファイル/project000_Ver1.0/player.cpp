@@ -19,11 +19,12 @@
 #include "collision.h"
 
 #include "multiModel.h"
-#include "objectGauge3D.h"
 #include "shadow.h"
 #include "stage.h"
 #include "field.h"
 #include "building.h"
+
+#include "effect3D.h"
 
 //************************************************************
 //	定数宣言
@@ -36,14 +37,13 @@ namespace
 	// プレイヤー基本情報
 	namespace basic
 	{
-		const int	MAX_LIFE	= 100;		// プレイヤー最大体力
-		const float	JUMP_REV	= 0.08f;	// 空中のプレイヤー移動量の減衰係数
-		const float	LAND_REV	= 0.2f;		// 地上のプレイヤー移動量の減衰係数
-		const float	REV_ROTA	= 0.15f;	// プレイヤー向き変更の減衰係数
-		const float	JUMP		= 20.0f;	// プレイヤージャンプ量
-		const float	GRAVITY		= 1.0f;		// プレイヤー重力
-		const float	RADIUS		= 20.0f;	// プレイヤー半径
-		const float HEIGHT		= 100.0f;	// プレイヤー縦幅
+		const float	JUMP_REV	= 0.16f;	// 空中の移動量の減衰係数
+		const float	LAND_REV	= 0.2f;		// 地上の移動量の減衰係数
+		const float	REV_ROTA	= 0.15f;	// 向き変更の減衰係数
+		const float	JUMP		= 20.0f;	// ジャンプ量
+		const float	GRAVITY		= 1.0f;		// 重力
+		const float	RADIUS		= 20.0f;	// 半径
+		const float HEIGHT		= 100.0f;	// 縦幅
 	}
 
 	// プレイヤー他クラス情報
@@ -569,6 +569,8 @@ void CPlayer::UpdateJump(void)
 
 			// ジャンプしている状態にする
 			m_bJump = true;
+
+			CEffect3D::Create(GetVec3Position(), 80.0f, CEffect3D::TYPE_NORMAL, 20);
 		}
 	}
 }
@@ -697,6 +699,8 @@ bool CPlayer::CollisionBuilding(D3DXVECTOR3& rPos)
 	{ // 横に当たっていた場合
 
 		// TODO：死亡状態にする
+
+		CEffect3D::Create(rPos, 40.0f, CEffect3D::TYPE_NORMAL, 10);
 	}
 
 	// 移動量を加算
@@ -718,6 +722,8 @@ bool CPlayer::CollisionBuilding(D3DXVECTOR3& rPos)
 	{ // 横に当たっていた場合
 
 		// TODO：死亡状態にする
+
+		CEffect3D::Create(rPos, 40.0f, CEffect3D::TYPE_NORMAL, 10);
 	}
 
 	// 移動量を減衰

@@ -27,6 +27,8 @@ public:
 	enum EType
 	{
 		TYPE_NORMAL = 0,	// 通常テクスチャ
+		TYPE_NORMA,	// 通常テクスチャ
+		TYPE_NORM,	// 通常テクスチャ
 		TYPE_MAX			// この列挙型の総数
 	};
 

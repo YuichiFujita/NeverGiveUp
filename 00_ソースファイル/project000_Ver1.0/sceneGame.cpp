@@ -22,6 +22,7 @@
 #include "scenery.h"
 #include "sky.h"
 #include "building.h"
+#include "obstacle.h"
 
 //************************************************************
 //	マクロ定義
@@ -148,13 +149,24 @@ HRESULT CSceneGame::Init(void)
 	// 空オブジェクトの生成
 	CSky::Create(CSky::TEXTURE_NORMAL, VEC3_ZERO, VEC3_ZERO, XCOL_WHITE, POSGRID2(32, 6), 18000.0f, D3DCULL_CW, false);
 
+#if 1	// TODO：ビル
+
 	// ビルオブジェクトの生成
-	CBuilding::Create(CBuilding::TYPE_NORMAL, D3DXVECTOR3(0.0f,     0.0f, 0.0f), VEC3_ZERO, D3DXVECTOR3(120.0f, 240.0f, 120.0f), XCOL_WHITE);
-	CBuilding::Create(CBuilding::TYPE_NORMAL, D3DXVECTOR3(-400.0f,  0.0f, 0.0f), VEC3_ZERO, D3DXVECTOR3(120.0f, 240.0f, 120.0f), XCOL_WHITE);
-	CBuilding::Create(CBuilding::TYPE_NORMAL, D3DXVECTOR3(-800.0f,  0.0f, 0.0f), VEC3_ZERO, D3DXVECTOR3(120.0f, 240.0f, 120.0f), XCOL_WHITE);
-	CBuilding::Create(CBuilding::TYPE_NORMAL, D3DXVECTOR3(-1200.0f, 0.0f, 0.0f), VEC3_ZERO, D3DXVECTOR3(120.0f, 240.0f, 120.0f), XCOL_WHITE);
-	CBuilding::Create(CBuilding::TYPE_NORMAL, D3DXVECTOR3(-1600.0f, 0.0f, 0.0f), VEC3_ZERO, D3DXVECTOR3(120.0f, 240.0f, 120.0f), XCOL_WHITE);
-	CBuilding::Create(CBuilding::TYPE_NORMAL, D3DXVECTOR3(-2000.0f, 0.0f, 0.0f), VEC3_ZERO, D3DXVECTOR3(120.0f, 240.0f, 120.0f), XCOL_WHITE);
+	CBuilding::Create(CBuilding::TYPE_NORMAL, D3DXVECTOR3(0.0f,     0.0f, 0.0f), VEC3_ZERO, D3DXVECTOR3(180.0f, 360.0f, 180.0f), XCOL_WHITE);
+	CBuilding::Create(CBuilding::TYPE_NORMA,  D3DXVECTOR3(-360.0f,  0.0f, 0.0f), VEC3_ZERO, D3DXVECTOR3(180.0f, 360.0f, 180.0f), XCOL_WHITE);
+	CBuilding::Create(CBuilding::TYPE_NORM,   D3DXVECTOR3(-720.0f,  0.0f, 0.0f), VEC3_ZERO, D3DXVECTOR3(180.0f, 360.0f, 180.0f), XCOL_WHITE);
+	CBuilding::Create(CBuilding::TYPE_NORMAL, D3DXVECTOR3(-1080.0f, 0.0f, 0.0f), VEC3_ZERO, D3DXVECTOR3(180.0f, 360.0f, 180.0f), XCOL_WHITE);
+	CBuilding::Create(CBuilding::TYPE_NORM,   D3DXVECTOR3(-1440.0f, 0.0f, 0.0f), VEC3_ZERO, D3DXVECTOR3(180.0f, 360.0f, 180.0f), XCOL_WHITE);
+	CBuilding::Create(CBuilding::TYPE_NORMA,  D3DXVECTOR3(-1800.0f, 0.0f, 0.0f), VEC3_ZERO, D3DXVECTOR3(180.0f, 360.0f, 180.0f), XCOL_WHITE);
+
+#endif
+
+#if 1	// TODO：障害物
+
+	// 障害物オブジェクトの生成
+	CObstacle::Create(CObstacle::TYPE_NORMAL, D3DXVECTOR3(-1200.0f, 720.0f, 0.0f), D3DXToRadian(D3DXVECTOR3(0.0f, 90.0f, 0.0f)));
+
+#endif
 
 	//--------------------------------------------------------
 	//	初期設定

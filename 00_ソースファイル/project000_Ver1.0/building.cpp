@@ -11,7 +11,6 @@
 #include "manager.h"
 #include "renderer.h"
 #include "texture.h"
-#include "collision.h"
 
 //************************************************************
 //	マクロ定義
@@ -30,6 +29,24 @@ const char *CBuilding::mc_apTextureFile[][6] =	// テクスチャ定数
 		"data\\TEXTURE\\buildingRoof000.png",	// 上テクスチャ
 		"data\\TEXTURE\\buildingSide000.png",	// 前テクスチャ
 		"data\\TEXTURE\\buildingSide000.png"	// 後テクスチャ
+	},
+
+	{ // 通常テクスチャ
+		"data\\TEXTURE\\buildingSide001.png",	// 左テクスチャ
+		"data\\TEXTURE\\buildingSide001.png",	// 右テクスチャ
+		"data\\TEXTURE\\buildingRoof001.png",	// 下テクスチャ
+		"data\\TEXTURE\\buildingRoof001.png",	// 上テクスチャ
+		"data\\TEXTURE\\buildingSide001.png",	// 前テクスチャ
+		"data\\TEXTURE\\buildingSide001.png"	// 後テクスチャ
+	},
+
+	{ // 通常テクスチャ
+		"data\\TEXTURE\\buildingSide002.png",	// 左テクスチャ
+		"data\\TEXTURE\\buildingSide002.png",	// 右テクスチャ
+		"data\\TEXTURE\\buildingRoof002.png",	// 下テクスチャ
+		"data\\TEXTURE\\buildingRoof002.png",	// 上テクスチャ
+		"data\\TEXTURE\\buildingSide002.png",	// 前テクスチャ
+		"data\\TEXTURE\\buildingSide002.png"	// 後テクスチャ
 	},
 };
 
@@ -151,19 +168,24 @@ void CBuilding::SetType(const int nType)
 		return;
 	}
 
-	// 引数の種類のテクスチャを登録
-	faceTex = SFaceTex
-	( // 引数
-		pTexture->Regist(mc_apTextureFile[nType][0]),	// 左
-		pTexture->Regist(mc_apTextureFile[nType][1]),	// 右
-		pTexture->Regist(mc_apTextureFile[nType][2]),	// 下
-		pTexture->Regist(mc_apTextureFile[nType][3]),	// 上
-		pTexture->Regist(mc_apTextureFile[nType][4]),	// 前
-		pTexture->Regist(mc_apTextureFile[nType][5])	// 後
-	);
+	if (nType < TYPE_MAX)
+	{ // 種類がある場合
 
-	// テクスチャを割当
-	BindTexture(faceTex);
+		// 引数の種類のテクスチャを登録
+		faceTex = SFaceTex
+		( // 引数
+			pTexture->Regist(mc_apTextureFile[nType][0]),	// 左
+			pTexture->Regist(mc_apTextureFile[nType][1]),	// 右
+			pTexture->Regist(mc_apTextureFile[nType][2]),	// 下
+			pTexture->Regist(mc_apTextureFile[nType][3]),	// 上
+			pTexture->Regist(mc_apTextureFile[nType][4]),	// 前
+			pTexture->Regist(mc_apTextureFile[nType][5])	// 後
+		);
+
+		// テクスチャを割当
+		BindTexture(faceTex);
+	}
+	else { assert(false); }	// 種類オーバー
 }
 
 //============================================================
