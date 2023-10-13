@@ -39,13 +39,27 @@ namespace
 	// プレイヤー基本情報
 	namespace basic
 	{
-		const float	JUMP_REV	= 0.16f;	// 空中の移動量の減衰係数
-		const float	LAND_REV	= 0.2f;		// 地上の移動量の減衰係数
-		const float	REV_ROTA	= 0.15f;	// 向き変更の減衰係数
-		const float	JUMP		= 20.0f;	// ジャンプ量
+		const float MOVE		= 2.8f;		// 移動量
+		const float	JUMP		= 20.0f;	// ジャンプ上昇量
 		const float	GRAVITY		= 1.0f;		// 重力
 		const float	RADIUS		= 20.0f;	// 半径
 		const float HEIGHT		= 100.0f;	// 縦幅
+		const float	JUMP_REV	= 0.22f;	// 空中の移動量の減衰係数
+		const float	LAND_REV	= 0.2f;		// 地上の移動量の減衰係数
+		const float	REV_ROTA	= 0.15f;	// 向き変更の補正係数
+	}
+
+	// スライディング情報
+	namespace slide
+	{
+		const float	SLIDE_CONTROL_MIN	= 2.4f;		// スライディングが可能になる移動量
+		const float	PLUS_SUB_MOVE		= 0.0035f;	// 移動量の最大追加減算量
+
+		const int	MIN_END_CNT	= 40;		// スライディングの解除操作ができるようになるカウント
+		const int	MAX_END_CNT	= 80;		// スライディングが強制終了するカウント
+		const float	MIN_MOVE	= 1.25f;	// 移動量の最低速度
+		const float	SUB_MOVE	= 0.025f;	// スライディング時の速度減算量
+		const float	ADD_MOVE	= 0.06f;	// 非スライディング時の速度加算量
 	}
 
 	// プレイヤー他クラス情報
@@ -95,7 +109,11 @@ CPlayer::CPlayer() : CObjectChara(CObject::LABEL_PLAYER)
 	m_destRot		= VEC3_ZERO;	// 目標向き
 	m_state			= STATE_NONE;	// 状態
 	m_nCounterState	= 0;			// 状態管理カウンター
+	m_nCounterSlide	= 0;			// スライディング管理カウンター
+	m_fMove			= 0.0f;			// 移動量
 	m_bJump			= false;		// ジャンプ状況
+	m_bSlide		= false;		// スライディング状況
+	m_bSlideControl	= false;		// スライディング操作状況
 }
 
 //============================================================
@@ -118,7 +136,11 @@ HRESULT CPlayer::Init(void)
 	m_destRot		= VEC3_ZERO;	// 目標向き
 	m_state			= STATE_NORMAL;	// 状態
 	m_nCounterState	= 0;			// 状態管理カウンター
+	m_nCounterSlide = 0;			// スライディング管理カウンター
+	m_fMove			= basic::MOVE;	// 移動量
 	m_bJump			= true;			// ジャンプ状況
+	m_bSlide		= false;		// スライディング状況
+	m_bSlideControl	= false;		// スライディング操作状況
 
 	// オブジェクトキャラクターの初期化
 	if (FAILED(CObjectChara::Init()))
@@ -410,6 +432,9 @@ CPlayer::EMotion CPlayer::UpdateNormal(void)
 	// ジャンプ操作
 	UpdateJump();
 
+	// スライディング操作
+	UpdateSliding();
+
 	// 向き更新
 	UpdateRotation(rotPlayer);
 
@@ -433,6 +458,11 @@ CPlayer::EMotion CPlayer::UpdateNormal(void)
 
 	// 向きを反映
 	SetVec3Rotation(rotPlayer);
+
+	// デバッグ表示
+	CManager::GetInstance()->GetDebugProc()->Print("プレイヤー移動量：%f\n", m_fMove);
+	CManager::GetInstance()->GetDebugProc()->Print((m_bJump) ? "ジャンプ：ON\n" : "ジャンプ：OFF\n");
+	CManager::GetInstance()->GetDebugProc()->Print((m_bSlide) ? "スライディング：ON\n" : "スライディング：OFF\n");
 
 	// 現在のモーションを返す
 	return currentMotion;
@@ -459,7 +489,7 @@ CPlayer::EMotion CPlayer::UpdateMove(void)
 	CInputKeyboard	*pKeyboard	= CManager::GetInstance()->GetKeyboard();	// キーボード
 	CInputPad		*pPad		= CManager::GetInstance()->GetPad();		// パッド
 
-#if 1
+#if 0
 	if (pKeyboard->IsPress(DIK_W))
 	{ // 奥移動の操作が行われた場合
 
@@ -550,7 +580,7 @@ CPlayer::EMotion CPlayer::UpdateMove(void)
 	}
 #else
 	// 移動量を更新
-	m_move.x += 0.75f;
+	m_move.x += m_fMove;
 
 	// 目標向きを更新
 	m_destRot.y = atan2f(-m_move.x, -m_move.z);
@@ -582,6 +612,102 @@ void CPlayer::UpdateJump(void)
 			m_bJump = true;
 
 			CEffect3D::Create(GetVec3Position(), 80.0f, CEffect3D::TYPE_NORMAL, 20);
+		}
+	}
+}
+
+//============================================================
+//	スライディングの更新処理
+//============================================================
+void CPlayer::UpdateSliding(void)
+{
+	// ポインタを宣言
+	CInputKeyboard	*pKeyboard	= CManager::GetInstance()->GetKeyboard();	// キーボード
+	CInputPad		*pPad		= CManager::GetInstance()->GetPad();		// パッド
+
+	if (!m_bSlide)
+	{ // スライディングしていない場合
+
+		if (pKeyboard->IsTrigger(DIK_RETURN) || pPad->IsTrigger(CInputPad::KEY_A))
+		{ // スライディングの操作が行われた場合
+
+			// スライディング操作が行われた情報を保存
+			m_bSlideControl = true;
+		}
+
+		if (m_fMove >= slide::SLIDE_CONTROL_MIN)
+		{ // スライディングが可能な移動速度の場合
+
+			if (m_bSlideControl)
+			{ // スライディングの操作が行われた場合
+
+				// スライディング操作が行われた情報を初期化
+				m_bSlideControl = false;
+
+				// スライディングしている状態にする
+				m_bSlide = true;
+			}
+		}
+
+		if (m_fMove < basic::MOVE)
+		{ // 移動量が最高速度ではない場合
+
+			// 移動量を加算
+			m_fMove += slide::ADD_MOVE;
+
+			if (m_fMove > basic::MOVE)
+			{ // 移動量が最高速度を超えた場合
+
+				// 移動量を補正
+				m_fMove = basic::MOVE;
+			}
+		}
+	}
+	else
+	{ // スライディングしている場合
+
+		// 変数を宣言
+		float fPlusSubMove = (slide::PLUS_SUB_MOVE / (float)slide::MAX_END_CNT) * (float)(slide::MAX_END_CNT - m_nCounterSlide);	// 移動量の追加減算量
+
+		// カウンターを加算
+		m_nCounterSlide++;
+
+		if (m_fMove > slide::MIN_MOVE)
+		{ // 移動量が最低速度ではない場合
+
+			// 移動量を減算
+			m_fMove -= slide::SUB_MOVE + fPlusSubMove;
+
+			if (m_fMove < slide::MIN_MOVE)
+			{ // 移動量が最低速度を超えた場合
+
+				// 移動量を補正
+				m_fMove = slide::MIN_MOVE;
+			}
+		}
+
+		if (m_nCounterSlide > slide::MIN_END_CNT)
+		{ // スライディングの解除操作ができるカウントに到達した場合
+
+			if (!(pKeyboard->IsPress(DIK_RETURN) || pPad->IsPress(CInputPad::KEY_A)))
+			{ // スライディング解除の操作が行われた場合
+
+				// カウンターを初期化
+				m_nCounterSlide = 0;
+
+				// スライディングしていない状態にする
+				m_bSlide = false;
+			}
+		}
+
+		if (m_nCounterSlide > slide::MAX_END_CNT)
+		{ // スライディングが強制終了するカウントに到達した場合
+
+			// カウンターを初期化
+			m_nCounterSlide = 0;
+
+			// スライディングしていない状態にする
+			m_bSlide = false;
 		}
 	}
 }

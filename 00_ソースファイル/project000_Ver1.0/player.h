@@ -121,6 +121,7 @@ private:
 	void UpdateOldPosition(void);			// 過去位置の更新
 	EMotion UpdateMove(void);				// 移動量・目標向きの更新
 	void UpdateJump(void);					// ジャンプの更新
+	void UpdateSliding(void);				// スライディングの更新
 	bool UpdateLanding(D3DXVECTOR3& rPos);	// 着地状況の更新
 	void UpdateRotation(D3DXVECTOR3& rRot);	// 向きの更新
 	void UpdateMotion(int nMotion);			// モーション・オブジェクトキャラクターの更新
@@ -139,7 +140,11 @@ private:
 	D3DXVECTOR3	m_destRot;		// 目標向き
 	EState	m_state;			// 状態
 	int		m_nCounterState;	// 状態管理カウンター
+	int		m_nCounterSlide;	// スライディング管理カウンター
+	float	m_fMove;			// 移動量
 	bool	m_bJump;			// ジャンプ状況
+	bool	m_bSlide;			// スライディング状況
+	bool	m_bSlideControl;	// スライディング操作状況
 };
 
 #endif	// _PLAYER_H_
