@@ -1040,7 +1040,6 @@ bool CPlayer::CollisionObstacle(D3DXVECTOR3& rPos)
 	// 変数を宣言
 	D3DXVECTOR3 sizeMinPlayer = D3DXVECTOR3(basic::RADIUS, 0.0f, basic::RADIUS);			// プレイヤー最小大きさ
 	D3DXVECTOR3 sizeMaxPlayer = D3DXVECTOR3(basic::RADIUS, basic::HEIGHT, basic::RADIUS);	// プレイヤー最大大きさ
-	bool bHit = false;	// 各軸の判定情報
 
 	for (int nCntPri = 0; nCntPri < MAX_PRIO; nCntPri++)
 	{ // 優先順位の総数分繰り返す
@@ -1061,6 +1060,7 @@ bool CPlayer::CollisionObstacle(D3DXVECTOR3& rPos)
 				D3DXVECTOR3 posBuild = VEC3_ZERO;		// ビル位置
 				D3DXVECTOR3 sizeMinBuild = VEC3_ZERO;	// ビル最小大きさ
 				D3DXVECTOR3 sizeMaxBuild = VEC3_ZERO;	// ビル最大大きさ
+				bool bHit = false;	// 判定情報
 
 				// ポインタを宣言
 				CObject *pObjectNext = pObjCheck->GetNext();	// 次オブジェクト
@@ -1086,8 +1086,6 @@ bool CPlayer::CollisionObstacle(D3DXVECTOR3& rPos)
 				sizeMaxBuild = pObjCheck->GetVec3Sizing();
 				sizeMaxBuild.y *= 2.0f;	// 縦の大きさを倍にする
 
-#if 1	// TODO：あたり判定
-
 				switch (pObjCheck->GetType())
 				{ // 回避法ごとの処理
 				case CObstacle::DODGE_JUMP:		// ジャンプ回避
@@ -1111,7 +1109,7 @@ bool CPlayer::CollisionObstacle(D3DXVECTOR3& rPos)
 
 				case CObstacle::DODGE_SLIDE:	// スライディング回避
 
-					//if (!m_bSlide)	// TODO：スライディング状況の作成
+					if (!m_bSlide)
 					{ // スライディング中ではない場合
 
 						// 三軸の矩形の衝突判定
@@ -1133,9 +1131,12 @@ bool CPlayer::CollisionObstacle(D3DXVECTOR3& rPos)
 					break;
 				}
 
-#endif
+				if (bHit)
+				{ // 当たっていた場合
 
-				// TODO：スライディング状況の作成、Hit時のプレイヤー処理
+					// 当たっている情報を返す
+					return true;
+				}
 
 				// 次のオブジェクトへのポインタを代入
 				pObjCheck = pObjectNext;
@@ -1143,8 +1144,8 @@ bool CPlayer::CollisionObstacle(D3DXVECTOR3& rPos)
 		}
 	}
 
-	// 各軸の判定情報を返す
-	return bHit;
+	// 当たっていない情報を返す
+	return false;
 }
 
 //============================================================
