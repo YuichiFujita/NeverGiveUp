@@ -164,7 +164,12 @@ HRESULT CSceneGame::Init(void)
 #if 1	// TODO：障害物
 
 	// 障害物オブジェクトの生成
-	CObstacle::Create(CObstacle::TYPE_NORMAL, D3DXVECTOR3(-1440.0f, 720.0f, 0.0f), D3DXToRadian(D3DXVECTOR3(0.0f, 90.0f, 0.0f)));
+	CObstacle::Create(CObstacle::TYPE_BOX,   D3DXVECTOR3( 0.0f,    720.0f, 0.0f), D3DXToRadian(D3DXVECTOR3(0.0f, 90.0f, 0.0f)));
+	CObstacle::Create(CObstacle::TYPE_BENCH, D3DXVECTOR3(-360.0f,  720.0f, 0.0f), D3DXToRadian(D3DXVECTOR3(0.0f, 90.0f, 0.0f)));
+	CObstacle::Create(CObstacle::TYPE_BOX,   D3DXVECTOR3(-720.0f,  720.0f, 0.0f), D3DXToRadian(D3DXVECTOR3(0.0f, 90.0f, 0.0f)));
+	CObstacle::Create(CObstacle::TYPE_BENCH, D3DXVECTOR3(-1080.0f, 720.0f, 0.0f), D3DXToRadian(D3DXVECTOR3(0.0f, 90.0f, 0.0f)));
+	CObstacle::Create(CObstacle::TYPE_BOX,   D3DXVECTOR3(-1440.0f, 720.0f, 0.0f), D3DXToRadian(D3DXVECTOR3(0.0f, 90.0f, 0.0f)));
+	CObstacle::Create(CObstacle::TYPE_BENCH, D3DXVECTOR3(-1800.0f, 720.0f, 0.0f), D3DXToRadian(D3DXVECTOR3(0.0f, 90.0f, 0.0f)));
 
 #endif
 

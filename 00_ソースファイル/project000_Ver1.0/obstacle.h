@@ -26,8 +26,9 @@ public:
 	// 種類列挙
 	enum EType
 	{
-		TYPE_NORMAL = 0,	// 通常モデル
-		TYPE_MAX			// この列挙型の総数
+		TYPE_BOX = 0,	// 箱モデル
+		TYPE_BENCH,		// ベンチモデル
+		TYPE_MAX		// この列挙型の総数
 	};
 
 	// 回避列挙

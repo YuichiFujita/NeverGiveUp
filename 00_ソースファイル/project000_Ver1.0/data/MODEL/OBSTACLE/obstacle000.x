@@ -273,7 +273,7 @@ Mesh {
    0.400000;0.400000;0.400000;;
    0.429882;0.429882;0.429882;;
    TextureFilename {
-    "C:\\Users\\student\\Documents\\Visual Studio 2015\\Projects\\2023_DirectX\\メッシュ挑戦\\meshcube\\project004_メッシュキューブ複数設置化\\02_data\\02_TEXTURE\\meshcube000.jpg";
+    "data\\MODEL\\TEXTURE\\woodbox000.jpg";
    }
   }
   Material {

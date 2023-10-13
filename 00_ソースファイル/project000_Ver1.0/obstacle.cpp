@@ -24,11 +24,19 @@
 //************************************************************
 CObstacle::SModelInfo CObstacle::m_aStatusInfo[] =	// モデル情報
 {
-	{ // 通常モデル
+	{ // 箱モデル
 		"data\\MODEL\\OBSTACLE\\obstacle000.x",	// モデルファイル名
 		{ // ステータス情報
 			SIZE_OBSTACLE,	// 大きさ
 			DODGE_JUMP,		// 回避法
+		},
+	},
+
+	{ // ベンチモデル
+		"data\\MODEL\\OBSTACLE\\obstacle001.x",	// モデルファイル名
+		{ // ステータス情報
+			SIZE_OBSTACLE,	// 大きさ
+			DODGE_SLIDE,	// 回避法
 		},
 	},
 };
