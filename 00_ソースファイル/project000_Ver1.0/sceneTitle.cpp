@@ -80,9 +80,9 @@ HRESULT CSceneTitle::Init(void)
 #endif
 
 	// 景色オブジェクトの生成
-	CScenery::Create(CScenery::TEXTURE_NORMAL, VEC3_ZERO, VEC3_ZERO,                                    XCOL_WHITE,                        POSGRID2(32, 1), 12000.0f, 1000.0f, D3DCULL_CW, false);
-	CScenery::Create(CScenery::TEXTURE_NORMAL, VEC3_ZERO, D3DXToRadian(D3DXVECTOR3(0.0f, 85.0f, 0.0f)), D3DXCOLOR(0.7f, 1.0f, 1.0f, 1.0f), POSGRID2(32, 1), 14000.0f, 1600.0f, D3DCULL_CW, false);
-	CScenery::Create(CScenery::TEXTURE_NORMAL, VEC3_ZERO, D3DXToRadian(D3DXVECTOR3(0.0f, 35.0f, 0.0f)), D3DXCOLOR(0.4f, 1.0f, 0.7f, 1.0f), POSGRID2(32, 1), 16000.0f, 2200.0f, D3DCULL_CW, false);
+	CScenery::Create(CScenery::TEXTURE_BILL_WHITE,     VEC3_ZERO, VEC3_ZERO,                                    XCOL_WHITE, POSGRID2(14, 1), 12000.0f, 800.0f,  D3DCULL_CW, false);
+	CScenery::Create(CScenery::TEXTURE_BILL_LIGHTBLUE, VEC3_ZERO, D3DXToRadian(D3DXVECTOR3(0.0f, 85.0f, 0.0f)), XCOL_WHITE, POSGRID2(14, 1), 14000.0f, 1400.0f, D3DCULL_CW, false);
+	CScenery::Create(CScenery::TEXTURE_BILL_BLUE,      VEC3_ZERO, D3DXToRadian(D3DXVECTOR3(0.0f, 35.0f, 0.0f)), XCOL_WHITE, POSGRID2(14, 1), 16000.0f, 2000.0f, D3DCULL_CW, false);
 
 	// 空オブジェクトの生成
 	CSky::Create(CSky::TEXTURE_NORMAL, VEC3_ZERO, VEC3_ZERO, XCOL_WHITE, POSGRID2(32, 6), 18000.0f, D3DCULL_CW, false);

@@ -22,7 +22,9 @@
 //************************************************************
 const char *CScenery::mc_apTextureFile[] =	// テクスチャ定数
 {
-	"data\\TEXTURE\\scenery000.png",	// 通常テクスチャ
+	"data\\TEXTURE\\scenery000.png",	// ビル街テクスチャ (白色)
+	"data\\TEXTURE\\scenery001.png",	// ビル街テクスチャ (水色)
+	"data\\TEXTURE\\scenery002.png",	// ビル街テクスチャ (青色)
 };
 
 //************************************************************
@@ -91,7 +93,7 @@ void CScenery::Draw(void)
 	// αテストを有効にする
 	pDevice->SetRenderState(D3DRS_ALPHATESTENABLE, TRUE);		// αテストの有効 / 無効の設定
 	pDevice->SetRenderState(D3DRS_ALPHAFUNC, D3DCMP_GREATER);	// αテストの設定
-	pDevice->SetRenderState(D3DRS_ALPHAREF, 200);				// αテストの参照値設定
+	pDevice->SetRenderState(D3DRS_ALPHAREF, 180);				// αテストの参照値設定
 
 	// オブジェクトメッシュシリンダーの描画
 	CObjectMeshCylinder::Draw();

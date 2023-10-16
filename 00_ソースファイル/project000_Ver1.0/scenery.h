@@ -26,8 +26,10 @@ public:
 	// テクスチャ列挙
 	enum ETexture
 	{
-		TEXTURE_NORMAL = 0,	// 通常テクスチャ
-		TEXTURE_MAX			// この列挙型の総数
+		TEXTURE_BILL_WHITE = 0,	// ビル街テクスチャ (白色)
+		TEXTURE_BILL_LIGHTBLUE,	// ビル街テクスチャ (水色)
+		TEXTURE_BILL_BLUE,		// ビル街テクスチャ (青色)
+		TEXTURE_MAX				// この列挙型の総数
 	};
 
 	// コンストラクタ

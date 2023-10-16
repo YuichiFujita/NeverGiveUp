@@ -24,8 +24,8 @@
 //************************************************************
 //	マクロ定義
 //************************************************************
-#define FIELD_SIZE	(D3DXVECTOR2(6000.0f, 6000.0f))	// 地面の大きさ
-#define FIELD_PART	(POSGRID2(120, 120))			// 地面の分割数
+#define FIELD_SIZE	(D3DXVECTOR2(12000.0f, 12000.0f))	// 地面の大きさ
+#define FIELD_PART	(POSGRID2(120, 120))				// 地面の分割数
 
 //************************************************************
 //	静的メンバ変数宣言
@@ -80,7 +80,7 @@ HRESULT CScene::Init(void)
 	}
 
 	// プレイヤーオブジェクトの生成
-	m_pPlayer = CPlayer::Create(D3DXVECTOR3(-1800.0f, 720.0f, 2000.0f), VEC3_ZERO);
+	m_pPlayer = CPlayer::Create(D3DXVECTOR3(-2800.0f, 1120.0f, 0.0f), VEC3_ZERO);
 
 	// 成功を返す
 	return S_OK;

@@ -58,8 +58,8 @@ namespace
 		const int	MIN_END_CNT	= 40;		// スライディングの解除操作ができるようになるカウント
 		const int	MAX_END_CNT	= 80;		// スライディングが強制終了するカウント
 		const float	MIN_MOVE	= 1.25f;	// 移動量の最低速度
-		const float	SUB_MOVE	= 0.025f;	// スライディング時の速度減算量
-		const float	ADD_MOVE	= 0.06f;	// 非スライディング時の速度加算量
+		const float	SUB_MOVE	= 0.01f;	// スライディング時の速度減算量
+		const float	ADD_MOVE	= 0.08f;	// 非スライディング時の速度加算量
 	}
 
 	// プレイヤー他クラス情報
@@ -489,7 +489,7 @@ CPlayer::EMotion CPlayer::UpdateMove(void)
 	CInputKeyboard	*pKeyboard	= CManager::GetInstance()->GetKeyboard();	// キーボード
 	CInputPad		*pPad		= CManager::GetInstance()->GetPad();		// パッド
 
-#if 0
+#if 1
 	if (pKeyboard->IsPress(DIK_W))
 	{ // 奥移動の操作が行われた場合
 
@@ -584,6 +584,24 @@ CPlayer::EMotion CPlayer::UpdateMove(void)
 
 	// 目標向きを更新
 	m_destRot.y = atan2f(-m_move.x, -m_move.z);
+
+	if (!m_bSlide)
+	{ // スライディング中ではない場合
+
+		if (m_fMove < basic::MOVE)
+		{ // 移動量が最高速度ではない場合
+
+			// 移動量を加算
+			m_fMove += slide::ADD_MOVE;
+
+			if (m_fMove > basic::MOVE)
+			{ // 移動量が最高速度を超えた場合
+
+				// 移動量を補正
+				m_fMove = basic::MOVE;
+			}
+		}
+	}
 #endif
 
 	// 浮遊モーションを返す
@@ -599,8 +617,8 @@ void CPlayer::UpdateJump(void)
 	CInputKeyboard	*pKeyboard	= CManager::GetInstance()->GetKeyboard();	// キーボード
 	CInputPad		*pPad		= CManager::GetInstance()->GetPad();		// パッド
 
-	if (m_bJump == false)
-	{ // ジャンプしていない場合
+	if (!m_bJump && !m_bSlide)
+	{ // ジャンプとスライディングをしていない場合
 
 		if (pKeyboard->IsTrigger(DIK_SPACE) || pPad->IsTrigger(CInputPad::KEY_B))
 		{ // ジャンプの操作が行われた場合
@@ -625,8 +643,8 @@ void CPlayer::UpdateSliding(void)
 	CInputKeyboard	*pKeyboard	= CManager::GetInstance()->GetKeyboard();	// キーボード
 	CInputPad		*pPad		= CManager::GetInstance()->GetPad();		// パッド
 
-	if (!m_bSlide)
-	{ // スライディングしていない場合
+	if (!m_bJump && !m_bSlide)
+	{ // ジャンプとスライディングをしていない場合
 
 		if (pKeyboard->IsTrigger(DIK_RETURN) || pPad->IsTrigger(CInputPad::KEY_A))
 		{ // スライディングの操作が行われた場合
@@ -648,22 +666,9 @@ void CPlayer::UpdateSliding(void)
 				m_bSlide = true;
 			}
 		}
-
-		if (m_fMove < basic::MOVE)
-		{ // 移動量が最高速度ではない場合
-
-			// 移動量を加算
-			m_fMove += slide::ADD_MOVE;
-
-			if (m_fMove > basic::MOVE)
-			{ // 移動量が最高速度を超えた場合
-
-				// 移動量を補正
-				m_fMove = basic::MOVE;
-			}
-		}
 	}
-	else
+
+	if (m_bSlide)
 	{ // スライディングしている場合
 
 		// 変数を宣言
@@ -1093,8 +1098,8 @@ bool CPlayer::CollisionObstacle(D3DXVECTOR3& rPos)
 					if (!m_bJump)
 					{ // ジャンプ中ではない場合
 
-						// 三軸の矩形の衝突判定
-						bHit = collision::Box3D
+						// 二軸の矩形の衝突判定
+						bHit = collision::Box2D
 						( // 引数
 							rPos,			// 判定位置
 							posBuild,		// 判定目標位置
@@ -1112,8 +1117,8 @@ bool CPlayer::CollisionObstacle(D3DXVECTOR3& rPos)
 					if (!m_bSlide)
 					{ // スライディング中ではない場合
 
-						// 三軸の矩形の衝突判定
-						bHit = collision::Box3D
+						// 二軸の矩形の衝突判定
+						bHit = collision::Box2D
 						( // 引数
 							rPos,			// 判定位置
 							posBuild,		// 判定目標位置
