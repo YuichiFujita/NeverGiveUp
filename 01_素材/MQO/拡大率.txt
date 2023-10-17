@@ -1,1 +1,3 @@
 obstacle_box = 0.3
+obstacle_bench = 0.3
+player = 0.35

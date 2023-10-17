@@ -33,9 +33,7 @@ public:
 	{
 		MODEL_WAIST,	// 腰
 		MODEL_BODY,		// 体
-		MODEL_CLOAK,	// マント
 		MODEL_HEAD,		// 頭
-		MODEL_HAT,		// 帽子
 		MODEL_ARMUL,	// 左上腕
 		MODEL_ARMUR,	// 右上腕
 		MODEL_ARMDL,	// 左下腕
@@ -48,23 +46,14 @@ public:
 		MODEL_LEGDR,	// 右脛
 		MODEL_FOOTL,	// 左足
 		MODEL_FOOTR,	// 右足
-		MODEL_ROD,		// 杖
 		MODEL_MAX		// この列挙型の総数
 	};
 
 	// モーション列挙
 	enum EMotion
 	{
-		MOTION_MOVE = 0,		// 浮遊モーション
-		MOTION_ACCELE,			// 加速モーション
-		MOTION_DECELE,			// 減速モーション
-		MOTION_ACTION_LEFT,		// 左アクションモーション
-		MOTION_ACTION_RIGHT,	// 右アクションモーション
-		MOTION_ACTION_FAR,		// 奥アクションモーション
-		MOTION_ACTION_NEAR,		// 手前アクションモーション
-		MOTION_BLOW_AWAY,		// 吹っ飛びモーション
-		MOTION_DEATH,			// 死亡モーション
-		MOTION_MAX				// この列挙型の総数
+		MOTION_IDOL = 0,	// アイドルモーション
+		MOTION_MAX			// この列挙型の総数
 	};
 
 	// 状態列挙

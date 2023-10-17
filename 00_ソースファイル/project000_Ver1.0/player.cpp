@@ -76,22 +76,19 @@ const char *CPlayer::mc_apModelFile[] =	// モデル定数
 {
 	"data\\MODEL\\PLAYER\\00_waist.x",	// 腰
 	"data\\MODEL\\PLAYER\\01_body.x",	// 体
-	"data\\MODEL\\PLAYER\\02_cloak.x",	// マント
-	"data\\MODEL\\PLAYER\\03_head.x",	// 頭
-	"data\\MODEL\\PLAYER\\04_hat.x",	// 帽子
-	"data\\MODEL\\PLAYER\\05_armUL.x",	// 左上腕
-	"data\\MODEL\\PLAYER\\06_armUR.x",	// 右上腕
-	"data\\MODEL\\PLAYER\\07_armDL.x",	// 左下腕
-	"data\\MODEL\\PLAYER\\08_armDR.x",	// 右下腕
-	"data\\MODEL\\PLAYER\\09_handL.x",	// 左手
-	"data\\MODEL\\PLAYER\\10_handR.x",	// 右手
-	"data\\MODEL\\PLAYER\\11_legUL.x",	// 左太もも
-	"data\\MODEL\\PLAYER\\12_legUR.x",	// 右太もも
-	"data\\MODEL\\PLAYER\\13_legDL.x",	// 左脛
-	"data\\MODEL\\PLAYER\\14_legDR.x",	// 右脛
-	"data\\MODEL\\PLAYER\\15_footL.x",	// 左足
-	"data\\MODEL\\PLAYER\\16_footR.x",	// 右足
-	"data\\MODEL\\PLAYER\\17_rod.x",	// 杖
+	"data\\MODEL\\PLAYER\\02_head.x",	// 頭
+	"data\\MODEL\\PLAYER\\03_armUL.x",	// 左上腕
+	"data\\MODEL\\PLAYER\\04_armUR.x",	// 右上腕
+	"data\\MODEL\\PLAYER\\05_armDL.x",	// 左下腕
+	"data\\MODEL\\PLAYER\\06_armDR.x",	// 右下腕
+	"data\\MODEL\\PLAYER\\07_handL.x",	// 左手
+	"data\\MODEL\\PLAYER\\08_handR.x",	// 右手
+	"data\\MODEL\\PLAYER\\09_legUL.x",	// 左太もも
+	"data\\MODEL\\PLAYER\\10_legUR.x",	// 右太もも
+	"data\\MODEL\\PLAYER\\11_legDL.x",	// 左脛
+	"data\\MODEL\\PLAYER\\12_legDR.x",	// 右脛
+	"data\\MODEL\\PLAYER\\13_footL.x",	// 左足
+	"data\\MODEL\\PLAYER\\14_footR.x",	// 右足
 };
 
 //************************************************************
@@ -168,7 +165,7 @@ HRESULT CPlayer::Init(void)
 	}
 
 	// モーションの設定
-	SetMotion(MOTION_MOVE);
+	SetMotion(MOTION_IDOL);
 
 	// 成功を返す
 	return S_OK;
@@ -192,7 +189,7 @@ void CPlayer::Uninit(void)
 void CPlayer::Update(void)
 {
 	// 変数を宣言
-	EMotion currentMotion = MOTION_MOVE;	// 現在のモーション
+	EMotion currentMotion = MOTION_IDOL;	// 現在のモーション
 
 	// 過去位置の更新
 	UpdateOldPosition();
@@ -412,7 +409,7 @@ CPlayer *CPlayer::Create
 CPlayer::EMotion CPlayer::UpdateNormal(void)
 {
 	// 変数を宣言
-	EMotion currentMotion = MOTION_MOVE;		// 現在のモーション
+	EMotion currentMotion = MOTION_IDOL;		// 現在のモーション
 	D3DXVECTOR3 posPlayer = GetVec3Position();	// プレイヤー位置
 	D3DXVECTOR3 rotPlayer = GetVec3Rotation();	// プレイヤー向き
 
@@ -423,7 +420,7 @@ CPlayer::EMotion CPlayer::UpdateNormal(void)
 
 		// 処理を抜ける
 		assert(false);
-		return MOTION_MOVE;
+		return MOTION_IDOL;
 	}
 
 	// 移動操作
@@ -489,7 +486,7 @@ CPlayer::EMotion CPlayer::UpdateMove(void)
 	CInputKeyboard	*pKeyboard	= CManager::GetInstance()->GetKeyboard();	// キーボード
 	CInputPad		*pPad		= CManager::GetInstance()->GetPad();		// パッド
 
-#if 1
+#if 0
 	if (pKeyboard->IsPress(DIK_W))
 	{ // 奥移動の操作が行われた場合
 
@@ -604,8 +601,8 @@ CPlayer::EMotion CPlayer::UpdateMove(void)
 	}
 #endif
 
-	// 浮遊モーションを返す
-	return MOTION_MOVE;
+	// 待機モーションを返す
+	return MOTION_IDOL;
 }
 
 //============================================================
@@ -810,15 +807,20 @@ void CPlayer::UpdateMotion(int nMotion)
 	if (IsMotionFinish())
 	{ // モーションが終了していた場合
 
+#if 0
+
 		switch (GetMotionType())
 		{ // モーションの種類ごとの処理
-		case MOTION_BLOW_AWAY:	// 吹っ飛び状態
+		case MOTION_:	// 状態
 
 			// 無し
 
 			// 処理を抜ける
 			break;
 		}
+
+#endif
+
 	}
 }
 

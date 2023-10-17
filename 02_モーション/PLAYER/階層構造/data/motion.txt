@@ -1,0 +1,205 @@
+#====================================================================
+#
+# モーションスクリプトファイル[motion.txt]
+# Author：Momoya Takayama
+#
+#====================================================================
+SCRIPT
+
+#====================================================================
+# モデル数
+#====================================================================
+NUM_MODEL = 15
+
+#====================================================================
+# モデルファイル名
+#====================================================================
+MODEL_FILENAME = data/MODEL/player/00_waist.x
+MODEL_FILENAME = data/MODEL/player/01_body.x
+MODEL_FILENAME = data/MODEL/player/02_head.x
+MODEL_FILENAME = data/MODEL/player/03_armUL.x
+MODEL_FILENAME = data/MODEL/player/04_armUR.x
+MODEL_FILENAME = data/MODEL/player/05_armDL.x
+MODEL_FILENAME = data/MODEL/player/06_armDR.x
+MODEL_FILENAME = data/MODEL/player/07_handL.x
+MODEL_FILENAME = data/MODEL/player/08_handR.x
+MODEL_FILENAME = data/MODEL/player/09_legUL.x
+MODEL_FILENAME = data/MODEL/player/10_legUR.x
+MODEL_FILENAME = data/MODEL/player/11_legDL.x
+MODEL_FILENAME = data/MODEL/player/12_legDR.x
+MODEL_FILENAME = data/MODEL/player/13_footL.x
+MODEL_FILENAME = data/MODEL/player/14_footR.x
+
+#====================================================================
+# キャラクター情報
+#====================================================================
+CHARACTERSET
+    NUM_PARTS = 15
+
+    PARTSSET
+        INDEX = 0
+        PARENT = -1
+        POS = 0.0 35.6 0.0
+        ROT = 0.0 0.0 0.0
+    END_PARTSSET
+    PARTSSET
+        INDEX = 1
+        PARENT = 0
+        POS = 0.0 3.4 -0.2
+        ROT = 0.0 0.0 0.0
+    END_PARTSSET
+    PARTSSET
+        INDEX = 2
+        PARENT = 1
+        POS = -0.1 34.3 -0.4
+        ROT = 0.0 0.0 0.0
+    END_PARTSSET
+    PARTSSET
+        INDEX = 3
+        PARENT = 1
+        POS = -12.3 23.2 -1.5
+        ROT = 0.0 0.0 0.0
+    END_PARTSSET
+    PARTSSET
+        INDEX = 4
+        PARENT = 1
+        POS = 12.3 23.2 -1.5
+        ROT = 0.0 0.0 0.0
+    END_PARTSSET
+    PARTSSET
+        INDEX = 5
+        PARENT = 3
+        POS = -18.0 -0.2 0.5
+        ROT = 0.0 0.0 0.0
+    END_PARTSSET
+    PARTSSET
+        INDEX = 6
+        PARENT = 4
+        POS = 18.0 -0.2 0.5
+        ROT = 0.0 0.0 0.0
+    END_PARTSSET
+    PARTSSET
+        INDEX = 7
+        PARENT = 5
+        POS = -11.7 -0.5 0.4
+        ROT = 0.0 0.0 0.0
+    END_PARTSSET
+    PARTSSET
+        INDEX = 8
+        PARENT = 6
+        POS = 11.7 -0.5 0.4
+        ROT = 0.0 0.0 0.0
+    END_PARTSSET
+    PARTSSET
+        INDEX = 9
+        PARENT = 0
+        POS = -7.3 -2.5 0.0
+        ROT = 0.0 0.0 0.0
+    END_PARTSSET
+    PARTSSET
+        INDEX = 10
+        PARENT = 0
+        POS = 7.3 -2.5 0.0
+        ROT = 0.0 0.0 0.0
+    END_PARTSSET
+    PARTSSET
+        INDEX = 11
+        PARENT = 9
+        POS = -0.8 -14.2 -0.2
+        ROT = 0.0 0.0 0.0
+    END_PARTSSET
+    PARTSSET
+        INDEX = 12
+        PARENT = 10
+        POS = 0.8 -14.2 -0.2
+        ROT = 0.0 0.0 0.0
+    END_PARTSSET
+    PARTSSET
+        INDEX = 13
+        PARENT = 11
+        POS = 0.1 -13.4 -0.1
+        ROT = 0.0 0.0 0.0
+    END_PARTSSET
+    PARTSSET
+        INDEX = 14
+        PARENT = 12
+        POS = -0.1 -13.4 -0.1
+        ROT = 0.0 0.0 0.0
+    END_PARTSSET
+END_CHARACTERSET
+
+#====================================================================
+# モーション情報
+#====================================================================
+#===============================
+# [0]番目のモーション
+#===============================
+MOTIONSET
+    LOOP = 0
+    NUM_KEY = 1
+
+    KEYSET     #---<< 0 / 1 >>
+        FRAME = 40
+        KEY # -----[0]----
+            POS = 0.00 0.00 0.00
+            ROT = 0.00 0.00 0.00
+        END_KEY
+        KEY # -----[1]----
+            POS = 0.00 0.00 0.00
+            ROT = 0.00 0.00 0.00
+        END_KEY
+        KEY # -----[2]----
+            POS = 0.00 0.00 0.00
+            ROT = 0.00 0.00 0.00
+        END_KEY
+        KEY # -----[3]----
+            POS = 0.00 0.00 0.00
+            ROT = 0.00 0.00 0.00
+        END_KEY
+        KEY # -----[4]----
+            POS = 0.00 0.00 0.00
+            ROT = 0.00 0.00 0.00
+        END_KEY
+        KEY # -----[5]----
+            POS = 0.00 0.00 0.00
+            ROT = 0.00 0.00 0.00
+        END_KEY
+        KEY # -----[6]----
+            POS = 0.00 0.00 0.00
+            ROT = 0.00 0.00 0.00
+        END_KEY
+        KEY # -----[7]----
+            POS = 0.00 0.00 0.00
+            ROT = 0.00 0.00 0.00
+        END_KEY
+        KEY # -----[8]----
+            POS = 0.00 0.00 0.00
+            ROT = 0.00 0.00 0.00
+        END_KEY
+        KEY # -----[9]----
+            POS = 0.00 0.00 0.00
+            ROT = 0.00 0.00 0.00
+        END_KEY
+        KEY # -----[10]----
+            POS = 0.00 0.00 0.00
+            ROT = 0.00 0.00 0.00
+        END_KEY
+        KEY # -----[11]----
+            POS = 0.00 0.00 0.00
+            ROT = 0.00 0.00 0.00
+        END_KEY
+        KEY # -----[12]----
+            POS = 0.00 0.00 0.00
+            ROT = 0.00 0.00 0.00
+        END_KEY
+        KEY # -----[13]----
+            POS = 0.00 0.00 0.00
+            ROT = 0.00 0.00 0.00
+        END_KEY
+        KEY # -----[14]----
+            POS = 0.00 0.00 0.00
+            ROT = 0.00 0.00 0.00
+        END_KEY
+    END_KEYSET
+END_MOTIONSET
+END_SCRIPT
