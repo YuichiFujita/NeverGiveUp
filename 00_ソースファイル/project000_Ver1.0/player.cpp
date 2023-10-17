@@ -55,7 +55,7 @@ namespace
 		const float	SLIDE_CONTROL_MIN	= 2.4f;		// スライディングが可能になる移動量
 		const float	PLUS_SUB_MOVE		= 0.0035f;	// 移動量の最大追加減算量
 
-		const int	MIN_END_CNT	= 40;		// スライディングの解除操作ができるようになるカウント
+		const int	MIN_END_CNT	= 30;		// スライディングの解除操作ができるようになるカウント
 		const int	MAX_END_CNT	= 80;		// スライディングが強制終了するカウント
 		const float	MIN_MOVE	= 1.25f;	// 移動量の最低速度
 		const float	SUB_MOVE	= 0.01f;	// スライディング時の速度減算量
@@ -601,8 +601,8 @@ CPlayer::EMotion CPlayer::UpdateMove(void)
 	}
 #endif
 
-	// 待機モーションを返す
-	return MOTION_IDOL;
+	// 移動モーションを返す
+	return MOTION_MOVE;
 }
 
 //============================================================
