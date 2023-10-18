@@ -39,11 +39,11 @@ namespace
 	// プレイヤー基本情報
 	namespace basic
 	{
-		const float MOVE		= 2.8f;		// 移動量
+		const float	MOVE		= 2.8f;		// 移動量
 		const float	JUMP		= 20.0f;	// ジャンプ上昇量
 		const float	GRAVITY		= 1.0f;		// 重力
 		const float	RADIUS		= 20.0f;	// 半径
-		const float HEIGHT		= 100.0f;	// 縦幅
+		const float	HEIGHT		= 100.0f;	// 縦幅
 		const float	JUMP_REV	= 0.22f;	// 空中の移動量の減衰係数
 		const float	LAND_REV	= 0.2f;		// 地上の移動量の減衰係数
 		const float	REV_ROTA	= 0.15f;	// 向き変更の補正係数
@@ -640,8 +640,8 @@ void CPlayer::UpdateSliding(void)
 	CInputKeyboard	*pKeyboard	= CManager::GetInstance()->GetKeyboard();	// キーボード
 	CInputPad		*pPad		= CManager::GetInstance()->GetPad();		// パッド
 
-	if (!m_bJump && !m_bSlide)
-	{ // ジャンプとスライディングをしていない場合
+	if (!m_bSlide)
+	{ // スライディングしていない場合
 
 		if (pKeyboard->IsTrigger(DIK_RETURN) || pPad->IsTrigger(CInputPad::KEY_A))
 		{ // スライディングの操作が行われた場合
@@ -650,25 +650,28 @@ void CPlayer::UpdateSliding(void)
 			m_bSlideControl = true;
 		}
 
-		if (m_fMove >= slide::SLIDE_CONTROL_MIN)
-		{ // スライディングが可能な移動速度の場合
+		if (!m_bJump)
+		{ // ジャンプしていない場合
 
-			if (m_bSlideControl)
-			{ // スライディングの操作が行われた場合
+			if (m_fMove >= slide::SLIDE_CONTROL_MIN)
+			{ // スライディングが可能な移動速度の場合
 
-				// スライディング操作が行われた情報を初期化
-				m_bSlideControl = false;
+				if (m_bSlideControl)
+				{ // スライディングの操作が行われた場合
 
-				// スライディングしている状態にする
-				m_bSlide = true;
+					// スライディング操作が行われた情報を初期化
+					m_bSlideControl = false;
 
-				// スライディングモーションを設定
-				SetMotion(MOTION_SLIDE);
+					// スライディングしている状態にする
+					m_bSlide = true;
+
+					// スライディングモーションを設定
+					SetMotion(MOTION_SLIDE);
+				}
 			}
 		}
 	}
-
-	if (m_bSlide)
+	else
 	{ // スライディングしている場合
 
 		// 変数を宣言
