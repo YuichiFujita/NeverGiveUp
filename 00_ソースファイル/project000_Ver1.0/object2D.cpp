@@ -141,7 +141,7 @@ void CObject2D::Draw(void)
 {
 	// ポインタを宣言
 	LPDIRECT3DDEVICE9 pDevice = CManager::GetInstance()->GetRenderer()->GetDevice();	// デバイスのポインタ
-	CTexture *pTexture = CManager::GetInstance()->GetTexture();						// テクスチャへのポインタ
+	CTexture *pTexture = CManager::GetInstance()->GetTexture();							// テクスチャへのポインタ
 
 	// 頂点バッファをデータストリームに設定
 	pDevice->SetStreamSource(0, m_pVtxBuff, 0, sizeof(VERTEX_2D));
