@@ -477,18 +477,25 @@ void CCamera::Follow(void)
 
 		// 変数を宣言
 		D3DXVECTOR3 posPlayer = CScene::GetPlayer()->GetVec3Position();	// プレイヤー位置
+		D3DXVECTOR3 rotPlayer = CScene::GetPlayer()->GetVec3Rotation();	// プレイヤー向き
+		D3DXVECTOR3 posLook  = VEC3_ZERO;	// 位置
 		D3DXVECTOR3 diffPosV = VEC3_ZERO;	// 視点の差分位置
 		D3DXVECTOR3 diffPosR = VEC3_ZERO;	// 注視点の差分位置
-		D3DXVECTOR3 diffRot = VEC3_ZERO;	// 差分向き
+		D3DXVECTOR3 diffRot  = VEC3_ZERO;	// 差分向き
+
+		// 
+		posLook.x = posPlayer.x + sinf(rotPlayer.y + D3DX_PI) * 500.0f;
+		posLook.y = posPlayer.y + 50.0f;
+		posLook.z = posPlayer.z + cosf(rotPlayer.y + D3DX_PI) * 500.0f;
 
 		//----------------------------------------------------
 		//	向きの更新
 		//----------------------------------------------------
 		// 距離が離れるにつれてカメラを上に向けていく
-		m_aCamera[TYPE_MAIN].destRot.x = 1.85f;
+		m_aCamera[TYPE_MAIN].destRot.x = 1.7f;
 
 		// カメラをプレイヤーに向かせる
-		m_aCamera[TYPE_MAIN].destRot.y = 0.0f;
+		m_aCamera[TYPE_MAIN].destRot.y = rotPlayer.y + HALF_PI + 0.2f;
 
 		// 目標向きを正規化
 		useful::Vec3NormalizeRot(m_aCamera[TYPE_MAIN].destRot);
@@ -505,13 +512,13 @@ void CCamera::Follow(void)
 		//	距離の更新
 		//----------------------------------------------------
 		// 目標距離を設定
-		m_aCamera[TYPE_MAIN].fDis = m_aCamera[TYPE_MAIN].fDestDis = 800.0f;
+		m_aCamera[TYPE_MAIN].fDis = m_aCamera[TYPE_MAIN].fDestDis = 1000.0f;
 
 		//----------------------------------------------------
 		//	位置の更新
 		//----------------------------------------------------
 		// 注視点の更新
-		m_aCamera[TYPE_MAIN].destPosR = posPlayer;
+		m_aCamera[TYPE_MAIN].destPosR = posLook;
 
 		// 視点の更新
 		m_aCamera[TYPE_MAIN].destPosV.x = m_aCamera[TYPE_MAIN].destPosR.x + ((-m_aCamera[TYPE_MAIN].fDis * sinf(m_aCamera[TYPE_MAIN].rot.x)) * sinf(m_aCamera[TYPE_MAIN].rot.y));

@@ -309,9 +309,6 @@ void CRenderer::Draw(void)
 		// オブジェクトの全描画
 		CObject::DrawAll();
 
-		// デバッグ表示の描画
-		CManager::GetInstance()->GetDebugProc()->Draw();
-
 		// ビューポートを元に戻す
 		m_pD3DDevice->SetViewport(&viewportDef);
 

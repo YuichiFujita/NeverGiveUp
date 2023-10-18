@@ -85,6 +85,7 @@ public:
 	virtual void Draw(void)		= 0;	// 描画
 
 	// 仮想関数
+	virtual void Hit(void);	// ヒット
 	virtual void Hit(const int nDmg);	// ヒット
 	virtual void HitKnockBack(const int nDmg, const D3DXVECTOR3& vec);	// ノックバックヒット
 

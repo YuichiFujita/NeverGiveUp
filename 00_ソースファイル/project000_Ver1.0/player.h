@@ -17,6 +17,12 @@
 #include "objectChara.h"
 
 //************************************************************
+//	マクロ定義
+//************************************************************
+#define PLAY_SPAWN_POS	(D3DXVECTOR3(-2800.0f, 1120.0f, 0.0f))	// プレイヤーのスポーン位置
+#define PLAY_SPAWN_ROT	(D3DXVECTOR3(0.0f, -HALF_PI, 0.0f))		// プレイヤーのスポーン向き
+
+//************************************************************
 //	前方宣言
 //************************************************************
 class CShadow;	// 影クラス
@@ -54,6 +60,7 @@ public:
 	{
 		MOTION_IDOL = 0,	// 待機モーション
 		MOTION_MOVE,		// 移動モーション
+		MOTION_JUMP,		// ジャンプモーション
 		MOTION_SLIDE,		// スライディングモーション
 		MOTION_MAX			// この列挙型の総数
 	};
@@ -62,7 +69,9 @@ public:
 	enum EState
 	{
 		STATE_NONE = 0,	// 何もしない状態
+		STATE_SPAWN,	// スポーン状態
 		STATE_NORMAL,	// 通常状態
+		STATE_DAMAGE,	// ダメージ状態
 		STATE_DEATH,	// 死亡状態
 		STATE_MAX		// この列挙型の総数
 	};
@@ -83,11 +92,11 @@ public:
 	~CPlayer();
 
 	// オーバーライド関数
-	HRESULT Init(void) override;		// 初期化
-	void Uninit(void) override;			// 終了
-	void Update(void) override;			// 更新
-	void Draw(void) override;			// 描画
-	void Hit(const int nDmg) override;	// ヒット
+	HRESULT Init(void) override;	// 初期化
+	void Uninit(void) override;		// 終了
+	void Update(void) override;		// 更新
+	void Draw(void) override;		// 描画
+	void Hit(void) override;		// ヒット
 
 	void SetState(const int nState) override;	// 状態設定
 	int GetState(void) const override;			// 状態取得
@@ -98,16 +107,17 @@ public:
 	D3DXMATRIX GetMtxWorld(void) const override;		// マトリックス取得
 
 	// 静的メンバ関数
-	static CPlayer *Create	// 生成
-	( // 引数
-		const D3DXVECTOR3& rPos,	// 位置
-		const D3DXVECTOR3& rRot		// 向き
-	);
+	static CPlayer *Create(void);	// 生成
+
+	// メンバ関数
+	void SetSpawn(D3DXVECTOR3& rPos, D3DXVECTOR3& rRot);	// 出現設定
 
 private:
 	// メンバ関数
 	void LoadSetup(void);		// セットアップ
+	EMotion UpdateSpawn(void);	// スポーン状態時の更新
 	EMotion UpdateNormal(void);	// 通常状態時の更新
+	EMotion UpdateDamage(void);	// ダメージ状態時の更新
 
 	void UpdateOldPosition(void);			// 過去位置の更新
 	EMotion UpdateMove(void);				// 移動量・目標向きの更新
@@ -116,6 +126,8 @@ private:
 	bool UpdateLanding(D3DXVECTOR3& rPos);	// 着地状況の更新
 	void UpdateRotation(D3DXVECTOR3& rRot);	// 向きの更新
 	void UpdateMotion(int nMotion);			// モーション・オブジェクトキャラクターの更新
+	bool UpdateFadeOut(const float fAdd);	// フェードアウト状態時の更新
+	bool UpdateFadeIn(const float fSub);	// フェードイン状態時の更新
 
 	bool ResponseSingleBuilding(const EAxis axis, D3DXVECTOR3& rPos);	// ビルとの一軸ごとの当たり判定
 	bool CollisionBuilding(D3DXVECTOR3& rPos);	// ビルとの当たり判定

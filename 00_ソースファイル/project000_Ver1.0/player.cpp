@@ -44,9 +44,18 @@ namespace
 		const float	GRAVITY		= 1.0f;		// 重力
 		const float	RADIUS		= 20.0f;	// 半径
 		const float	HEIGHT		= 100.0f;	// 縦幅
-		const float	JUMP_REV	= 0.22f;	// 空中の移動量の減衰係数
-		const float	LAND_REV	= 0.2f;		// 地上の移動量の減衰係数
 		const float	REV_ROTA	= 0.15f;	// 向き変更の補正係数
+		const float	BLOW_SIDE	= 40.0f;	// 吹っ飛び時の横移動量
+		const float	BLOW_UP		= 30.0f;	// 吹っ飛び時の縦移動量
+
+		const float	NOR_JUMP_REV	= 0.22f;	// 通常状態時の空中の移動量の減衰係数
+		const float	NOR_LAND_REV	= 0.2f;		// 通常状態時の地上の移動量の減衰係数
+		const float	DMG_JUMP_REV	= 0.01f;	// ダメージ状態時の空中の移動量の減衰係数
+		const float	DMG_LAND_REV	= 0.5f;		// ダメージ状態時の地上の移動量の減衰係数
+		const float DMG_SUB_ALPHA	= 0.025f;	// ダメージ状態時の透明度の減算量
+		const float	SPAWN_ADD_ALPHA	= 0.015f;	// スポーン状態時の透明度の加算量
+
+		const D3DXVECTOR3 DMG_ADDROT = D3DXVECTOR3(0.04f, 0.0f, -0.02f);	// ダメージ状態時のプレイヤー回転量
 	}
 
 	// スライディング情報
@@ -164,8 +173,8 @@ HRESULT CPlayer::Init(void)
 		return E_FAIL;
 	}
 
-	// 待機モーションを設定
-	SetMotion(MOTION_IDOL);
+	// スポーン状態を設定
+	SetState(STATE_SPAWN);
 
 	// 成功を返す
 	return S_OK;
@@ -199,10 +208,24 @@ void CPlayer::Update(void)
 	case STATE_NONE:
 		break;
 
+	case STATE_SPAWN:
+
+		// スポーン状態時の更新
+		currentMotion = UpdateSpawn();
+
+		break;
+
 	case STATE_NORMAL:
 
 		// 通常状態の更新
 		currentMotion = UpdateNormal();
+
+		break;
+
+	case STATE_DAMAGE:
+
+		// ダメージ状態時の更新
+		currentMotion = UpdateDamage();
 
 		break;
 
@@ -219,6 +242,25 @@ void CPlayer::Update(void)
 
 	// モーション・オブジェクトキャラクターの更新
 	UpdateMotion(currentMotion);
+
+	// TODO：デバッグ用
+	if (CManager::GetInstance()->GetKeyboard()->IsPress(DIK_0))
+	{
+		m_destRot.y += 0.05f;
+		useful::NormalizeRot(m_destRot.y);
+	}
+
+	if (CManager::GetInstance()->GetKeyboard()->IsTrigger(DIK_9))
+	{
+		m_destRot.y -= HALF_PI;
+		useful::NormalizeRot(m_destRot.y);
+	}
+
+	if (CManager::GetInstance()->GetKeyboard()->IsTrigger(DIK_8))
+	{
+		m_destRot.y += HALF_PI;
+		useful::NormalizeRot(m_destRot.y);
+	}
 }
 
 //============================================================
@@ -233,13 +275,10 @@ void CPlayer::Draw(void)
 //============================================================
 //	ヒット処理
 //============================================================
-void CPlayer::Hit(const int /*nDmg*/)
+void CPlayer::Hit(void)
 {
-
-#if 0	// TODO：Hit処理
-
 	// 変数を宣言
-	D3DXVECTOR3 pos = GetVec3Position();	// プレイヤー位置
+	D3DXVECTOR3 rotPlayer = GetVec3Rotation();	// プレイヤー向き
 
 	if (IsDeath() != true)
 	{ // 死亡フラグが立っていない場合
@@ -247,38 +286,18 @@ void CPlayer::Hit(const int /*nDmg*/)
 		if (m_state == STATE_NORMAL)
 		{ // 通常状態の場合
 
-			// 体力からダメージ分減算
-			m_pLife->AddNum(-nDmg);
+			// カウンターを初期化
+			m_nCounterState = 0;
 
-			if (m_pLife->GetNum() > 0)
-			{ // 生きている場合
+			// 吹っ飛びベクトルを設定
+			m_move.x = sinf(rotPlayer.y) * basic::BLOW_SIDE;
+			m_move.y = basic::BLOW_UP;
+			m_move.z = cosf(rotPlayer.y) * basic::BLOW_SIDE;
 
-				// カウンターを初期化
-				m_nCounterState = 0;
-
-				// 状態を変更
-				m_state = STATE_DAMAGE;	// ダメージ状態
-			}
-			else
-			{ // 死んでいる場合
-
-				// カウンターを初期化
-				m_nCounterState = 0;
-
-				// 状態を変更
-				m_state = STATE_DEATH;	// 死亡状態
-
-				// モーションの設定
-				SetMotion(MOTION_DEATH);	// 死亡モーション
-
-				// サウンドの再生
-				CManager::GetSound()->Play(CSound::LABEL_SE_BREAK);	// 破壊音
-			}
+			// 状態を変更
+			SetState(STATE_DAMAGE);	// ダメージ状態
 		}
 	}
-
-#endif
-
 }
 
 //============================================================
@@ -288,6 +307,32 @@ void CPlayer::SetState(const int nState)
 {
 	// 引数の状態を設定
 	m_state = (EState)nState;
+
+	switch (m_state)
+	{ // 状態ごとの処理
+	case STATE_NONE:
+		break;
+
+	case STATE_SPAWN:
+
+		// 出現の設定
+		SetSpawn(PLAY_SPAWN_POS, PLAY_SPAWN_ROT);
+
+		break;
+
+	case STATE_NORMAL:
+		break;
+
+	case STATE_DAMAGE:
+		break;
+
+	case STATE_DEATH:
+		break;
+
+	default:
+		assert(false);
+		break;
+	}
 }
 
 //============================================================
@@ -356,15 +401,8 @@ D3DXMATRIX CPlayer::GetMtxWorld(void) const
 //============================================================
 //	生成処理
 //============================================================
-CPlayer *CPlayer::Create
-(
-	const D3DXVECTOR3& rPos,	// 位置
-	const D3DXVECTOR3& rRot		// 向き
-)
+CPlayer *CPlayer::Create(void)
 {
-	// 変数を宣言
-	D3DXVECTOR3 pos = rPos;		// 座標設定用
-
 	// ポインタを宣言
 	CPlayer *pPlayer = NULL;	// プレイヤー生成用
 
@@ -390,17 +428,56 @@ CPlayer *CPlayer::Create
 			// 失敗を返す
 			return NULL;
 		}
-
-		// 位置を設定
-		CScene::GetStage()->LimitPosition(pos, basic::RADIUS);	// ステージ範囲内補正
-		pPlayer->SetVec3Position(pos);
-
-		// 向きを設定
-		pPlayer->SetVec3Rotation(rRot);
 	}
 
 	// 確保したアドレスを返す
 	return pPlayer;
+}
+
+//============================================================
+//	出現の設定処理
+//============================================================
+void CPlayer::SetSpawn(D3DXVECTOR3& rPos, D3DXVECTOR3& rRot)
+{
+	// 情報を初期化
+	SetMotion(CPlayer::MOTION_IDOL);	// 待機モーションを設定
+	m_nCounterState = 0;	// カウンターを初期化
+
+	// 位置を設定
+	SetVec3Position(rPos);
+
+	// 向きを設定
+	SetVec3Rotation(rRot);
+	m_destRot = rRot;
+
+	// マテリアルを再設定
+	ResetMaterial();
+
+	// 透明度を不透明に再設定
+	SetAlpha(1.0f);
+
+	// プレイヤー自身の描画を再開
+	CObject::SetEnableDraw(true);
+}
+
+//============================================================
+//	スポーン状態時の更新処理
+//============================================================
+CPlayer::EMotion CPlayer::UpdateSpawn(void)
+{
+	// 変数を宣言
+	EMotion currentMotion = MOTION_IDOL;	// 現在のモーション
+
+	// フェードアウト状態時の更新
+	if (UpdateFadeOut(basic::SPAWN_ADD_ALPHA))
+	{ // 不透明になり切った場合
+
+		// 状態を設定
+		SetState(STATE_NORMAL);
+	}
+
+	// 現在のモーションを返す
+	return currentMotion;
 }
 
 //============================================================
@@ -445,9 +522,8 @@ CPlayer::EMotion CPlayer::UpdateNormal(void)
 	if (CollisionObstacle(posPlayer))
 	{ // 当たった場合
 
-		// TODO：死亡状態にする
-
-		CParticle3D::Create(CParticle3D::TYPE_HEAL, posPlayer);
+		// ヒット
+		Hit();
 	}
 
 	// 位置を反映
@@ -460,6 +536,56 @@ CPlayer::EMotion CPlayer::UpdateNormal(void)
 	CManager::GetInstance()->GetDebugProc()->Print("プレイヤー移動量：%f\n", m_fMove);
 	CManager::GetInstance()->GetDebugProc()->Print((m_bJump) ? "ジャンプ：ON\n" : "ジャンプ：OFF\n");
 	CManager::GetInstance()->GetDebugProc()->Print((m_bSlide) ? "スライディング：ON\n" : "スライディング：OFF\n");
+
+	// 現在のモーションを返す
+	return currentMotion;
+}
+
+//============================================================
+//	ダメージ状態時の更新処理
+//============================================================
+CPlayer::EMotion CPlayer::UpdateDamage(void)
+{
+	// 変数を宣言
+	EMotion currentMotion = MOTION_IDOL;		// 現在のモーション
+	D3DXVECTOR3 posPlayer = GetVec3Position();	// プレイヤー位置
+	D3DXVECTOR3 rotPlayer = GetVec3Rotation();	// プレイヤー向き
+
+	// ポインタを宣言
+	CStage *pStage = CScene::GetStage();	// ステージ情報
+	if (pStage == NULL)
+	{ // ステージが使用されていない場合
+
+		// 処理を抜ける
+		assert(false);
+		return MOTION_IDOL;
+	}
+
+	// 向きを加算
+	rotPlayer += basic::DMG_ADDROT;
+
+	// 着地判定
+	UpdateLanding(posPlayer);
+
+	// ステージ範囲外の補正
+	pStage->LimitPosition(posPlayer, basic::RADIUS);
+
+	// 位置を反映
+	SetVec3Position(posPlayer);
+
+	// 向きを反映
+	SetVec3Rotation(rotPlayer);
+
+	// フェードイン状態時の更新
+	if (UpdateFadeIn(basic::DMG_SUB_ALPHA))
+	{ // 透明になり切った場合
+
+		// 状態を設定
+		SetState(STATE_SPAWN);
+	}
+
+	// デバッグ表示
+	CManager::GetInstance()->GetDebugProc()->Print("プレイヤー移動量：%f %f %f\n", m_move.x, m_move.y, m_move.z);
 
 	// 現在のモーションを返す
 	return currentMotion;
@@ -479,14 +605,10 @@ void CPlayer::UpdateOldPosition(void)
 //============================================================
 CPlayer::EMotion CPlayer::UpdateMove(void)
 {
-	// 変数を宣言
-	D3DXVECTOR3 rotCamera = CManager::GetInstance()->GetCamera()->GetVec3Rotation();	// カメラの向き
-
+#if 0
 	// ポインタを宣言
 	CInputKeyboard	*pKeyboard	= CManager::GetInstance()->GetKeyboard();	// キーボード
-	CInputPad		*pPad		= CManager::GetInstance()->GetPad();		// パッド
 
-#if 0
 	if (pKeyboard->IsPress(DIK_W))
 	{ // 奥移動の操作が行われた場合
 
@@ -494,31 +616,22 @@ CPlayer::EMotion CPlayer::UpdateMove(void)
 		{ // 左移動の操作も行われた場合 (左奥移動)
 
 			// 移動量を更新
-			m_move.x += sinf(rotCamera.y - (D3DX_PI * 0.25f)) * 2.0f;
-			m_move.z += cosf(rotCamera.y - (D3DX_PI * 0.25f)) * 2.0f;
-
-			// 目標向きを更新
-			m_destRot.y = D3DXToRadian(135) + rotCamera.y;
+			m_move.x -= sinf((D3DX_PI * 0.25f)) * 2.0f;
+			m_move.z -= cosf((D3DX_PI * 0.25f)) * 2.0f;
 		}
 		else if (pKeyboard->IsPress(DIK_D))
 		{ // 右移動の操作も行われた場合 (右奥移動)
 
 			// 移動量を更新
-			m_move.x -= sinf(rotCamera.y - (D3DX_PI * 0.75f)) * 2.0f;
-			m_move.z -= cosf(rotCamera.y - (D3DX_PI * 0.75f)) * 2.0f;
-
-			// 目標向きを更新
-			m_destRot.y = D3DXToRadian(225) + rotCamera.y;
+			m_move.x += sinf((D3DX_PI * 0.75f)) * 2.0f;
+			m_move.z += cosf((D3DX_PI * 0.75f)) * 2.0f;
 		}
 		else
 		{ // 奥移動の操作だけが行われた場合 (奥移動)
 
 			// 移動量を更新
-			m_move.x += sinf(rotCamera.y) * 2.0f;
-			m_move.z += cosf(rotCamera.y) * 2.0f;
-
-			// 目標向きを更新
-			m_destRot.y = D3DXToRadian(180) + rotCamera.y;
+			m_move.x -= sinf(0.0f) * 2.0f;
+			m_move.z -= cosf(0.0f) * 2.0f;
 		}
 	}
 	else if (pKeyboard->IsPress(DIK_S))
@@ -528,59 +641,45 @@ CPlayer::EMotion CPlayer::UpdateMove(void)
 		{ // 左移動の操作も行われた場合 (左手前移動)
 
 			// 移動量を更新
-			m_move.x += sinf(rotCamera.y - (D3DX_PI * 0.75f)) * 2.0f;
-			m_move.z += cosf(rotCamera.y - (D3DX_PI * 0.75f)) * 2.0f;
-
-			// 目標向きを更新
-			m_destRot.y = D3DXToRadian(45) + rotCamera.y;
+			m_move.x -= sinf((D3DX_PI * 0.75f)) * 2.0f;
+			m_move.z -= cosf((D3DX_PI * 0.75f)) * 2.0f;
 		}
 		else if (pKeyboard->IsPress(DIK_D))
 		{ // 右移動の操作も行われた場合 (右手前移動)
 
 			// 移動量を更新
-			m_move.x -= sinf(rotCamera.y - (D3DX_PI * 0.25f)) * 2.0f;
-			m_move.z -= cosf(rotCamera.y - (D3DX_PI * 0.25f)) * 2.0f;
-
-			// 目標向きを更新
-			m_destRot.y = D3DXToRadian(315) + rotCamera.y;
+			m_move.x += sinf((D3DX_PI * 0.25f)) * 2.0f;
+			m_move.z += cosf((D3DX_PI * 0.25f)) * 2.0f;
 		}
 		else
 		{ // 手前移動の操作だけが行われた場合 (手前移動)
 
 			// 移動量を更新
-			m_move.x -= sinf(rotCamera.y) * 2.0f;
-			m_move.z -= cosf(rotCamera.y) * 2.0f;
-
-			// 目標向きを更新
-			m_destRot.y = D3DXToRadian(0) + rotCamera.y;
+			m_move.x += sinf(0.0f) * 2.0f;
+			m_move.z += cosf(0.0f) * 2.0f;
 		}
 	}
 	else if (pKeyboard->IsPress(DIK_A))
 	{ // 左移動の操作が行われた場合
 
 		// 移動量を更新
-		m_move.x += sinf(rotCamera.y - (D3DX_PI * 0.5f)) * 2.0f;
-		m_move.z += cosf(rotCamera.y - (D3DX_PI * 0.5f)) * 2.0f;
-
-		// 目標向きを更新
-		m_destRot.y = D3DXToRadian(90) + rotCamera.y;
+		m_move.x -= sinf((D3DX_PI * 0.5f)) * 2.0f;
+		m_move.z -= cosf((D3DX_PI * 0.5f)) * 2.0f;
 	}
 	else if (pKeyboard->IsPress(DIK_D))
 	{ // 右移動の操作が行われた場合
 
 		// 移動量を更新
-		m_move.x -= sinf(rotCamera.y - (D3DX_PI * 0.5f)) * 2.0f;
-		m_move.z -= cosf(rotCamera.y - (D3DX_PI * 0.5f)) * 2.0f;
-
-		// 目標向きを更新
-		m_destRot.y = D3DXToRadian(270) + rotCamera.y;
+		m_move.x += sinf((D3DX_PI * 0.5f)) * 2.0f;
+		m_move.z += cosf((D3DX_PI * 0.5f)) * 2.0f;
 	}
-#else
-	// 移動量を更新
-	m_move.x += m_fMove;
 
 	// 目標向きを更新
-	m_destRot.y = atan2f(-m_move.x, -m_move.z);
+	//m_destRot.y = atan2f(-m_move.x, -m_move.z);
+#else
+	// 移動量を更新
+	m_move.x += sinf(m_destRot.y + D3DX_PI) * m_fMove;
+	m_move.z += cosf(m_destRot.y + D3DX_PI) * m_fMove;
 
 	if (!m_bSlide)
 	{ // スライディング中ではない場合
@@ -626,7 +725,8 @@ void CPlayer::UpdateJump(void)
 			// ジャンプしている状態にする
 			m_bJump = true;
 
-			CEffect3D::Create(GetVec3Position(), 80.0f, CEffect3D::TYPE_NORMAL, 20);
+			// ジャンプモーションを設定
+			SetMotion(MOTION_JUMP);
 		}
 	}
 }
@@ -815,6 +915,18 @@ void CPlayer::UpdateMotion(int nMotion)
 
 		switch (GetMotionType())
 		{ // モーションの種類ごとの処理
+		case MOTION_JUMP:	// ジャンプモーション
+
+			if (!m_bJump)
+			{ // ジャンプ中ではない場合
+
+				// 現在のモーションの設定
+				SetMotion(nMotion);
+			}
+
+			// 処理を抜ける
+			break;
+
 		case MOTION_SLIDE:	// スライディングモーション
 
 			if (!m_bSlide)
@@ -828,6 +940,70 @@ void CPlayer::UpdateMotion(int nMotion)
 			break;
 		}
 	}
+}
+
+//============================================================
+//	フェードアウト状態時の更新処理
+//============================================================
+bool CPlayer::UpdateFadeOut(const float fAdd)
+{
+	// 変数を宣言
+	bool bAlpha = false;		// 透明状況
+	float fAlpha = GetAlpha();	// 透明度
+
+	// プレイヤー自身の描画を再開
+	CObject::SetEnableDraw(true);
+
+	// 透明度を上げる
+	fAlpha += fAdd;
+
+	if (fAlpha >= GetMaxAlpha())
+	{ // 透明度が上がり切った場合
+
+		// 透明度を補正
+		fAlpha = GetMaxAlpha();
+
+		// 不透明になり切った状態にする
+		bAlpha = true;
+	}
+
+	// 透明度を設定
+	SetAlpha(fAlpha);
+
+	// 透明状況を返す
+	return bAlpha;
+}
+
+//============================================================
+//	フェードイン状態時の更新処理
+//============================================================
+bool CPlayer::UpdateFadeIn(const float fSub)
+{
+	// 変数を宣言
+	bool bAlpha = false;		// 透明状況
+	float fAlpha = GetAlpha();	// 透明度
+
+	// 透明度を下げる
+	fAlpha -= fSub;
+
+	if (fAlpha <= 0.0f)
+	{ // 透明度が下がり切った場合
+
+		// 透明度を補正
+		fAlpha = 0.0f;
+
+		// 透明になり切った状態にする
+		bAlpha = true;
+
+		// プレイヤー自身の描画を停止
+		CObject::SetEnableDraw(false);
+	}
+
+	// 透明度を設定
+	SetAlpha(fAlpha);
+
+	// 透明状況を返す
+	return bAlpha;
 }
 
 //============================================================
@@ -999,9 +1175,8 @@ bool CPlayer::CollisionBuilding(D3DXVECTOR3& rPos)
 	if (ResponseSingleBuilding(AXIS_X, rPos))
 	{ // 横に当たっていた場合
 
-		// TODO：死亡状態にする
-
-		CEffect3D::Create(rPos, 40.0f, CEffect3D::TYPE_NORMAL, 10);
+		// ヒット
+		Hit();
 	}
 
 	// 移動量を加算
@@ -1022,23 +1197,43 @@ bool CPlayer::CollisionBuilding(D3DXVECTOR3& rPos)
 	if (ResponseSingleBuilding(AXIS_Z, rPos))
 	{ // 横に当たっていた場合
 
-		// TODO：死亡状態にする
-
-		CEffect3D::Create(rPos, 40.0f, CEffect3D::TYPE_NORMAL, 10);
+		// ヒット
+		Hit();
 	}
 
-	// 移動量を減衰
-	if (m_bJump)
-	{ // 空中の場合
+	if (m_state == STATE_DAMAGE)
+	{ // ダメージ状態の場合
 
-		m_move.x += (0.0f - m_move.x) * basic::JUMP_REV;
-		m_move.z += (0.0f - m_move.z) * basic::JUMP_REV;
+		// 移動量を減衰
+		if (m_bJump)
+		{ // 空中の場合
+
+			m_move.x += (0.0f - m_move.x) * basic::DMG_JUMP_REV;
+			m_move.z += (0.0f - m_move.z) * basic::DMG_JUMP_REV;
+		}
+		else
+		{ // 地上の場合
+
+			m_move.x += (0.0f - m_move.x) * basic::DMG_LAND_REV;
+			m_move.z += (0.0f - m_move.z) * basic::DMG_LAND_REV;
+		}
 	}
 	else
-	{ // 地上の場合
+	{ // ダメージ状態ではない場合
 
-		m_move.x += (0.0f - m_move.x) * basic::LAND_REV;
-		m_move.z += (0.0f - m_move.z) * basic::LAND_REV;
+		// 移動量を減衰
+		if (m_bJump)
+		{ // 空中の場合
+
+			m_move.x += (0.0f - m_move.x) * basic::NOR_JUMP_REV;
+			m_move.z += (0.0f - m_move.z) * basic::NOR_JUMP_REV;
+		}
+		else
+		{ // 地上の場合
+
+			m_move.x += (0.0f - m_move.x) * basic::NOR_LAND_REV;
+			m_move.z += (0.0f - m_move.z) * basic::NOR_LAND_REV;
+		}
 	}
 
 	// 着地状況を返す

@@ -80,7 +80,7 @@ HRESULT CScene::Init(void)
 	}
 
 	// プレイヤーオブジェクトの生成
-	m_pPlayer = CPlayer::Create(D3DXVECTOR3(-2800.0f, 1120.0f, 0.0f), VEC3_ZERO);
+	m_pPlayer = CPlayer::Create();
 
 	// 成功を返す
 	return S_OK;
