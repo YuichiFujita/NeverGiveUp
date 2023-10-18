@@ -164,7 +164,7 @@ HRESULT CPlayer::Init(void)
 		return E_FAIL;
 	}
 
-	// モーションの設定
+	// 待機モーションを設定
 	SetMotion(MOTION_IDOL);
 
 	// 成功を返す
@@ -661,6 +661,9 @@ void CPlayer::UpdateSliding(void)
 
 				// スライディングしている状態にする
 				m_bSlide = true;
+
+				// スライディングモーションを設定
+				SetMotion(MOTION_SLIDE);
 			}
 		}
 	}
@@ -807,20 +810,20 @@ void CPlayer::UpdateMotion(int nMotion)
 	if (IsMotionFinish())
 	{ // モーションが終了していた場合
 
-#if 0
-
 		switch (GetMotionType())
 		{ // モーションの種類ごとの処理
-		case MOTION_:	// 状態
+		case MOTION_SLIDE:	// スライディングモーション
 
-			// 無し
+			if (!m_bSlide)
+			{ // スライディング中ではない場合
+
+				// 現在のモーションの設定
+				SetMotion(nMotion);
+			}
 
 			// 処理を抜ける
 			break;
 		}
-
-#endif
-
 	}
 }
 
