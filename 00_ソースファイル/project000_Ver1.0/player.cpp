@@ -242,25 +242,6 @@ void CPlayer::Update(void)
 
 	// モーション・オブジェクトキャラクターの更新
 	UpdateMotion(currentMotion);
-
-	// TODO：デバッグ用
-	if (CManager::GetInstance()->GetKeyboard()->IsPress(DIK_0))
-	{
-		m_destRot.y += 0.05f;
-		useful::NormalizeRot(m_destRot.y);
-	}
-
-	if (CManager::GetInstance()->GetKeyboard()->IsTrigger(DIK_9))
-	{
-		m_destRot.y -= HALF_PI;
-		useful::NormalizeRot(m_destRot.y);
-	}
-
-	if (CManager::GetInstance()->GetKeyboard()->IsTrigger(DIK_8))
-	{
-		m_destRot.y += HALF_PI;
-		useful::NormalizeRot(m_destRot.y);
-	}
 }
 
 //============================================================
@@ -450,6 +431,9 @@ void CPlayer::SetSpawn(D3DXVECTOR3& rPos, D3DXVECTOR3& rRot)
 	SetVec3Rotation(rRot);
 	m_destRot = rRot;
 
+	// 移動量を初期化
+	m_move = VEC3_ZERO;
+
 	// マテリアルを再設定
 	ResetMaterial();
 
@@ -458,6 +442,9 @@ void CPlayer::SetSpawn(D3DXVECTOR3& rPos, D3DXVECTOR3& rRot)
 
 	// プレイヤー自身の描画を再開
 	CObject::SetEnableDraw(true);
+
+	// 追従カメラの目標位置の設定
+	CManager::GetInstance()->GetCamera()->SetDestFollow();
 }
 
 //============================================================
