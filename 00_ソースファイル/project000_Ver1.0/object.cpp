@@ -171,7 +171,7 @@ void CObject::BindTexture(const int /*nTextureID*/)
 //============================================================
 //	テクスチャ割当処理 (パス)
 //============================================================
-void CObject::BindTexture(const char *pTexturePass)
+void CObject::BindTexture(const char * /*pTexturePass*/)
 {
 	// 例外処理
 	assert(false);
@@ -189,7 +189,7 @@ void CObject::BindModel(const int /*nModelID*/)
 //============================================================
 //	モデル割当処理 (パス)
 //============================================================
-void CObject::BindModel(const char *pModelPass)
+void CObject::BindModel(const char * /*pModelPass*/)
 {
 	// 例外処理
 	assert(false);

@@ -73,7 +73,7 @@ public:
 
 	// コンストラクタ
 	CObject();
-	CObject(const ELabel label, const int nPriority = DEFAULT_PRIO);
+	explicit CObject(const ELabel label, const int nPriority = DEFAULT_PRIO);
 
 	// デストラクタ
 	virtual ~CObject();
@@ -86,7 +86,7 @@ public:
 
 	// 仮想関数
 	virtual void Hit(void);	// ヒット
-	virtual void Hit(const int nDmg);	// ヒット
+	virtual void Hit(const int nDmg);	// ダメージヒット
 	virtual void HitKnockBack(const int nDmg, const D3DXVECTOR3& vec);	// ノックバックヒット
 
 	virtual void BindTexture(const int nTextureID);		// テクスチャ割当 (インデックス)

@@ -26,8 +26,11 @@
 #define NONE_IDX		(-1)	// インデックス非使用
 #define NONE_STRING		("\0")	// 文字列非使用
 
-#define HALF_PI (D3DX_PI * 0.5f)	// 二分の一の円周率 (π/２)
-#define QRTR_PI (D3DX_PI * 0.25f)	// 四分の一の円周率 (π/４)
+#define PI_TWO_DP		(3.14f)	// 小数点第二までの円周率
+#define HALF_PI_TWO_DP	(1.57f)	// 小数点第二までの二分の一の円周率 (π/２)
+
+#define HALF_PI	(D3DX_PI * 0.5f)	// 二分の一の円周率 (π/２)
+#define QRTR_PI	(D3DX_PI * 0.25f)	// 四分の一の円周率 (π/４)
 
 // D3DXVECTOR2関係
 #define VEC2_ZERO	(D3DXVECTOR2(0.0f, 0.0f))	// 0クリア

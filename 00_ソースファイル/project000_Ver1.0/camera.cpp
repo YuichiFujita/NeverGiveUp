@@ -483,7 +483,7 @@ void CCamera::Follow(void)
 		D3DXVECTOR3 diffPosR = VEC3_ZERO;	// 注視点の差分位置
 		D3DXVECTOR3 diffRot  = VEC3_ZERO;	// 差分向き
 
-		// 
+		// カメラの見る位置を調整
 		posLook.x = posPlayer.x + sinf(rotPlayer.y + D3DX_PI) * 500.0f;
 		posLook.y = posPlayer.y + 50.0f;
 		posLook.z = posPlayer.z + cosf(rotPlayer.y + D3DX_PI) * 500.0f;

@@ -85,6 +85,17 @@ public:
 		AXIS_MAX	// この列挙型の総数
 	};
 
+	// 方向列挙
+	enum EDirection
+	{
+		DIRECTION_NONE = 0,	// 方向無し
+		DIRECTION_DOWN,		// 方向：0°
+		DIRECTION_RIGHT,	// 方向：90°
+		DIRECTION_UP,		// 方向：180°
+		DIRECTION_LEFT,		// 方向：270°
+		DIRECTION_MAX		// この列挙型の総数
+	};
+	
 	// コンストラクタ
 	CPlayer();
 
@@ -129,6 +140,8 @@ private:
 	bool UpdateFadeOut(const float fAdd);	// フェードアウト状態時の更新
 	bool UpdateFadeIn(const float fSub);	// フェードイン状態時の更新
 
+	EDirection FourDirection(const float fRot, const float fTolerance);	// 四方向変換
+	void CollisionRotationBuilding(D3DXVECTOR3& rPos);					// 向き変更の当たり判定
 	bool ResponseSingleBuilding(const EAxis axis, D3DXVECTOR3& rPos);	// ビルとの一軸ごとの当たり判定
 	bool CollisionBuilding(D3DXVECTOR3& rPos);	// ビルとの当たり判定
 	bool CollisionObstacle(D3DXVECTOR3& rPos);	// 障害物との当たり判定

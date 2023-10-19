@@ -58,7 +58,8 @@ const char *CBuilding::mc_apTextureFile[][6] =	// テクスチャ定数
 //============================================================
 CBuilding::CBuilding() : CObjectMeshCube(CObject::LABEL_BUILDING, BUILDING_PRIO)
 {
-
+	// メンバ変数をクリア
+	m_collision = COLLISION_NONE;	// 当たり判定
 }
 
 //============================================================
@@ -74,6 +75,9 @@ CBuilding::~CBuilding()
 //============================================================
 HRESULT CBuilding::Init(void)
 {
+	// メンバ変数を初期化
+	m_collision = COLLISION_NONE;	// 当たり判定
+
 	// オブジェクトメッシュキューブの初期化
 	if (FAILED(CObjectMeshCube::Init()))
 	{ // 初期化に失敗した場合
@@ -189,6 +193,15 @@ void CBuilding::SetType(const int nType)
 }
 
 //============================================================
+//	状態取得処理
+//============================================================
+int CBuilding::GetState(void) const
+{
+	// 当たり判定を返す
+	return m_collision;
+}
+
+//============================================================
 //	生成処理
 //============================================================
 CBuilding *CBuilding::Create
@@ -197,7 +210,8 @@ CBuilding *CBuilding::Create
 	const D3DXVECTOR3& rPos,	// 位置
 	const D3DXVECTOR3& rRot,	// 向き
 	const D3DXVECTOR3& rSize,	// 大きさ
-	const D3DXCOLOR& rCol		// 色
+	const D3DXCOLOR& rCol,		// 色
+	const ECollision collision	// 当たり判定
 )
 {
 	// ポインタを宣言
@@ -241,8 +255,25 @@ CBuilding *CBuilding::Create
 		// キューブ色を設定
 		pBuilding->SetCubeColor(rCol);
 
+		// 当たり判定を設定
+		pBuilding->SetCollision(collision);
+
 		// 確保したアドレスを返す
 		return pBuilding;
 	}
 	else { assert(false); return NULL; }	// 確保失敗
+}
+
+//============================================================
+//	当たり判定の設定処理
+//============================================================
+void CBuilding::SetCollision(const ECollision collision)
+{
+	if (collision > NONE_IDX && collision < COLLISION_MAX)
+	{ // インデックスが範囲内の場合
+
+		// 引数の当たり判定を設定
+		m_collision = collision;
+	}
+	else { assert(false); }	// 範囲外
 }

@@ -515,6 +515,9 @@ CPlayer::EMotion CPlayer::UpdateNormal(void)
 	// 着地判定
 	UpdateLanding(posPlayer);
 
+	// 向き変更の当たり判定
+	CollisionRotationBuilding(posPlayer);
+
 	// ステージ範囲外の補正
 	pStage->LimitPosition(posPlayer, basic::RADIUS);
 
@@ -1007,6 +1010,175 @@ bool CPlayer::UpdateFadeIn(const float fSub)
 }
 
 //============================================================
+//	四方向変換処理
+//============================================================
+CPlayer::EDirection CPlayer::FourDirection
+(
+	const float fRot,		// 向き
+	const float fTolerance	// 許容値
+)
+{
+	if (fabsf(fRot) <= fTolerance)
+	{ // 許容値以下の誤差の場合
+
+		// 方向：0°を返す
+		return DIRECTION_DOWN;
+	}
+	else if (fabsf(fRot - HALF_PI_TWO_DP) <= fTolerance)
+	{ // 許容値以下の誤差の場合
+
+		// 方向：90°を返す
+		return DIRECTION_RIGHT;
+	}
+	else if (fabsf(fRot - PI_TWO_DP) <= fTolerance)
+	{ // 許容値以下の誤差の場合
+
+		// 方向：180°を返す
+		return DIRECTION_UP;
+	}
+	else if (fabsf(fRot - -HALF_PI_TWO_DP) <= fTolerance)
+	{ // 許容値以下の誤差の場合
+
+		// 方向：270°を返す
+		return DIRECTION_LEFT;
+	}
+
+	// 方向なしを返す
+	return DIRECTION_NONE;
+}
+
+//============================================================
+//	向き変更の当たり判定
+//============================================================
+void CPlayer::CollisionRotationBuilding(D3DXVECTOR3& rPos)
+{
+	// 変数を宣言
+	D3DXVECTOR3 sizeMinPlayer = D3DXVECTOR3(basic::RADIUS, 0.0f, basic::RADIUS);			// プレイヤー最小大きさ
+	D3DXVECTOR3 sizeMaxPlayer = D3DXVECTOR3(basic::RADIUS, basic::HEIGHT, basic::RADIUS);	// プレイヤー最大大きさ
+
+	for (int nCntPri = 0; nCntPri < MAX_PRIO; nCntPri++)
+	{ // 優先順位の総数分繰り返す
+
+		// ポインタを宣言
+		CObject *pObjectTop = CObject::GetTop(nCntPri);	// 先頭オブジェクト
+
+		if (pObjectTop != NULL)
+		{ // 先頭が存在する場合
+
+			// ポインタを宣言
+			CObject *pObjCheck = pObjectTop;	// オブジェクト確認用
+
+			while (pObjCheck != NULL)
+			{ // オブジェクトが使用されている場合繰り返す
+
+				// 変数を宣言
+				D3DXVECTOR3 posBuild = VEC3_ZERO;		// ビル位置
+				D3DXVECTOR3 rotBuild = VEC3_ZERO;		// ビル向き
+				D3DXVECTOR3 sizeMinBuild = VEC3_ZERO;	// ビル最小大きさ
+				D3DXVECTOR3 sizeMaxBuild = VEC3_ZERO;	// ビル最大大きさ
+
+				// ポインタを宣言
+				CObject *pObjectNext = pObjCheck->GetNext();	// 次オブジェクト
+
+				if (pObjCheck->GetLabel() != CObject::LABEL_BUILDING)
+				{ // オブジェクトラベルがビルではない場合
+
+					// 次のオブジェクトへのポインタを代入
+					pObjCheck = pObjectNext;
+
+					// 次の繰り返しに移行
+					continue;
+				}
+
+				if (pObjCheck->GetState() != CBuilding::COLLISION_GROUND)
+				{ // 状態が地面ではない場合
+
+					// 次のオブジェクトへのポインタを代入
+					pObjCheck = pObjectNext;
+
+					// 次の繰り返しに移行
+					continue;
+				}
+
+				// ビルの位置を設定
+				posBuild = pObjCheck->GetVec3Position();
+
+				// ビルの向きを設定
+				rotBuild = pObjCheck->GetVec3Rotation();
+
+				// ビルの最小の大きさを設定
+				sizeMinBuild = pObjCheck->GetVec3Sizing();
+				sizeMinBuild.y = 0.0f;	// 縦の大きさを初期化
+
+				// ビルの最大の大きさを設定
+				sizeMaxBuild = pObjCheck->GetVec3Sizing();
+				sizeMaxBuild.y *= 2.0f;	// 縦の大きさを倍にする
+
+				// 向き変更の当たり判定
+				if (collision::Box2D
+				( // 引数
+					rPos,			// 判定位置
+					posBuild,		// 判定目標位置
+					sizeMaxPlayer,	// 判定サイズ(右・上・後)
+					sizeMinPlayer,	// 判定サイズ(左・下・前)
+					sizeMaxBuild,	// 判定目標サイズ(右・上・後)
+					sizeMinBuild	// 判定目標サイズ(左・下・前)
+				))
+				{ // 判定内だった場合
+
+					// 変数を宣言
+					D3DXVECTOR3 posLeft = VEC3_ZERO;	// プレイヤーから見たビルの左位置
+					D3DXVECTOR3 posRight = VEC3_ZERO;	// プレイヤーから見たビルの右位置
+
+					float fRotLeft = m_destRot.y - HALF_PI;		// プレイヤーの90度左向き
+					useful::NormalizeRot(fRotLeft);				// 左向き正規化
+					float fRotRight = m_destRot.y + HALF_PI;	// プレイヤーの90度右向き
+					useful::NormalizeRot(fRotRight);			// 右向き正規化
+
+					if (FourDirection(m_destRot.y, QRTR_PI * 0.5f) == FourDirection(rotBuild.y, QRTR_PI * 0.5f))
+					{ // 向きが違う場合
+
+						// 次のオブジェクトへのポインタを代入
+						pObjCheck = pObjectNext;
+
+						// 次の繰り返しに移行
+						continue;
+					}
+
+					// ビルの左位置を計算
+					posLeft.x = posBuild.x - sinf(fRotLeft) * sizeMaxBuild.x;
+					posLeft.y = posBuild.y + sizeMaxBuild.y;
+					posLeft.z = posBuild.z - cosf(fRotLeft) * sizeMaxBuild.z;
+
+					// ビルの右位置を計算
+					posRight.x = posBuild.x - sinf(fRotRight) * sizeMaxBuild.x;
+					posRight.y = posBuild.y + sizeMaxBuild.y;
+					posRight.z = posBuild.z - cosf(fRotRight) * sizeMaxBuild.z;
+
+					if (collision::LineOuterProduct(posLeft, posRight, rPos) <= 0.0f)
+					{ // プレイヤーの進行方向から見てビルの中心より奥側の場合
+
+						// プレイヤーの位置にビルの中心位置を設定
+ 						rPos.x = posBuild.x;
+						rPos.z = posBuild.z;
+
+						// プレイヤーの移動量を初期化
+						m_move.x = 0.0f;
+						m_move.z = 0.0f;
+
+						// プレイヤーの目標向きにビルの向きを設定
+						m_destRot.y = rotBuild.y;
+					}
+				}
+
+				// 次のオブジェクトへのポインタを代入
+				pObjCheck = pObjectNext;
+			}
+		}
+	}
+}
+
+//============================================================
 //	ビルとの一軸ごとの当たり判定
 //============================================================
 bool CPlayer::ResponseSingleBuilding(const EAxis axis, D3DXVECTOR3& rPos)
@@ -1035,6 +1207,7 @@ bool CPlayer::ResponseSingleBuilding(const EAxis axis, D3DXVECTOR3& rPos)
 
 				// 変数を宣言
 				D3DXVECTOR3 posBuild = VEC3_ZERO;		// ビル位置
+				D3DXVECTOR3 rotBuild = VEC3_ZERO;		// ビル向き
 				D3DXVECTOR3 sizeMinBuild = VEC3_ZERO;	// ビル最小大きさ
 				D3DXVECTOR3 sizeMaxBuild = VEC3_ZERO;	// ビル最大大きさ
 
@@ -1053,6 +1226,9 @@ bool CPlayer::ResponseSingleBuilding(const EAxis axis, D3DXVECTOR3& rPos)
 
 				// ビルの位置を設定
 				posBuild = pObjCheck->GetVec3Position();
+
+				// ビルの向きを設定
+				rotBuild = pObjCheck->GetVec3Rotation();
 
 				// ビルの最小の大きさを設定
 				sizeMinBuild = pObjCheck->GetVec3Sizing();
