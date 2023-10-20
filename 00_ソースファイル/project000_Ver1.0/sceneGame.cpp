@@ -169,18 +169,18 @@ HRESULT CSceneGame::Init(void)
 
 #else
 
-	//CBuilding::Create(CBuilding::TYPE_01, D3DXVECTOR3(-2800.0f, 0.0f, 560.0f),  D3DXToRadian(D3DXVECTOR3(0.0f, 0.0f, 0.0f)),   D3DXVECTOR3(280.0f, 560.0f, 280.0f), XCOL_WHITE, CBuilding::COLLISION_GROUND);
-	//CBuilding::Create(CBuilding::TYPE_01, D3DXVECTOR3(-2800.0f, 0.0f, 1120.0f), D3DXToRadian(D3DXVECTOR3(0.0f, 0.0f, 0.0f)),   D3DXVECTOR3(280.0f, 560.0f, 280.0f), XCOL_WHITE, CBuilding::COLLISION_GROUND);
-	//CBuilding::Create(CBuilding::TYPE_02, D3DXVECTOR3(-1680.0f, 0.0f, 1120.0f), D3DXToRadian(D3DXVECTOR3(0.0f, 90.0f, 0.0f)),  D3DXVECTOR3(280.0f, 560.0f, 280.0f), XCOL_WHITE, CBuilding::COLLISION_GROUND);
-	//CBuilding::Create(CBuilding::TYPE_02, D3DXVECTOR3(-2240.0f, 0.0f, 1120.0f), D3DXToRadian(D3DXVECTOR3(0.0f, 90.0f, 0.0f)),  D3DXVECTOR3(280.0f, 560.0f, 280.0f), XCOL_WHITE, CBuilding::COLLISION_GROUND);
-	//CBuilding::Create(CBuilding::TYPE_00, D3DXVECTOR3(-1680.0f, 0.0f, 560.0f),  D3DXToRadian(D3DXVECTOR3(0.0f, 180.0f, 0.0f)), D3DXVECTOR3(280.0f, 560.0f, 280.0f), XCOL_WHITE, CBuilding::COLLISION_GROUND);
-	//CBuilding::Create(CBuilding::TYPE_00, D3DXVECTOR3(-1680.0f, 0.0f, 0.0f),    D3DXToRadian(D3DXVECTOR3(0.0f, 180.0f, 0.0f)), D3DXVECTOR3(280.0f, 560.0f, 280.0f), XCOL_WHITE, CBuilding::COLLISION_GROUND);
-	//CBuilding::Create(CBuilding::TYPE_02, D3DXVECTOR3(-2800.0f, 0.0f, 0.0f),    D3DXToRadian(D3DXVECTOR3(0.0f, 270.0f, 0.0f)), D3DXVECTOR3(280.0f, 560.0f, 280.0f), XCOL_WHITE, CBuilding::COLLISION_GROUND);
-	//CBuilding::Create(CBuilding::TYPE_02, D3DXVECTOR3(-2240.0f, 0.0f, 0.0f),    D3DXToRadian(D3DXVECTOR3(0.0f, 270.0f, 0.0f)), D3DXVECTOR3(280.0f, 560.0f, 280.0f), XCOL_WHITE, CBuilding::COLLISION_GROUND);
+	CBuilding::Create(CBuilding::TYPE_01, D3DXVECTOR3(-2800.0f, 0.0f, 560.0f),  D3DXToRadian(D3DXVECTOR3(0.0f, 0.0f, 0.0f)),   D3DXVECTOR3(280.0f, 560.0f, 280.0f), XCOL_WHITE, CBuilding::COLLISION_GROUND);
+	CBuilding::Create(CBuilding::TYPE_01, D3DXVECTOR3(-2800.0f, 0.0f, 1120.0f), D3DXToRadian(D3DXVECTOR3(0.0f, 0.0f, 0.0f)),   D3DXVECTOR3(280.0f, 560.0f, 280.0f), XCOL_WHITE, CBuilding::COLLISION_GROUND);
+	CBuilding::Create(CBuilding::TYPE_02, D3DXVECTOR3(-1680.0f, 0.0f, 1120.0f), D3DXToRadian(D3DXVECTOR3(0.0f, 90.0f, 0.0f)),  D3DXVECTOR3(280.0f, 560.0f, 280.0f), XCOL_WHITE, CBuilding::COLLISION_GROUND);
+	CBuilding::Create(CBuilding::TYPE_02, D3DXVECTOR3(-2240.0f, 0.0f, 1120.0f), D3DXToRadian(D3DXVECTOR3(0.0f, 90.0f, 0.0f)),  D3DXVECTOR3(280.0f, 560.0f, 280.0f), XCOL_WHITE, CBuilding::COLLISION_GROUND);
+	CBuilding::Create(CBuilding::TYPE_00, D3DXVECTOR3(-1680.0f, 0.0f, 560.0f),  D3DXToRadian(D3DXVECTOR3(0.0f, 180.0f, 0.0f)), D3DXVECTOR3(280.0f, 560.0f, 280.0f), XCOL_WHITE, CBuilding::COLLISION_GROUND);
+	CBuilding::Create(CBuilding::TYPE_00, D3DXVECTOR3(-1680.0f, 0.0f, 0.0f),    D3DXToRadian(D3DXVECTOR3(0.0f, 180.0f, 0.0f)), D3DXVECTOR3(280.0f, 560.0f, 280.0f), XCOL_WHITE, CBuilding::COLLISION_GROUND);
+	CBuilding::Create(CBuilding::TYPE_02, D3DXVECTOR3(-2800.0f, 0.0f, 0.0f),    D3DXToRadian(D3DXVECTOR3(0.0f, 270.0f, 0.0f)), D3DXVECTOR3(280.0f, 560.0f, 280.0f), XCOL_WHITE, CBuilding::COLLISION_GROUND);
+	CBuilding::Create(CBuilding::TYPE_02, D3DXVECTOR3(-2240.0f, 0.0f, 0.0f),    D3DXToRadian(D3DXVECTOR3(0.0f, 270.0f, 0.0f)), D3DXVECTOR3(280.0f, 560.0f, 280.0f), XCOL_WHITE, CBuilding::COLLISION_GROUND);
 
 #endif
 
-#if 1	// TODO：障害物
+#if 0	// TODO：障害物
 
 	// 障害物オブジェクトの生成
 	//CObstacle::Create(CObstacle::TYPE_BOX,   D3DXVECTOR3(-0.0f,    1120.0f, 0.0f), D3DXToRadian(D3DXVECTOR3(0.0f, 90.0f, 0.0f)));
@@ -202,7 +202,7 @@ HRESULT CSceneGame::Init(void)
 
 #endif
 
-	CSignboard::Create(CSignboard::TYPE_00, D3DXVECTOR3(-2200.0f, 150.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 1.0f);
+	CSignboard::Create(CSignboard::TYPE_00, D3DXVECTOR3(-2240.0f, 1400.0f, 40.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 1.0f);
 
 	//--------------------------------------------------------
 	//	初期設定
