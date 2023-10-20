@@ -150,7 +150,7 @@ HRESULT CSceneGame::Init(void)
 	// 空オブジェクトの生成
 	CSky::Create(CSky::TEXTURE_NORMAL, VEC3_ZERO, VEC3_ZERO, XCOL_WHITE, POSGRID2(32, 6), 18000.0f, D3DCULL_CW, false);
 
-#if 0	// TODO：ビル
+#if 1	// TODO：ビル
 
 	// ビルオブジェクトの生成
 	CBuilding::Create(CBuilding::TYPE_00, D3DXVECTOR3(0.0f, 0.0f, 560.0f * 7.25f), D3DXToRadian(D3DXVECTOR3(0.0f, 180.0f, 0.0f)), D3DXVECTOR3(280.0f, 560.0f, 280.0f), XCOL_WHITE, CBuilding::COLLISION_GROUND);
@@ -180,7 +180,7 @@ HRESULT CSceneGame::Init(void)
 
 #endif
 
-#if 0	// TODO：障害物
+#if 1	// TODO：障害物
 
 	// 障害物オブジェクトの生成
 	//CObstacle::Create(CObstacle::TYPE_BOX,   D3DXVECTOR3(-0.0f,    1120.0f, 0.0f), D3DXToRadian(D3DXVECTOR3(0.0f, 90.0f, 0.0f)));

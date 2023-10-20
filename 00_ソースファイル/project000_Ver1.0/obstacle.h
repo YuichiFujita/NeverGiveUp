@@ -80,12 +80,12 @@ public:
 	void SetType(const EType type);	// 種類設定
 
 private:
+	// 静的メンバ変数
+	static SModelInfo m_aStatusInfo[];	// モデル情報
+
 	// メンバ変数
 	const SStatusInfo m_status;	// ステータス定数
 	const EType m_type;			// 種類定数
-
-	// 静的メンバ変数
-	static SModelInfo m_aStatusInfo[];	// モデル情報
 };
 
 #endif	// _OBSTACLE_H_
