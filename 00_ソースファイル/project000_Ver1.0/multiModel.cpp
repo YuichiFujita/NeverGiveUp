@@ -13,7 +13,7 @@
 #include "texture.h"
 
 //************************************************************
-//	親クラス [CMultiModel] のメンバ関数
+//	子クラス [CMultiModel] のメンバ関数
 //************************************************************
 //============================================================
 //	コンストラクタ
@@ -22,7 +22,22 @@ CMultiModel::CMultiModel()
 {
 	// メンバ変数をクリア
 	memset(&m_modelData, 0, sizeof(m_modelData));	// モデル情報
-	memset(&m_pMtxParent, 0, sizeof(m_pMtxParent));	// 親マトリックスへのポインタ
+	memset(&m_mtxWorld, 0, sizeof(m_mtxWorld));		// ワールドマトリックス
+	m_pParent = NULL;		// 親モデルへのポインタ
+	m_pMat	= NULL;			// マテリアルへのポインタ
+	m_pos	= VEC3_ZERO;	// 位置
+	m_rot	= VEC3_ZERO;	// 向き
+	m_scale	= VEC3_ZERO;	// 拡大率
+	m_nModelID = 0;			// モデルインデックス
+}
+
+//============================================================
+//	オーバーロードコンストラクタ
+//============================================================
+CMultiModel::CMultiModel(const CObject::ELabel label, const int nPriority) : CObject(label, nPriority)
+{
+	// メンバ変数をクリア
+	memset(&m_modelData, 0, sizeof(m_modelData));	// モデル情報
 	memset(&m_mtxWorld, 0, sizeof(m_mtxWorld));		// ワールドマトリックス
 	m_pParent = NULL;		// 親モデルへのポインタ
 	m_pMat	= NULL;			// マテリアルへのポインタ
@@ -47,7 +62,6 @@ HRESULT CMultiModel::Init(void)
 {
 	// メンバ変数を初期化
 	memset(&m_modelData, 0, sizeof(m_modelData));	// モデル情報
-	memset(&m_pMtxParent, 0, sizeof(m_pMtxParent));	// 親マトリックスへのポインタ
 	memset(&m_mtxWorld, 0, sizeof(m_mtxWorld));		// ワールドマトリックス
 	m_pParent = NULL;		// 親モデルへのポインタ
 	m_pMat	= NULL;			// マテリアルへのポインタ
@@ -55,6 +69,10 @@ HRESULT CMultiModel::Init(void)
 	m_rot	= VEC3_ZERO;	// 向き
 	m_scale	= VEC3_ONE;		// 拡大率
 	m_nModelID = NONE_IDX;	// モデルインデックス
+
+	// 自動更新と自動描画をOFFにする
+	SetEnableUpdate(false);
+	SetEnableDraw(false);
 
 	// 成功を返す
 	return S_OK;
@@ -73,6 +91,9 @@ void CMultiModel::Uninit(void)
 		delete[] m_pMat;
 		m_pMat = NULL;
 	}
+
+	// マルチモデルを破棄
+	Release();
 }
 
 //============================================================
@@ -116,23 +137,14 @@ void CMultiModel::Draw(void)
 	if (m_pParent == NULL)
 	{ // 親が存在しない場合
 
-		if (m_pMtxParent == NULL)
-		{ // 親マトリックスも存在しない場合
-
-			// 現在のマトリックスを取得
-			pDevice->GetTransform(D3DTS_WORLD, &mtxParent);	// 設定された最新のマトリックス (実体のマトリックス)
-		}
-		else
-		{ // 親マトリックスが存在する場合
-
-			mtxParent = *m_pMtxParent;
-		}
+		// 現在のマトリックスを取得
+		pDevice->GetTransform(D3DTS_WORLD, &mtxParent);	// 設定された最新のマトリックス (実体のマトリックス)
 	}
 	else
 	{ // 親が存在する場合
 
 		// 親のマトリックスを設定
-		mtxParent = m_pParent->m_mtxWorld;
+		mtxParent = *m_pParent->GetPtrMtxWorld();
 	}
 
 	// ワールドマトリックスと親マトリックスを掛け合わせる
@@ -169,73 +181,6 @@ void CMultiModel::Draw(void)
 
 	// 保存していたマテリアルを戻す
 	pDevice->SetMaterial(&matDef);
-}
-
-//============================================================
-//	生成処理
-//============================================================
-CMultiModel *CMultiModel::Create(const D3DXVECTOR3& rPos, const D3DXVECTOR3& rRot, const D3DXVECTOR3& rScale)
-{
-	// ポインタを宣言
-	CMultiModel *pMultiModel = NULL;	// マルチモデル生成用
-
-	if (pMultiModel == NULL)
-	{ // 使用されていない場合
-
-		// メモリ確保
-		pMultiModel = new CMultiModel;	// マルチモデル
-	}
-	else { assert(false); return NULL; }	// 使用中
-
-	if (pMultiModel != NULL)
-	{ // 確保に成功している場合
-
-		// マルチモデルの初期化
-		if (FAILED(pMultiModel->Init()))
-		{ // 初期化に失敗した場合
-
-			// メモリ開放
-			delete pMultiModel;
-			pMultiModel = NULL;
-
-			// 失敗を返す
-			return NULL;
-		}
-
-		// 位置を設定
-		pMultiModel->SetVec3Position(rPos);
-
-		// 向きを設定
-		pMultiModel->SetVec3Rotation(rRot);
-
-		// 拡大率を設定
-		pMultiModel->SetVec3Scaling(rScale);
-
-		// 確保したアドレスを返す
-		return pMultiModel;
-	}
-	else { assert(false); return NULL; }	// 確保失敗
-}
-
-//============================================================
-//	破棄処理
-//============================================================
-HRESULT CMultiModel::Release(CMultiModel *&prMultiModel)
-{
-	if (prMultiModel != NULL)
-	{ // 使用中の場合
-
-		// マルチモデルの終了
-		prMultiModel->Uninit();
-
-		// メモリ開放
-		delete prMultiModel;
-		prMultiModel = NULL;
-
-		// 成功を返す
-		return S_OK;
-	}
-	else { assert(false); return E_FAIL; }	// 非使用中
 }
 
 //============================================================
@@ -299,51 +244,6 @@ void CMultiModel::BindModel(const char *pModelPass)
 }
 
 //============================================================
-//	親モデルの設定処理
-//============================================================
-void CMultiModel::SetParent(CMultiModel *pModel)
-{
-	// 引数のモデルポインタを親に設定
-	m_pParent = pModel;
-}
-
-//============================================================
-//	親モデル取得処理
-//============================================================
-CMultiModel CMultiModel::GetParent(void) const
-{
-	// 親モデルを返す
-	return *m_pParent;
-}
-
-//============================================================
-//	マトリックスの設定処理
-//============================================================
-void CMultiModel::SetMtxWorld(const D3DXMATRIX& rMtxWorld)
-{
-	// 引数のマトリックスを設定
-	m_mtxWorld = rMtxWorld;
-}
-
-//============================================================
-//	マトリックスポインタ取得処理
-//============================================================
-D3DXMATRIX *CMultiModel::GetPtrMtxWorld(void)
-{
-	// ワールドマトリックスのポインタを返す
-	return &m_mtxWorld;
-}
-
-//============================================================
-//	マトリックス取得処理
-//============================================================
-D3DXMATRIX CMultiModel::GetMtxWorld(void) const
-{
-	// ワールドマトリックスを返す
-	return m_mtxWorld;
-}
-
-//============================================================
 //	位置の設定処理
 //============================================================
 void CMultiModel::SetVec3Position(const D3DXVECTOR3& rPos)
@@ -398,6 +298,70 @@ D3DXVECTOR3 CMultiModel::GetVec3Scaling(void) const
 {
 	// 拡大率を返す
 	return m_scale;
+}
+
+//============================================================
+//	マトリックスポインタ取得処理
+//============================================================
+D3DXMATRIX *CMultiModel::GetPtrMtxWorld(void)
+{
+	// ワールドマトリックスのポインタを返す
+	return &m_mtxWorld;
+}
+
+//============================================================
+//	マトリックス取得処理
+//============================================================
+D3DXMATRIX CMultiModel::GetMtxWorld(void) const
+{
+	// ワールドマトリックスを返す
+	return m_mtxWorld;
+}
+
+//============================================================
+//	生成処理
+//============================================================
+CMultiModel *CMultiModel::Create(const D3DXVECTOR3& rPos, const D3DXVECTOR3& rRot, const D3DXVECTOR3& rScale)
+{
+	// ポインタを宣言
+	CMultiModel *pMultiModel = NULL;	// マルチモデル生成用
+
+	if (pMultiModel == NULL)
+	{ // 使用されていない場合
+
+		// メモリ確保
+		pMultiModel = new CMultiModel;	// マルチモデル
+	}
+	else { assert(false); return NULL; }	// 使用中
+
+	if (pMultiModel != NULL)
+	{ // 確保に成功している場合
+
+		// マルチモデルの初期化
+		if (FAILED(pMultiModel->Init()))
+		{ // 初期化に失敗した場合
+
+			// メモリ開放
+			delete pMultiModel;
+			pMultiModel = NULL;
+
+			// 失敗を返す
+			return NULL;
+		}
+
+		// 位置を設定
+		pMultiModel->SetVec3Position(rPos);
+
+		// 向きを設定
+		pMultiModel->SetVec3Rotation(rRot);
+
+		// 拡大率を設定
+		pMultiModel->SetVec3Scaling(rScale);
+
+		// 確保したアドレスを返す
+		return pMultiModel;
+	}
+	else { assert(false); return NULL; }	// 確保失敗
 }
 
 //============================================================
@@ -588,6 +552,42 @@ float CMultiModel::GetMaxAlpha(void) const
 
 	// 全パーツ内で最も不透明だったマテリアルの透明度を返す
 	return fAlpha;
+}
+
+//============================================================
+//	マトリックスの設定処理
+//============================================================
+void CMultiModel::SetMtxWorld(const D3DXMATRIX& rMtxWorld)
+{
+	// 引数のマトリックスを設定
+	m_mtxWorld = rMtxWorld;
+}
+
+//============================================================
+//	親オブジェクトの設定処理
+//============================================================
+void CMultiModel::SetParentObject(CObject *pObject)
+{
+	// 引数のオブジェクトポインタを親に設定
+	m_pParent = pObject;
+}
+
+//============================================================
+//	親オブジェクトの設定処理
+//============================================================
+void CMultiModel::SetParentModel(CMultiModel *pModel)
+{
+	// 引数のモデルポインタを親に設定
+	m_pParent = (CObject*)pModel;
+}
+
+//============================================================
+//	親オブジェクト削除処理
+//============================================================
+void CMultiModel::DeleteParentObject(void)
+{
+	// 親オブジェクトをNULLにする
+	m_pParent = NULL;
 }
 
 //============================================================

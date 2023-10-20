@@ -15,50 +15,38 @@
 //************************************************************
 #include "main.h"
 #include "model.h"
+#include "object.h"
 
 //************************************************************
 //	クラス定義
 //************************************************************
 // マルチモデルクラス
-class CMultiModel
+class CMultiModel : CObject
 {
 public:
 	// コンストラクタ
 	CMultiModel();
+	CMultiModel(const CObject::ELabel label, const int nPriority = DEFAULT_PRIO);
 
 	// デストラクタ
 	~CMultiModel();
 
-	// メンバ関数
-	HRESULT Init(void);	// 初期化
-	void Uninit(void);	// 終了
-	void Update(void);	// 更新
-	void Draw(void);	// 描画
+	// オーバーライド関数
+	HRESULT Init(void) override;	// 初期化
+	void Uninit(void) override;		// 終了
+	void Update(void) override;		// 更新
+	void Draw(void) override;		// 描画
 
-	void BindModel(const int nModelID);		// モデル割当 (インデックス)
-	void BindModel(const char *pModelPass);	// モデル割当 (パス)
-	void SetParent(CMultiModel *pModel);	// 親モデル設定
-	CMultiModel GetParent(void) const;		// 親モデル取得
-
-	void SetMtxWorld(const D3DXMATRIX& rMtxWorld);	// マトリックス設定
-	D3DXMATRIX *GetPtrMtxWorld(void);				// マトリックスポインタ取得
-	D3DXMATRIX GetMtxWorld(void) const;				// マトリックス取得
-	void SetVec3Position(const D3DXVECTOR3& rPos);	// 位置設定
-	D3DXVECTOR3 GetVec3Position(void) const;		// 位置取得
-	void SetVec3Rotation(const D3DXVECTOR3& rRot);	// 向き設定
-	D3DXVECTOR3 GetVec3Rotation(void) const;		// 向き取得
-	void SetVec3Scaling(const D3DXVECTOR3& rScale);	// 拡大率設定
-	D3DXVECTOR3 GetVec3Scaling(void) const;			// 拡大率取得
-
-	HRESULT SetOriginMaterial(const LPD3DXBUFFER pBuffMat, const int nNumMat);	// 元マテリアル設定
-	void SetMaterial(const D3DXMATERIAL& rMat);			// マテリアル設定
-	void ResetMaterial(void);							// マテリアル再設定
-	D3DXMATERIAL GetMaterial(const int nID) const;		// マテリアル取得
-	void SetAlpha(const float fAlpha);					// 透明度設定
-	float GetAlpha(void) const;							// 透明度取得
-	float GetMaxAlpha(void) const;						// 最大透明度取得
-	void SetModelData(const CModel::SModel& rModel);	// モデル情報設定
-	CModel::SModel GetModelData(void) const;			// モデル情報取得
+	void BindModel(const int nModelID) override;				// モデル割当 (インデックス)
+	void BindModel(const char *pModelPass) override;			// モデル割当 (パス)
+	void SetVec3Position(const D3DXVECTOR3& rPos) override;		// 位置設定
+	D3DXVECTOR3 GetVec3Position(void) const override;			// 位置取得
+	void SetVec3Rotation(const D3DXVECTOR3& rRot) override;		// 向き設定
+	D3DXVECTOR3 GetVec3Rotation(void) const override;			// 向き取得
+	void SetVec3Scaling(const D3DXVECTOR3& rScale) override;	// 拡大率設定
+	D3DXVECTOR3 GetVec3Scaling(void) const override;			// 拡大率取得
+	D3DXMATRIX *GetPtrMtxWorld(void) override;					// マトリックスポインタ取得
+	D3DXMATRIX GetMtxWorld(void) const override;				// マトリックス取得
 
 	// 静的メンバ関数
 	static CMultiModel *Create	// 生成
@@ -67,14 +55,26 @@ public:
 		const D3DXVECTOR3& rRot,				// 向き
 		const D3DXVECTOR3& rScale = VEC3_ONE	// 大きさ
 	);
-	static HRESULT Release(CMultiModel *&prMultiModel);	// 破棄
 
-	D3DXMATRIX		*m_pMtxParent;	// 親マトリックスへのポインタ
+	// メンバ関数
+	HRESULT SetOriginMaterial(const LPD3DXBUFFER pBuffMat, const int nNumMat);	// 元マテリアル設定
+	void SetMaterial(const D3DXMATERIAL& rMat);			// マテリアル設定
+	void ResetMaterial(void);							// マテリアル再設定
+	D3DXMATERIAL GetMaterial(const int nID) const;		// マテリアル取得
+	void SetAlpha(const float fAlpha);					// 透明度設定
+	float GetAlpha(void) const;							// 透明度取得
+	float GetMaxAlpha(void) const;						// 最大透明度取得
+	void SetMtxWorld(const D3DXMATRIX& rMtxWorld);		// マトリックス設定
+	void SetParentObject(CObject *pObject);				// 親オブジェクト設定
+	void SetParentModel(CMultiModel *pModel);			// 親オブジェクト設定
+	void DeleteParentObject(void);						// 親オブジェクト削除
+	void SetModelData(const CModel::SModel& rModel);	// モデル情報設定
+	CModel::SModel GetModelData(void) const;			// モデル情報取得
 
 private:
 	// メンバ変数
 	CModel::SModel	m_modelData;	// モデル情報
-	CMultiModel		*m_pParent;		// 親モデルへのポインタ
+	CObject			*m_pParent;		// 親オブジェクトへのポインタ
 	D3DXMATERIAL	*m_pMat;		// マテリアルへのポインタ
 	D3DXMATRIX		m_mtxWorld;		// ワールドマトリックス
 	D3DXVECTOR3		m_pos;			// 位置

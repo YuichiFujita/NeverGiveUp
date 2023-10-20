@@ -79,20 +79,14 @@ HRESULT CObjectChara::Init(void)
 //============================================================
 void CObjectChara::Uninit(void)
 {
-	// マルチモデルを破棄
 	for (int nCntObjectChara = 0; nCntObjectChara < MAX_PARTS; nCntObjectChara++)
 	{ // パーツの最大数分繰り返す
 
 		if (m_apMultiModel[nCntObjectChara] != NULL)
 		{ // パーツが使用中の場合
 
-			// 破棄処理
-			if (FAILED(m_apMultiModel[nCntObjectChara]->Release(m_apMultiModel[nCntObjectChara])))
-			{ // 破棄に失敗した場合
-
-				// 例外処理
-				assert(false);
-			}
+			// マルチモデルの終了
+			m_apMultiModel[nCntObjectChara]->Uninit();
 		}
 	}
 
@@ -229,13 +223,13 @@ void CObjectChara::SetPartsInfo
 		{ // 親がない場合
 
 			// NULLを設定
-			m_apMultiModel[nID]->SetParent(NULL);
+			m_apMultiModel[nID]->SetParentModel(NULL);
 		}
 		else
 		{ // 親がいる場合
 
 			// 親のアドレスを設定
-			m_apMultiModel[nID]->SetParent(m_apMultiModel[nParentID]);
+			m_apMultiModel[nID]->SetParentModel(m_apMultiModel[nParentID]);
 		}
 
 		// パーツの総数を加算

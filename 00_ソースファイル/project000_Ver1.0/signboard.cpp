@@ -92,6 +92,9 @@ HRESULT CSignboard::Init(void)
 	// メンバ変数を初期化
 	m_pStand = NULL;	// 看板スタンドの情報
 
+	//--------------------------------------------------------
+	//	オブジェクトメッシュキューブの初期化
+	//--------------------------------------------------------
 	// オブジェクトメッシュキューブの初期化
 	if (FAILED(CObjectMeshCube::Init()))
 	{ // 初期化に失敗した場合
@@ -137,6 +140,9 @@ HRESULT CSignboard::Init(void)
 	// ライティングを設定
 	SetLighting(true);
 
+	//--------------------------------------------------------
+	//	看板スタンドの初期化
+	//--------------------------------------------------------
 	// 看板スタンドの生成
 	m_pStand = CMultiModel::Create(VEC3_ZERO, VEC3_ZERO);
 	if (m_pStand == NULL)
@@ -150,8 +156,8 @@ HRESULT CSignboard::Init(void)
 	// モデルを割当
 	m_pStand->BindModel(mc_apModelFile[MODEL_STAND]);
 
-	// 
-	m_pStand->m_pMtxParent = GetPtrMtxWorld();
+	// 親オブジェクトの設定
+	m_pStand->SetParentObject(this);
 
 	// 成功を返す
 	return S_OK;
@@ -162,8 +168,8 @@ HRESULT CSignboard::Init(void)
 //============================================================
 void CSignboard::Uninit(void)
 {
-	// 看板スタンドの破棄
-	m_pStand->Release(m_pStand);
+	// 看板スタンドの終了
+	m_pStand->Uninit();
 
 	// オブジェクトメッシュキューブの終了
 	CObjectMeshCube::Uninit();
