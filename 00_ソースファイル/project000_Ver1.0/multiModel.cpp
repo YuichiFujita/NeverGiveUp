@@ -22,6 +22,7 @@ CMultiModel::CMultiModel()
 {
 	// メンバ変数をクリア
 	memset(&m_modelData, 0, sizeof(m_modelData));	// モデル情報
+	memset(&m_pMtxParent, 0, sizeof(m_pMtxParent));	// 親マトリックスへのポインタ
 	memset(&m_mtxWorld, 0, sizeof(m_mtxWorld));		// ワールドマトリックス
 	m_pParent = NULL;		// 親モデルへのポインタ
 	m_pMat	= NULL;			// マテリアルへのポインタ
@@ -46,6 +47,7 @@ HRESULT CMultiModel::Init(void)
 {
 	// メンバ変数を初期化
 	memset(&m_modelData, 0, sizeof(m_modelData));	// モデル情報
+	memset(&m_pMtxParent, 0, sizeof(m_pMtxParent));	// 親マトリックスへのポインタ
 	memset(&m_mtxWorld, 0, sizeof(m_mtxWorld));		// ワールドマトリックス
 	m_pParent = NULL;		// 親モデルへのポインタ
 	m_pMat	= NULL;			// マテリアルへのポインタ
@@ -114,8 +116,17 @@ void CMultiModel::Draw(void)
 	if (m_pParent == NULL)
 	{ // 親が存在しない場合
 
-		// 現在のマトリックスを取得
-		pDevice->GetTransform(D3DTS_WORLD, &mtxParent);	// 設定された最新のマトリックス (実体のマトリックス)
+		if (m_pMtxParent == NULL)
+		{ // 親マトリックスも存在しない場合
+
+			// 現在のマトリックスを取得
+			pDevice->GetTransform(D3DTS_WORLD, &mtxParent);	// 設定された最新のマトリックス (実体のマトリックス)
+		}
+		else
+		{ // 親マトリックスが存在する場合
+
+			mtxParent = *m_pMtxParent;
+		}
 	}
 	else
 	{ // 親が存在する場合

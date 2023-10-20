@@ -128,6 +128,7 @@ public:
 	D3DXVECTOR3 GetVec3Rotation(void) const override;		// 向き取得
 	void SetVec3Sizing(const D3DXVECTOR3& rSize) override;	// 大きさ設定
 	D3DXVECTOR3 GetVec3Sizing(void) const override;			// 大きさ取得
+	D3DXMATRIX *GetPtrMtxWorld(void) override;				// マトリックスポインタ取得
 
 	// 静的メンバ関数
 	static CObjectMeshCube *Create		// 生成

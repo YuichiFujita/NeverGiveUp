@@ -595,7 +595,7 @@ void CPlayer::UpdateOldPosition(void)
 //============================================================
 CPlayer::EMotion CPlayer::UpdateMove(void)
 {
-#if 0
+#if 1
 	// ポインタを宣言
 	CInputKeyboard	*pKeyboard	= CManager::GetInstance()->GetKeyboard();	// キーボード
 

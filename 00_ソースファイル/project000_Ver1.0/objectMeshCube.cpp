@@ -378,6 +378,15 @@ D3DXVECTOR3 CObjectMeshCube::GetVec3Sizing(void) const
 }
 
 //============================================================
+//	マトリックスポインタ取得処理
+//============================================================
+D3DXMATRIX *CObjectMeshCube::GetPtrMtxWorld(void)
+{
+	// ワールドマトリックスのポインタを返す
+	return &m_meshCube.mtxWorld;
+}
+
+//============================================================
 //	生成処理
 //============================================================
 CObjectMeshCube *CObjectMeshCube::Create

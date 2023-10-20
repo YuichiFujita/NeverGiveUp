@@ -69,6 +69,8 @@ public:
 	);
 	static HRESULT Release(CMultiModel *&prMultiModel);	// 破棄
 
+	D3DXMATRIX		*m_pMtxParent;	// 親マトリックスへのポインタ
+
 private:
 	// メンバ変数
 	CModel::SModel	m_modelData;	// モデル情報
