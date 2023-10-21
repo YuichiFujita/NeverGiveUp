@@ -359,7 +359,7 @@ void CObjectChara::SetMaterial(const D3DXMATERIAL& rMat)
 	{ // パーツの総数分繰り返す
 
 		// 引数のマテリアルを全マテリアルに設定
-		m_apMultiModel[nCntObjectChara]->SetMaterial(rMat);
+		m_apMultiModel[nCntObjectChara]->SetAllMaterial(rMat);
 	}
 }
 

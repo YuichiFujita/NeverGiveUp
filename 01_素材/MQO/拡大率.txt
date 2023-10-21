@@ -3,3 +3,4 @@ obstacle_bench = 0.3
 player = 0.35
 friend = 0.35
 signboard = 0.5
+savepoint = 0.3

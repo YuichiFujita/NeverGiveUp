@@ -392,9 +392,23 @@ HRESULT CObjectModel::SetOriginMaterial(const LPD3DXBUFFER pBuffMat, const int n
 }
 
 //============================================================
-//	マテリアルの設定処理
+//	マテリアル設定処理
 //============================================================
-void CObjectModel::SetMaterial(const D3DXMATERIAL& rMat)
+void CObjectModel::SetMaterial(const D3DXMATERIAL& rMat, const int nID)
+{
+	if (nID > NONE_IDX && nID < (int)m_modelData.dwNumMat)
+	{ // 引数インデックスがマテリアルの最大数を超えていない場合
+
+		// 引数インデックスのマテリアルを設定
+		m_pMat[nID] = rMat;
+	}
+	else { assert(false); }	// 範囲外
+}
+
+//============================================================
+//	マテリアルの全設定処理
+//============================================================
+void CObjectModel::SetAllMaterial(const D3DXMATERIAL& rMat)
 {
 	// 引数のマテリアルを全マテリアルに設定
 	for (int nCntMat = 0; nCntMat < (int)m_modelData.dwNumMat; nCntMat++)
@@ -428,13 +442,7 @@ void CObjectModel::ResetMaterial(void)
 //============================================================
 D3DXMATERIAL CObjectModel::GetMaterial(const int nID) const
 {
-	// 変数を宣言
-	D3DXMATERIAL mat;	// 例外時のマテリアル
-
-	// マテリアルのメモリをクリア
-	ZeroMemory(&mat, sizeof(mat));
-
-	if (nID < (int)m_modelData.dwNumMat)
+	if (nID > NONE_IDX && nID < (int)m_modelData.dwNumMat)
 	{ // 引数インデックスがマテリアルの最大数を超えていない場合
 
 		// 引数インデックスのマテリアルを返す
@@ -442,6 +450,12 @@ D3DXMATERIAL CObjectModel::GetMaterial(const int nID) const
 	}
 	else
 	{ // 引数インデックスがマテリアルの最大数を超えている場合
+
+		// 変数を宣言
+		D3DXMATERIAL mat;	// 例外時のマテリアル
+
+		// マテリアルのメモリをクリア
+		ZeroMemory(&mat, sizeof(mat));
 
 		// 例外処理
 		assert(false);

@@ -58,7 +58,8 @@ public:
 
 	// メンバ関数
 	HRESULT SetOriginMaterial(const LPD3DXBUFFER pBuffMat, const int nNumMat);	// 元マテリアル設定
-	void SetMaterial(const D3DXMATERIAL& rMat);			// マテリアル設定
+	void SetMaterial(const D3DXMATERIAL& rMat, const int nID);	// マテリアル設定
+	void SetAllMaterial(const D3DXMATERIAL& rMat);		// マテリアル全設定
 	void ResetMaterial(void);							// マテリアル再設定
 	D3DXMATERIAL GetMaterial(const int nID) const;		// マテリアル取得
 	void SetAlpha(const float fAlpha);					// 透明度設定

@@ -15,14 +15,13 @@
 #include "scene.h"
 #include "player.h"
 
-#include "particle3D.h"
-
 //************************************************************
 //	定数宣言
 //************************************************************
 namespace
 {
 	const int	PRIORITY		= 4;		// セーブポイントの優先順位
+	const int	CHANGE_MAT_ID	= 4;		// 変更するマテリアルのインデックス
 	const int	RESET_MAT_CNT	= 45;		// マテリアル変更の再設定までのフレーム
 	const float	COL_RADIUS		= 80.0f;	// 当たり判定の半径
 }
@@ -276,10 +275,7 @@ void CSavePoint::CollisionPlayer(void)
 			m_state = STATE_SAVE;
 
 			// マテリアルを発光緑に差し替え
-			SetMaterial(material::GlowGreen());
-
-			// デバッグパーティクル
-			CParticle3D::Create(CParticle3D::TYPE_HEAL, pPlayer->GetVec3Position());
+			SetMaterial(material::GlowGreen(), CHANGE_MAT_ID);
 		}
 	}
 }
