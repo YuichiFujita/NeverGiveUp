@@ -9,6 +9,12 @@
 //************************************************************
 #include "gameManager.h"
 #include "manager.h"
+#include "editStageManager.h"
+
+//************************************************************
+//	静的メンバ変数宣言
+//************************************************************
+CEditStageManager *CGameManager::m_pEditStage = NULL;	// エディットステージの情報
 
 //************************************************************
 //	親クラス [CGameManager] のメンバ関数
@@ -34,6 +40,24 @@ CGameManager::~CGameManager()
 //============================================================
 HRESULT CGameManager::Init(void)
 {
+#if _DEBUG
+
+	if (m_pEditStage == NULL)
+	{ // エディットステージが使用されていない場合
+
+		// エディットステージの生成
+		m_pEditStage = CEditStageManager::Create();
+		if (m_pEditStage == NULL)
+		{ // 生成に失敗した場合
+
+			// 失敗を返す
+			return E_FAIL;
+		}
+	}
+	else { assert(false); }	// 使用済み
+
+#endif	// _DEBUG
+
 	// 成功を返す
 	return S_OK;
 }
@@ -43,7 +67,12 @@ HRESULT CGameManager::Init(void)
 //============================================================
 void CGameManager::Uninit(void)
 {
+	if (m_pEditStage != NULL)
+	{ // エディットステージが使用されている場合
 
+		// エディットステージの破棄
+		CEditStageManager::Release(m_pEditStage);
+	}
 }
 
 //============================================================
@@ -51,7 +80,12 @@ void CGameManager::Uninit(void)
 //============================================================
 void CGameManager::Update(void)
 {
+	if (m_pEditStage != NULL)
+	{ // エディットステージが使用されている場合
 
+		// エディットステージの更新
+		m_pEditStage->Update();
+	}
 }
 
 //============================================================
@@ -110,4 +144,13 @@ HRESULT CGameManager::Release(CGameManager *&prGameManager)
 		return S_OK;
 	}
 	else { assert(false); return E_FAIL; }	// 非使用中
+}
+
+//============================================================
+//	エディットステージ取得処理
+//============================================================
+CEditStageManager *CGameManager::GetEditStage(void)
+{
+	// エディットステージの情報を返す
+	return m_pEditStage;
 }

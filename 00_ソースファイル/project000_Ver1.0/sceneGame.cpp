@@ -146,7 +146,7 @@ HRESULT CSceneGame::Init(void)
 
 #if 0	// TODO：ビル
 
-	// ビルオブジェクトの生成
+	// ビルオブジェクトの生成	// TODO：種類の設定で位置と向き以外の情報は決まるように変更
 	CBuilding::Create(CBuilding::TYPE_00, D3DXVECTOR3(0.0f, 0.0f, 560.0f * 7.25f), D3DXToRadian(D3DXVECTOR3(0.0f, 180.0f, 0.0f)), D3DXVECTOR3(280.0f, 560.0f, 280.0f), XCOL_WHITE, CBuilding::COLLISION_GROUND);
 	CBuilding::Create(CBuilding::TYPE_00, D3DXVECTOR3(0.0f, 0.0f, 560.0f * 6.25f), D3DXToRadian(D3DXVECTOR3(0.0f, 180.0f, 0.0f)), D3DXVECTOR3(280.0f, 560.0f, 280.0f), XCOL_WHITE, CBuilding::COLLISION_GROUND);
 	CBuilding::Create(CBuilding::TYPE_00, D3DXVECTOR3(0.0f, 0.0f, 560.0f * 4.5f), D3DXToRadian(D3DXVECTOR3(0.0f, 180.0f, 0.0f)), D3DXVECTOR3(280.0f, 560.0f, 280.0f), XCOL_WHITE, CBuilding::COLLISION_GROUND);
@@ -321,14 +321,21 @@ void CSceneGame::Update(void)
 	}
 	else if (CManager::GetInstance()->GetKeyboard()->IsTrigger(DIK_F5))
 	{
-		// リザルトに遷移
-		CManager::GetInstance()->SetScene(CScene::MODE_RESULT);	// リザルト画面
+		// プレイヤーの出現を設定
+		CScene::GetPlayer()->SetSpawn();
 	}
+	//else if (CManager::GetInstance()->GetKeyboard()->IsTrigger(DIK_F6))
+	//{
+	//	// リザルトに遷移
+	//	CManager::GetInstance()->SetScene(CScene::MODE_RESULT);	// リザルト画面
+	//}
+
 	// デバッグ表示
 	CManager::GetInstance()->GetDebugProc()->Print("[F2]：UI描画のON/OFF\n");
 	CManager::GetInstance()->GetDebugProc()->Print("[F3]：ポーズ描画のON/OFF\n");
 	CManager::GetInstance()->GetDebugProc()->Print("[F4]：カメラ操作のON/OFF\n");
-	CManager::GetInstance()->GetDebugProc()->Print("[F5]：リザルト遷移\n");
+	CManager::GetInstance()->GetDebugProc()->Print("[F5]：プレイヤースポーン\n");
+	//CManager::GetInstance()->GetDebugProc()->Print("[F6]：リザルト遷移\n");
 
 #endif
 
