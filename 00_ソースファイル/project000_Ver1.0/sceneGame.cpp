@@ -142,6 +142,8 @@ HRESULT CSceneGame::Init(void)
 	// 空オブジェクトの生成
 	CSky::Create(CSky::TEXTURE_NORMAL, VEC3_ZERO, VEC3_ZERO, XCOL_WHITE, POSGRID2(32, 6), 18000.0f, D3DCULL_CW, false);
 
+#if 0
+
 #if 0	// TODO：ビル
 
 	// ビルオブジェクトの生成
@@ -219,6 +221,12 @@ HRESULT CSceneGame::Init(void)
 
 	// ゴールポイントの生成
 	CGoalPoint::Create(D3DXVECTOR3(-1680.0f, 1120.0f, 1120.0f));
+
+#endif
+
+#else
+
+	CSavePoint::Create(D3DXVECTOR3(-2800.0f, 1120.0f, 1120.0f), D3DXToRadian(D3DXVECTOR3(0.0f, 0.0f, 0.0f)));
 
 #endif
 
