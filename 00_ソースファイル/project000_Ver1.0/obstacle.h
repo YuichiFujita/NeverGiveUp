@@ -65,7 +65,9 @@ public:
 	void Uninit(void) override;		// 終了
 	void Update(void) override;		// 更新
 	void Draw(void) override;		// 描画
-	int GetType(void) const override;				// 種類取得
+	int GetType(void) const override;		// 種類取得
+	float GetAngle(void) const override;	// 角度取得
+	float GetLength(void) const override;	// 長さ取得
 	D3DXVECTOR3 GetVec3Sizing(void) const override;	// 大きさ取得
 
 	// 静的メンバ関数
@@ -85,7 +87,9 @@ private:
 
 	// メンバ変数
 	const SStatusInfo m_status;	// ステータス定数
-	const EType m_type;			// 種類定数
+	const EType m_type;	// 種類定数
+	float m_fAngle;		// 対角線の角度
+	float m_fLength;	// 対角線の長さ
 };
 
 #endif	// _OBSTACLE_H_

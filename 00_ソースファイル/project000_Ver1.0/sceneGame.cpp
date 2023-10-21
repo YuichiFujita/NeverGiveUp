@@ -17,13 +17,14 @@
 #include "stage.h"
 #include "pause.h"
 #include "score.h"
+#include "player.h"
 
-#include "wall.h"
 #include "scenery.h"
 #include "sky.h"
 #include "building.h"
 #include "signboard.h"
 #include "obstacle.h"
+#include "savePoint.h"
 
 //************************************************************
 //	マクロ定義
@@ -132,16 +133,6 @@ HRESULT CSceneGame::Init(void)
 		return E_FAIL;
 	}
 
-#if 0	// TODO：壁
-
-	// 壁オブジェクトの生成
-	CWall::Create(CWall::TEXTURE_NORMAL, D3DXVECTOR3( 0.0f,    0.0f, -3000.0f), D3DXToRadian(D3DXVECTOR3(0.0f, 180.0f, 0.0f)), D3DXVECTOR2(6000.0f, 400.0f), XCOL_WHITE, POSGRID2(18, 1));
-	CWall::Create(CWall::TEXTURE_NORMAL, D3DXVECTOR3(-3000.0f, 0.0f,  0.0f),    D3DXToRadian(D3DXVECTOR3(0.0f, 270.0f, 0.0f)), D3DXVECTOR2(6000.0f, 400.0f), XCOL_WHITE, POSGRID2(18, 1));
-	CWall::Create(CWall::TEXTURE_NORMAL, D3DXVECTOR3( 0.0f,    0.0f,  3000.0f), D3DXToRadian(D3DXVECTOR3(0.0f, 0.0f, 0.0f)),   D3DXVECTOR2(6000.0f, 400.0f), XCOL_WHITE, POSGRID2(18, 1));
-	CWall::Create(CWall::TEXTURE_NORMAL, D3DXVECTOR3( 3000.0f, 0.0f,  0.0f),    D3DXToRadian(D3DXVECTOR3(0.0f, 90.0f, 0.0f)),  D3DXVECTOR2(6000.0f, 400.0f), XCOL_WHITE, POSGRID2(18, 1));
-
-#endif
-
 	// 景色オブジェクトの生成
 	CScenery::Create(CScenery::TEXTURE_BILL_WHITE,     VEC3_ZERO, VEC3_ZERO,                                    XCOL_WHITE, POSGRID2(14, 1), 12000.0f, 800.0f,  D3DCULL_CW, false);
 	CScenery::Create(CScenery::TEXTURE_BILL_LIGHTBLUE, VEC3_ZERO, D3DXToRadian(D3DXVECTOR3(0.0f, 85.0f, 0.0f)), XCOL_WHITE, POSGRID2(14, 1), 14000.0f, 1400.0f, D3DCULL_CW, false);
@@ -150,7 +141,7 @@ HRESULT CSceneGame::Init(void)
 	// 空オブジェクトの生成
 	CSky::Create(CSky::TEXTURE_NORMAL, VEC3_ZERO, VEC3_ZERO, XCOL_WHITE, POSGRID2(32, 6), 18000.0f, D3DCULL_CW, false);
 
-#if 1	// TODO：ビル
+#if 0	// TODO：ビル
 
 	// ビルオブジェクトの生成
 	CBuilding::Create(CBuilding::TYPE_00, D3DXVECTOR3(0.0f, 0.0f, 560.0f * 7.25f), D3DXToRadian(D3DXVECTOR3(0.0f, 180.0f, 0.0f)), D3DXVECTOR3(280.0f, 560.0f, 280.0f), XCOL_WHITE, CBuilding::COLLISION_GROUND);
@@ -180,7 +171,7 @@ HRESULT CSceneGame::Init(void)
 
 #endif
 
-#if 1	// TODO：障害物
+#if 0	// TODO：セーブポイント
 
 	// 障害物オブジェクトの生成
 	//CObstacle::Create(CObstacle::TYPE_BOX,   D3DXVECTOR3(-0.0f,    1120.0f, 0.0f), D3DXToRadian(D3DXVECTOR3(0.0f, 90.0f, 0.0f)));
@@ -193,23 +184,40 @@ HRESULT CSceneGame::Init(void)
 #else
 
 	// 障害物オブジェクトの生成
-	//CObstacle::Create(CObstacle::TYPE_BOX,   D3DXVECTOR3(2500.0f +  0.0f,    0.0f, 2000.0f), D3DXToRadian(D3DXVECTOR3(0.0f, 90.0f, 0.0f)));
-	//CObstacle::Create(CObstacle::TYPE_BENCH, D3DXVECTOR3(2500.0f + -500.0f,  0.0f, 2000.0f), D3DXToRadian(D3DXVECTOR3(0.0f, 90.0f, 0.0f)));
-	//CObstacle::Create(CObstacle::TYPE_BOX,   D3DXVECTOR3(2500.0f + -1000.0f, 0.0f, 2000.0f), D3DXToRadian(D3DXVECTOR3(0.0f, 90.0f, 0.0f)));
-	//CObstacle::Create(CObstacle::TYPE_BENCH, D3DXVECTOR3(2500.0f + -1500.0f, 0.0f, 2000.0f), D3DXToRadian(D3DXVECTOR3(0.0f, 90.0f, 0.0f)));
-	//CObstacle::Create(CObstacle::TYPE_BOX,   D3DXVECTOR3(2500.0f + -2000.0f, 0.0f, 2000.0f), D3DXToRadian(D3DXVECTOR3(0.0f, 90.0f, 0.0f)));
-	//CObstacle::Create(CObstacle::TYPE_BENCH, D3DXVECTOR3(2500.0f + -2500.0f, 0.0f, 2000.0f), D3DXToRadian(D3DXVECTOR3(0.0f, 90.0f, 0.0f)));
+	CObstacle::Create(CObstacle::TYPE_BOX,   D3DXVECTOR3(-2800.0f, 1120.0f, 560.0f),  D3DXToRadian(D3DXVECTOR3(0.0f, 0.0f, 0.0f))  );
+	CObstacle::Create(CObstacle::TYPE_BOX,   D3DXVECTOR3(-2240.0f, 1120.0f, 1120.0f), D3DXToRadian(D3DXVECTOR3(0.0f, 90.0f, 0.0f)) );
+	CObstacle::Create(CObstacle::TYPE_BENCH, D3DXVECTOR3(-1680.0f, 1120.0f, 560.0f),  D3DXToRadian(D3DXVECTOR3(0.0f, 180.0f, 0.0f)));
+	CObstacle::Create(CObstacle::TYPE_BENCH, D3DXVECTOR3(-2240.0f, 1120.0f, 0.0f),    D3DXToRadian(D3DXVECTOR3(0.0f, 270.0f, 0.0f)));
 
 #endif
 
+	// 看板の生成
 	CSignboard::Create(CSignboard::TYPE_00, D3DXVECTOR3(-2240.0f, 1400.0f, 40.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 1.0f);
+
+#if 0	// TODO：セーブポイント
+
+	// セーブポイントの生成
+	CSavePoint::Create(D3DXVECTOR3(-2800.0f, 1120.0f, 0.0f), D3DXToRadian(D3DXVECTOR3(0.0f, 270.0f, 0.0f)));
+	CSavePoint::Create(D3DXVECTOR3(0.0f, 1120.0f, 0.0f),     D3DXToRadian(D3DXVECTOR3(0.0f, 180.0f, 0.0f)));
+
+#else
+
+	// セーブポイントの生成
+	CSavePoint::Create(D3DXVECTOR3(-2800.0f, 1120.0f, 1120.0f), D3DXToRadian(D3DXVECTOR3(0.0f, 0.0f, 0.0f))  );
+	CSavePoint::Create(D3DXVECTOR3(-1680.0f, 1120.0f, 1120.0f), D3DXToRadian(D3DXVECTOR3(0.0f, 90.0f, 0.0f)) );
+	CSavePoint::Create(D3DXVECTOR3(-1680.0f, 1120.0f, 0.0f),    D3DXToRadian(D3DXVECTOR3(0.0f, 180.0f, 0.0f)));
+	CSavePoint::Create(D3DXVECTOR3(-2800.0f, 1120.0f, 0.0f),    D3DXToRadian(D3DXVECTOR3(0.0f, 270.0f, 0.0f)));
+
+#endif
 
 	//--------------------------------------------------------
 	//	初期設定
 	//--------------------------------------------------------
 	// カメラを設定
 	CManager::GetInstance()->GetCamera()->SetState(CCamera::STATE_FOLLOW);	// カメラを追従状態に設定
-	CManager::GetInstance()->GetCamera()->SetDestFollow();	// 目標位置を設定
+
+	// プレイヤーを出現
+	CScene::GetPlayer()->SetSpawn();
 
 	// タイムを計測開始
 	m_pTimerManager->Start();	// 計測を開始

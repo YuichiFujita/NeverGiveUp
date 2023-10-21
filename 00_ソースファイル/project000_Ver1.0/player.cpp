@@ -24,6 +24,7 @@
 #include "field.h"
 #include "building.h"
 #include "obstacle.h"
+#include "savePoint.h"
 
 #include "effect3D.h"
 #include "particle3D.h"
@@ -173,9 +174,6 @@ HRESULT CPlayer::Init(void)
 		return E_FAIL;
 	}
 
-	// スポーン状態を設定
-	SetState(STATE_SPAWN);
-
 	// 成功を返す
 	return S_OK;
 }
@@ -288,32 +286,6 @@ void CPlayer::SetState(const int nState)
 {
 	// 引数の状態を設定
 	m_state = (EState)nState;
-
-	switch (m_state)
-	{ // 状態ごとの処理
-	case STATE_NONE:
-		break;
-
-	case STATE_SPAWN:
-
-		// 出現の設定
-		SetSpawn(PLAY_SPAWN_POS, PLAY_SPAWN_ROT);
-
-		break;
-
-	case STATE_NORMAL:
-		break;
-
-	case STATE_DAMAGE:
-		break;
-
-	case STATE_DEATH:
-		break;
-
-	default:
-		assert(false);
-		break;
-	}
 }
 
 //============================================================
@@ -418,18 +390,22 @@ CPlayer *CPlayer::Create(void)
 //============================================================
 //	出現の設定処理
 //============================================================
-void CPlayer::SetSpawn(D3DXVECTOR3& rPos, D3DXVECTOR3& rRot)
+void CPlayer::SetSpawn(void)
 {
+	// 変数を宣言
+	CSavePoint::SInfo SavePointInfo = CSavePoint::GetSavePointInfo();	// セーブポイントの情報
+
 	// 情報を初期化
-	SetMotion(CPlayer::MOTION_IDOL);	// 待機モーションを設定
+	SetState(STATE_SPAWN);	// スポーン状態の設定
+	SetMotion(MOTION_IDOL);	// 待機モーションを設定
 	m_nCounterState = 0;	// カウンターを初期化
 
 	// 位置を設定
-	SetVec3Position(rPos);
+	SetVec3Position(SavePointInfo.pos);
 
 	// 向きを設定
-	SetVec3Rotation(rRot);
-	m_destRot = rRot;
+	SetVec3Rotation(SavePointInfo.rot);
+	m_destRot = SavePointInfo.rot;
 
 	// 移動量を初期化
 	m_move = VEC3_ZERO;
@@ -570,8 +546,8 @@ CPlayer::EMotion CPlayer::UpdateDamage(void)
 	if (UpdateFadeIn(basic::DMG_SUB_ALPHA))
 	{ // 透明になり切った場合
 
-		// 状態を設定
-		SetState(STATE_SPAWN);
+		// 出現の設定
+		SetSpawn();
 	}
 
 	// デバッグ表示
@@ -1428,10 +1404,13 @@ bool CPlayer::CollisionObstacle(D3DXVECTOR3& rPos)
 			{ // オブジェクトが使用されている場合繰り返す
 
 				// 変数を宣言
-				D3DXVECTOR3 posBuild = VEC3_ZERO;		// ビル位置
-				D3DXVECTOR3 sizeMinBuild = VEC3_ZERO;	// ビル最小大きさ
-				D3DXVECTOR3 sizeMaxBuild = VEC3_ZERO;	// ビル最大大きさ
-				bool bHit = false;	// 判定情報
+				D3DXVECTOR3 pos0, pos1, pos2, pos3;	// 頂点座標代入用
+				D3DXVECTOR3 posBuild  = VEC3_ZERO;	// ビル位置
+				D3DXVECTOR3 rotBuild  = VEC3_ZERO;	// ビル向き
+				D3DXVECTOR3 sizeBuild = VEC3_ZERO;	// ビル大きさ
+				float fAngle  = 0.0f;	// 対角線の角度
+				float fLength = 0.0f;	// 対角線の長さ
+				bool  bHit = false;		// 判定情報
 
 				// ポインタを宣言
 				CObject *pObjectNext = pObjCheck->GetNext();	// 次オブジェクト
@@ -1446,16 +1425,26 @@ bool CPlayer::CollisionObstacle(D3DXVECTOR3& rPos)
 					continue;
 				}
 
-				// 障害物の位置を設定
-				posBuild = pObjCheck->GetVec3Position();
+				// 障害物の情報を取得
+				posBuild  = pObjCheck->GetVec3Position();	// 位置
+				rotBuild  = pObjCheck->GetVec3Rotation();	// 向き
+				sizeBuild = pObjCheck->GetVec3Sizing();		// 大きさ
+				fAngle  = pObjCheck->GetAngle();			// 対角線角度
+				fLength = pObjCheck->GetLength();			// 対角線長さ
 
-				// 障害物の最小の大きさを設定
-				sizeMinBuild = pObjCheck->GetVec3Sizing();
-				sizeMinBuild.y = 0.0f;	// 縦の大きさを初期化
-
-				// 障害物の最大の大きさを設定
-				sizeMaxBuild = pObjCheck->GetVec3Sizing();
-				sizeMaxBuild.y *= 2.0f;	// 縦の大きさを倍にする
+				// 頂点座標を計算
+				pos0.x = posBuild.x + sinf(rotBuild.y + (D3DX_PI + fAngle)) * fLength;
+				pos0.y = 0.0f;
+				pos0.z = posBuild.z + cosf(rotBuild.y + (D3DX_PI + fAngle)) * fLength;
+				pos1.x = posBuild.x + sinf(rotBuild.y + (D3DX_PI - fAngle)) * fLength;
+				pos1.y = 0.0f;
+				pos1.z = posBuild.z + cosf(rotBuild.y + (D3DX_PI - fAngle)) * fLength;
+				pos3.x = posBuild.x + sinf(rotBuild.y - fAngle) * fLength;
+				pos3.y = 0.0f;
+				pos3.z = posBuild.z + cosf(rotBuild.y - fAngle) * fLength;
+				pos2.x = posBuild.x + sinf(rotBuild.y + fAngle) * fLength;
+				pos2.y = 0.0f;
+				pos2.z = posBuild.z + cosf(rotBuild.y + fAngle) * fLength;
 
 				switch (pObjCheck->GetType())
 				{ // 回避法ごとの処理
@@ -1465,14 +1454,13 @@ bool CPlayer::CollisionObstacle(D3DXVECTOR3& rPos)
 					{ // ジャンプ中ではない場合
 
 						// 二軸の矩形の衝突判定
-						bHit = collision::Box2D
+						bHit = collision::BoxOuterPillar
 						( // 引数
-							rPos,			// 判定位置
-							posBuild,		// 判定目標位置
-							sizeMaxPlayer,	// 判定サイズ(右・上・後)
-							sizeMinPlayer,	// 判定サイズ(左・下・前)
-							sizeMaxBuild,	// 判定目標サイズ(右・上・後)
-							sizeMinBuild	// 判定目標サイズ(左・下・前)
+							pos0,	// 四角の各頂点
+							pos1,	// 四角の各頂点
+							pos2,	// 四角の各頂点
+							pos3,	// 四角の各頂点
+							rPos	// 判定位置
 						);
 					}
 
@@ -1484,14 +1472,13 @@ bool CPlayer::CollisionObstacle(D3DXVECTOR3& rPos)
 					{ // スライディング中ではない場合
 
 						// 二軸の矩形の衝突判定
-						bHit = collision::Box2D
+						bHit = collision::BoxOuterPillar
 						( // 引数
-							rPos,			// 判定位置
-							posBuild,		// 判定目標位置
-							sizeMaxPlayer,	// 判定サイズ(右・上・後)
-							sizeMinPlayer,	// 判定サイズ(左・下・前)
-							sizeMaxBuild,	// 判定目標サイズ(右・上・後)
-							sizeMinBuild	// 判定目標サイズ(左・下・前)
+							pos0,	// 四角の各頂点
+							pos1,	// 四角の各頂点
+							pos2,	// 四角の各頂点
+							pos3,	// 四角の各頂点
+							rPos	// 判定位置
 						);
 					}
 

@@ -17,7 +17,7 @@
 //************************************************************
 #define OBSTACLE_PRIO	(1)	// 障害物の優先順位
 
-#define SIZE_OBSTACLE	(D3DXVECTOR3(60.0f, 0.0f, 160.0f))	// 障害物の大きさ	// TODO：仮
+#define SIZE_OBSTACLE	(D3DXVECTOR3(230.0f, 0.0f, 130.0f))	// 障害物の大きさ	// TODO：仮
 
 //************************************************************
 //	静的メンバ変数宣言
@@ -49,7 +49,9 @@ CObstacle::SModelInfo CObstacle::m_aStatusInfo[] =	// モデル情報
 //============================================================
 CObstacle::CObstacle(const EType type) : CObjectModel(CObject::LABEL_OBSTACLE, OBSTACLE_PRIO), m_status(m_aStatusInfo[type].status), m_type(type)
 {
-
+	// メンバ変数をクリア
+	m_fAngle = 0.0f;	// 対角線の角度
+	m_fLength = 0.0f;	// 対角線の長さ
 }
 
 //============================================================
@@ -65,6 +67,10 @@ CObstacle::~CObstacle()
 //============================================================
 HRESULT CObstacle::Init(void)
 {
+	// メンバ変数を初期化
+	m_fAngle = atan2f(m_aStatusInfo[m_type].status.size.x, m_aStatusInfo[m_type].status.size.z);	// 対角線の角度
+	m_fLength = sqrtf(m_aStatusInfo[m_type].status.size.x * m_aStatusInfo[m_type].status.size.x + m_aStatusInfo[m_type].status.size.z * m_aStatusInfo[m_type].status.size.z) * 0.5f;	// 対角線の長さ
+
 	// オブジェクトモデルの初期化
 	if (FAILED(CObjectModel::Init()))
 	{ // 初期化に失敗した場合
@@ -112,6 +118,24 @@ int CObstacle::GetType(void) const
 {
 	// 障害物の回避法を返す
 	return m_status.dodge;
+}
+
+//============================================================
+//	角度取得処理
+//============================================================
+float CObstacle::GetAngle(void) const
+{
+	// 対角線の角度を返す
+	return m_fAngle;
+}
+
+//============================================================
+//	長さ取得処理
+//============================================================
+float CObstacle::GetLength(void) const
+{
+	// 対角線の長さを返す
+	return m_fLength;
 }
 
 //============================================================

@@ -201,6 +201,7 @@
     <ClCompile Include="renderer.cpp" />
     <ClCompile Include="resultManager.cpp" />
     <ClCompile Include="retentionManager.cpp" />
+    <ClCompile Include="savePoint.cpp" />
     <ClCompile Include="scene.cpp" />
     <ClCompile Include="sceneGame.cpp" />
     <ClCompile Include="sceneResult.cpp" />
@@ -270,6 +271,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="resultManager.h" />
     <ClInclude Include="retentionManager.h" />
+    <ClInclude Include="savePoint.h" />
     <ClInclude Include="scene.h" />
     <ClInclude Include="sceneGame.h" />
     <ClInclude Include="sceneResult.h" />

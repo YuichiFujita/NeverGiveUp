@@ -62,6 +62,8 @@ public:
 		LABEL_BUILDING,		// ビル
 		LABEL_SIGNBOARD,	// 看板
 		LABEL_OBSTACLE,		// 障害物
+		LABEL_SAVEPOINT,	// セーブポイント
+		LABEL_GOALPOINT,	// ゴールポイント
 		LABEL_FIELD,		// 地面
 		LABEL_WALL,			// 壁
 		LABEL_SCENERY,		// 景色
@@ -98,6 +100,10 @@ public:
 	virtual int GetState(void) const;					// 状態取得
 	virtual void SetType(const int nType);				// 種類設定
 	virtual int GetType(void) const;					// 種類取得
+	virtual void SetAngle(const float fAngle);			// 角度設定
+	virtual float GetAngle(void) const;					// 角度取得
+	virtual void SetLength(const float fLength);		// 長さ設定
+	virtual float GetLength(void) const;				// 長さ取得
 	virtual void SetRadius(const float fRadius);		// 半径設定
 	virtual float GetRadius(void) const;				// 半径取得
 	virtual void SetHeight(const float fHeight);		// 縦幅設定
