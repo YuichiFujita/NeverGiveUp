@@ -18,15 +18,11 @@
 #include "particle3D.h"
 
 //************************************************************
-//	マクロ定義
-//************************************************************
-#define SAVEPOINT_PRIO	(1)	// セーブポイントの優先順位
-
-//************************************************************
 //	定数宣言
 //************************************************************
 namespace
 {
+	const int PRIORITY = 1;	// セーブポイントの優先順位
 	const D3DXVECTOR3 COLL_SIZE = D3DXVECTOR3(280.0f, 0.0f, 280.0f);	// セーブ判定の大きさ
 }
 
@@ -46,7 +42,7 @@ int CSavePoint::m_nNumAll = 0;	// セーブポイントの総数
 //============================================================
 //	コンストラクタ
 //============================================================
-CSavePoint::CSavePoint() : CObjectModel(CObject::LABEL_SAVEPOINT, SAVEPOINT_PRIO), m_nThisSaveID(m_nNumAll)
+CSavePoint::CSavePoint() : CObjectModel(CObject::LABEL_SAVEPOINT, PRIORITY), m_nThisSaveID(m_nNumAll)
 {
 	// セーブポイントの総数を加算
 	m_nNumAll++;
@@ -197,14 +193,6 @@ void CSavePoint::CollisionPlayer(void)
 {
 	// ポインタを宣言
 	CPlayer *pPlayer = CScene::GetPlayer();	// プレイヤー情報
-
-	// 変数を宣言
-	bool  bHit = false;	// 判定状況
-	float fPlayerRadius = pPlayer->GetRadius();			// プレイヤー半径
-	D3DXVECTOR3 posPlayer = pPlayer->GetVec3Position();	// プレイヤー位置
-	D3DXVECTOR3 posSave = GetVec3Position();			// セーブ位置
-	D3DXVECTOR3 sizePlayer = D3DXVECTOR3(fPlayerRadius, 0.0f, fPlayerRadius);	// プレイヤー大きさ
-
 	if (pPlayer == NULL)
 	{ // プレイヤーが存在しない場合
 
@@ -212,6 +200,13 @@ void CSavePoint::CollisionPlayer(void)
 		assert(false);
 		return;
 	}
+
+	// 変数を宣言
+	bool  bHit = false;	// 判定状況
+	float fPlayerRadius    = pPlayer->GetRadius();			// プレイヤー半径
+	D3DXVECTOR3 posPlayer  = pPlayer->GetVec3Position();	// プレイヤー位置
+	D3DXVECTOR3 posSave    = GetVec3Position();				// セーブ位置
+	D3DXVECTOR3 sizePlayer = D3DXVECTOR3(fPlayerRadius, 0.0f, fPlayerRadius);	// プレイヤー大きさ
 
 	// プレイヤーとの判定
 	bHit = collision::Box2D

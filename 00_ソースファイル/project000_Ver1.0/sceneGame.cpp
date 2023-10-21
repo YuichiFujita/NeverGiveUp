@@ -25,6 +25,7 @@
 #include "signboard.h"
 #include "obstacle.h"
 #include "savePoint.h"
+#include "goalPoint.h"
 
 //************************************************************
 //	マクロ定義
@@ -204,9 +205,20 @@ HRESULT CSceneGame::Init(void)
 
 	// セーブポイントの生成
 	CSavePoint::Create(D3DXVECTOR3(-2800.0f, 1120.0f, 1120.0f), D3DXToRadian(D3DXVECTOR3(0.0f, 0.0f, 0.0f))  );
-	CSavePoint::Create(D3DXVECTOR3(-1680.0f, 1120.0f, 1120.0f), D3DXToRadian(D3DXVECTOR3(0.0f, 90.0f, 0.0f)) );
+	//CSavePoint::Create(D3DXVECTOR3(-1680.0f, 1120.0f, 1120.0f), D3DXToRadian(D3DXVECTOR3(0.0f, 90.0f, 0.0f)) );
 	CSavePoint::Create(D3DXVECTOR3(-1680.0f, 1120.0f, 0.0f),    D3DXToRadian(D3DXVECTOR3(0.0f, 180.0f, 0.0f)));
 	CSavePoint::Create(D3DXVECTOR3(-2800.0f, 1120.0f, 0.0f),    D3DXToRadian(D3DXVECTOR3(0.0f, 270.0f, 0.0f)));
+
+#endif
+
+#if 0	// TODO：ゴールポイント
+
+
+
+#else
+
+	// ゴールポイントの生成
+	CGoalPoint::Create(D3DXVECTOR3(-1680.0f, 1120.0f, 1120.0f));
 
 #endif
 

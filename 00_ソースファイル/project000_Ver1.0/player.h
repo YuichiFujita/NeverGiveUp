@@ -66,7 +66,8 @@ public:
 		STATE_SPAWN,	// スポーン状態
 		STATE_NORMAL,	// 通常状態
 		STATE_DAMAGE,	// ダメージ状態
-		STATE_DEATH,	// 死亡状態
+		STATE_CLEAR,	// ゲームクリア状態
+		STATE_OVER,		// ゲームオーバー状態
 		STATE_MAX		// この列挙型の総数
 	};
 

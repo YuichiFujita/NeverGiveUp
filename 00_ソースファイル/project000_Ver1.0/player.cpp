@@ -227,7 +227,10 @@ void CPlayer::Update(void)
 
 		break;
 
-	case STATE_DEATH:
+	case STATE_CLEAR:
+		break;
+
+	case STATE_OVER:
 		break;
 
 	default:
@@ -284,8 +287,13 @@ void CPlayer::Hit(void)
 //============================================================
 void CPlayer::SetState(const int nState)
 {
-	// ˆø”‚Ìó‘Ô‚ğİ’è
-	m_state = (EState)nState;
+	if (m_state != CPlayer::STATE_CLEAR
+	&&  m_state != CPlayer::STATE_OVER)
+	{ // ƒQ[ƒ€I—¹‚ÉŠÖ‚·‚éó‘Ô‚Å‚Í‚È‚¢ê‡
+
+		// ˆø”‚Ìó‘Ô‚ğİ’è
+		m_state = (EState)nState;
+	}
 }
 
 //============================================================
