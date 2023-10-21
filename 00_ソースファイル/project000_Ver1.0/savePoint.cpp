@@ -22,8 +22,9 @@
 //************************************************************
 namespace
 {
-	const int PRIORITY = 1;	// セーブポイントの優先順位
-	const D3DXVECTOR3 COLL_SIZE = D3DXVECTOR3(280.0f, 0.0f, 280.0f);	// セーブ判定の大きさ
+	const int	PRIORITY		= 4;		// セーブポイントの優先順位
+	const int	RESET_MAT_CNT	= 45;		// マテリアル変更の再設定までのフレーム
+	const float	COL_RADIUS		= 80.0f;	// 当たり判定の半径
 }
 
 //************************************************************
@@ -31,7 +32,7 @@ namespace
 //************************************************************
 const char *CSavePoint::mc_apModelFile[] =	// モデル定数
 {
-	"data\\MODEL\\POINT\\save000.x",	// セーブポイントモデル
+	"data\\MODEL\\SAVEPOINT\\savepoint000.x",	// セーブポイントモデル
 };
 CSavePoint *CSavePoint::m_pCurrentSave = NULL;	// 現在のセーブポイントへのポインタ
 int CSavePoint::m_nNumAll = 0;	// セーブポイントの総数
@@ -44,6 +45,10 @@ int CSavePoint::m_nNumAll = 0;	// セーブポイントの総数
 //============================================================
 CSavePoint::CSavePoint() : CObjectModel(CObject::LABEL_SAVEPOINT, PRIORITY), m_nThisSaveID(m_nNumAll)
 {
+	// メンバ変数をクリア
+	m_state = STATE_NORMAL;	// 状態
+	m_nCounterState = 0;	// 状態管理カウンター
+
 	// セーブポイントの総数を加算
 	m_nNumAll++;
 }
@@ -62,6 +67,10 @@ CSavePoint::~CSavePoint()
 //============================================================
 HRESULT CSavePoint::Init(void)
 {
+	// メンバ変数を初期化
+	m_state = STATE_NORMAL;	// 状態
+	m_nCounterState = 0;	// 状態管理カウンター
+
 	// オブジェクトモデルの初期化
 	if (FAILED(CObjectModel::Init()))
 	{ // 初期化に失敗した場合
@@ -70,6 +79,9 @@ HRESULT CSavePoint::Init(void)
 		assert(false);
 		return E_FAIL;
 	}
+
+	// モデルを割り当て
+	BindModel(mc_apModelFile[MODEL_SAVEPOINT]);
 
 	if (m_nThisSaveID == 0)
 	{ // 自身のセーブポイントが一つ目の場合
@@ -96,6 +108,39 @@ void CSavePoint::Uninit(void)
 //============================================================
 void CSavePoint::Update(void)
 {
+	switch (m_state)
+	{ // 状態ごとの処理
+	case STATE_NORMAL:
+
+		// 無し
+
+		break;
+
+	case STATE_SAVE:
+
+		if (m_nCounterState < RESET_MAT_CNT)
+		{ // カウンターが一定値より小さい場合
+
+			// カウンターを加算
+			m_nCounterState++;
+		}
+		else
+		{ // カウンターが一定値以上の場合
+
+			// カウンターを初期化
+			m_nCounterState = 0;
+
+			// マテリアルを再設定
+			ResetMaterial();
+		}
+
+		break;
+
+	default:
+		assert(false);
+		break;
+	}
+
 	// プレイヤーとの当たり判定
 	CollisionPlayer();
 
@@ -202,29 +247,39 @@ void CSavePoint::CollisionPlayer(void)
 	}
 
 	// 変数を宣言
+	D3DXVECTOR3 posPlayer = pPlayer->GetVec3Position();	// プレイヤー位置
+	D3DXVECTOR3 posSave = GetVec3Position();	// セーブ位置
+	float fPlayerRadius = pPlayer->GetRadius();	// プレイヤー半径
 	bool  bHit = false;	// 判定状況
-	float fPlayerRadius    = pPlayer->GetRadius();			// プレイヤー半径
-	D3DXVECTOR3 posPlayer  = pPlayer->GetVec3Position();	// プレイヤー位置
-	D3DXVECTOR3 posSave    = GetVec3Position();				// セーブ位置
-	D3DXVECTOR3 sizePlayer = D3DXVECTOR3(fPlayerRadius, 0.0f, fPlayerRadius);	// プレイヤー大きさ
 
-	// プレイヤーとの判定
-	bHit = collision::Box2D
-	( // 引数
-		posPlayer,	// 判定位置
-		posSave,	// 判定目標位置
-		sizePlayer,	// 判定サイズ(右・上・後)
-		sizePlayer,	// 判定サイズ(左・下・前)
-		COLL_SIZE,	// 判定目標サイズ(右・上・後)
-		COLL_SIZE	// 判定目標サイズ(左・下・前)
-	);
-	if (bHit)
-	{ // プレイヤーが判定内の場合
+	if (this != m_pCurrentSave)
+	{ // 現在のセーブポイントと一致しない場合
 
-		// セーブポイントを自身に変更
-		m_pCurrentSave = this;
+		// プレイヤーとの判定
+		bHit = collision::Circle2D
+		( // 引数
+			posPlayer,		// 判定位置
+			posSave,		// 判定目標位置
+			fPlayerRadius,	// 判定半径
+			COL_RADIUS		// 判定目標半径
+		);
+		if (bHit)
+		{ // プレイヤーが判定内の場合
 
-		// デバッグパーティクル
-		CParticle3D::Create(CParticle3D::TYPE_HEAL, pPlayer->GetVec3Position());
+			// セーブポイントを自身に変更
+			m_pCurrentSave = this;
+
+			// カウンターを初期化
+			m_nCounterState = 0;
+
+			// セーブ状態を設定
+			m_state = STATE_SAVE;
+
+			// マテリアルを発光緑に差し替え
+			SetMaterial(material::GlowGreen());
+
+			// デバッグパーティクル
+			CParticle3D::Create(CParticle3D::TYPE_HEAL, pPlayer->GetVec3Position());
+		}
 	}
 }

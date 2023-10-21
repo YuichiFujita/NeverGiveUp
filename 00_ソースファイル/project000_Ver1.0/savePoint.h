@@ -23,6 +23,21 @@
 class CSavePoint : public CObjectModel
 {
 public:
+	// モデル列挙
+	enum EModel
+	{
+		MODEL_SAVEPOINT = 0,	// セーブポイントモデル
+		MODEL_MAX				// この列挙型の総数
+	};
+
+	// 状態列挙
+	enum EState
+	{
+		STATE_NORMAL = 0,	// 通常状態
+		STATE_SAVE,			// セーブ状態
+		STATE_MAX			// この列挙型の総数
+	};
+
 	// コンストラクタ
 	CSavePoint();
 
@@ -61,6 +76,8 @@ private:
 	static int m_nNumAll;	// セーブポイントの総数
 
 	// メンバ変数
+	EState m_state;				// 状態
+	int m_nCounterState;		// 状態管理カウンター
 	const int m_nThisSaveID;	// 自身のセーブポイントインデックス
 };
 

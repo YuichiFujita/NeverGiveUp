@@ -34,8 +34,8 @@
 //************************************************************
 namespace
 {
-	// セットアップテキスト相対パス
-	const char* SETUP_TXT = "data\\TXT\\player.txt";	// プレイヤーセットアップ
+	const int PRIORITY = 3;	// プレイヤーの優先順位
+	const char* SETUP_TXT = "data\\TXT\\player.txt";	// プレイヤーセットアップテキスト
 
 	// プレイヤー基本情報
 	namespace basic
@@ -54,7 +54,7 @@ namespace
 		const float	DMG_JUMP_REV	= 0.01f;	// ダメージ状態時の空中の移動量の減衰係数
 		const float	DMG_LAND_REV	= 0.5f;		// ダメージ状態時の地上の移動量の減衰係数
 		const float DMG_SUB_ALPHA	= 0.025f;	// ダメージ状態時の透明度の減算量
-		const float	SPAWN_ADD_ALPHA	= 0.015f;	// スポーン状態時の透明度の加算量
+		const float	SPAWN_ADD_ALPHA	= 0.03f;	// スポーン状態時の透明度の加算量
 
 		const D3DXVECTOR3 DMG_ADDROT = D3DXVECTOR3(0.04f, 0.0f, -0.02f);	// ダメージ状態時のプレイヤー回転量
 	}
@@ -107,7 +107,7 @@ const char *CPlayer::mc_apModelFile[] =	// モデル定数
 //============================================================
 //	コンストラクタ
 //============================================================
-CPlayer::CPlayer() : CObjectChara(CObject::LABEL_PLAYER)
+CPlayer::CPlayer() : CObjectChara(CObject::LABEL_PLAYER, PRIORITY)
 {
 	// メンバ変数をクリア
 	m_pShadow		= NULL;			// 影の情報
@@ -421,8 +421,8 @@ void CPlayer::SetSpawn(void)
 	// マテリアルを再設定
 	ResetMaterial();
 
-	// 透明度を不透明に再設定
-	SetAlpha(1.0f);
+	// 透明度を透明に再設定
+	SetAlpha(0.0f);
 
 	// プレイヤー自身の描画を再開
 	CObject::SetEnableDraw(true);

@@ -153,7 +153,8 @@ namespace useful
 namespace material
 {
 	// 通常関数
-	D3DXMATERIAL Red(void);	// 赤マテリアル取得
+	D3DXMATERIAL Red(void);			// 赤マテリアル取得
+	D3DXMATERIAL GlowGreen(void);	// 発光緑マテリアル取得
 }
 
 //************************************************************

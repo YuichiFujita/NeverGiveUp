@@ -34,7 +34,7 @@ public:
 	// 回避列挙
 	enum EDodge
 	{
-		DODGE_NONE,		// 回避方法無し
+		DODGE_NONE = 0,	// 回避方法無し
 		DODGE_JUMP,		// ジャンプ回避
 		DODGE_SLIDE,	// スライディング回避
 		DODGE_MAX		// この列挙型の総数
