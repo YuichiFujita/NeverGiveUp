@@ -58,6 +58,9 @@ private:
 	void ReleaseBuilding(void);		// ビル破棄
 	void CreateRotaEffect(void);	// 方向表示エフェクト生成
 
+	void DeleteCollisionBuilding(const bool bRelase);	// ビルの削除判定
+	void InitAllColorBuilding(void);					// ビルの色全初期化
+
 	// メンバ変数
 	CEditStageManager *m_pEdit;	// エディットステージの情報
 	SInfo m_building;	// ビル配置情報

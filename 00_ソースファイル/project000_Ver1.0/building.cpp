@@ -253,7 +253,7 @@ CBuilding *CBuilding::Create
 		pBuilding->SetVec3Sizing(rSize);
 
 		// キューブ色を設定
-		pBuilding->SetCubeColor(rCol);
+		pBuilding->SetColor(rCol);
 
 		// 当たり判定を設定
 		pBuilding->SetCollision(collision);

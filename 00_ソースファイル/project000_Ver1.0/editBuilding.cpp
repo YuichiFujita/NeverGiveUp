@@ -10,7 +10,9 @@
 #include "editBuilding.h"
 #include "manager.h"
 #include "input.h"
+#include "collision.h"
 #include "editStageManager.h"
+#include "stage.h"
 #include "effect3D.h"
 
 //************************************************************
@@ -81,13 +83,12 @@ HRESULT CEditBuilding::Init(void)
 		return E_FAIL;
 	}
 
-	// 自動更新・自動描画をOFFにする
-	m_building.pBuilding->SetEnableUpdate(false);
-	m_building.pBuilding->SetEnableDraw(false);
-
 	// 色を設定
-	D3DXCOLOR col = m_building.pBuilding->GetCubeColor();	// 元の色を取得
-	m_building.pBuilding->SetCubeColor(D3DXCOLOR(col.r, col.g, col.b, INIT_ALPHA));
+	D3DXCOLOR col = m_building.pBuilding->GetColor();	// 元の色を取得
+	m_building.pBuilding->SetColor(D3DXCOLOR(col.r, col.g, col.b, INIT_ALPHA));
+
+	// 表示をOFFにする
+	SetDisp(false);
 
 	// 成功を返す
 	return S_OK;
@@ -156,6 +157,23 @@ void CEditBuilding::SetDisp(const bool bDisp)
 	// 自動更新・自動描画を表示状況に合わせる
 	m_building.pBuilding->SetEnableUpdate(bDisp);	// 更新
 	m_building.pBuilding->SetEnableDraw(bDisp);		// 描画
+
+	if (bDisp)
+	{ // 表示ONの場合
+
+		// 位置を反映
+		m_building.pBuilding->SetVec3Position(m_pEdit->GetVec3Position());
+	}
+	else
+	{ // 表示OFFの場合
+
+		// ビルの色の全初期化
+		InitAllColorBuilding();
+
+		// 位置をステージの範囲外に設定
+		D3DXVECTOR3 OutLimit = D3DXVECTOR3(0.0f, 0.0f, CScene::GetStage()->GetStageLimit().fNear - m_building.pBuilding->GetVec3Sizing().z);
+		m_building.pBuilding->SetVec3Position(OutLimit);
+	}
 }
 
 //============================================================
@@ -276,8 +294,8 @@ void CEditBuilding::CreateBuilding(void)
 		m_building.pBuilding->SetEnableDraw(true);
 
 		// 色を設定
-		colBuild = m_building.pBuilding->GetCubeColor();	// 元の色を取得
-		m_building.pBuilding->SetCubeColor(D3DXCOLOR(colBuild.r, colBuild.g, colBuild.b, 1.0f));
+		colBuild = m_building.pBuilding->GetColor();	// 元の色を取得
+		m_building.pBuilding->SetColor(D3DXCOLOR(colBuild.r, colBuild.g, colBuild.b, 1.0f));
 
 		//----------------------------------------------------
 		//	新しいビルの生成
@@ -287,8 +305,8 @@ void CEditBuilding::CreateBuilding(void)
 		assert(m_building.pBuilding != NULL);
 
 		// 色を設定
-		colBuild = m_building.pBuilding->GetCubeColor();	// 元の色を取得
-		m_building.pBuilding->SetCubeColor(D3DXCOLOR(colBuild.r, colBuild.g, colBuild.b, INIT_ALPHA));
+		colBuild = m_building.pBuilding->GetColor();	// 元の色を取得
+		m_building.pBuilding->SetColor(D3DXCOLOR(colBuild.r, colBuild.g, colBuild.b, INIT_ALPHA));
 	}
 }
 
@@ -297,14 +315,21 @@ void CEditBuilding::CreateBuilding(void)
 //============================================================
 void CEditBuilding::ReleaseBuilding(void)
 {
+	// 変数を宣言
+	bool bRelease = false;	// 破棄状況
+
 	// ポインタを宣言
 	CInputKeyboard *m_pKeyboard = CManager::GetInstance()->GetKeyboard();	// キーボード情報
 
-	// ビルを配置
+	// ビルを削除
 	if (m_pKeyboard->IsTrigger(KEY_RELEASE))
 	{
-
+		// 破棄する状態を設定
+		bRelease = true;
 	}
+
+	// ビルの削除判定
+	DeleteCollisionBuilding(bRelease);
 }
 
 //============================================================
@@ -325,4 +350,152 @@ void CEditBuilding::CreateRotaEffect(void)
 
 	// 方向表示エフェクトを生成
 	CEffect3D::Create(posEffect, EFFECT_RADIUS, CEffect3D::TYPE_NORMAL, EFFECT_LIFE);
+}
+
+//============================================================
+//	ビルの削除判定
+//============================================================
+void CEditBuilding::DeleteCollisionBuilding(const bool bRelase)
+{
+	// 変数を宣言
+	D3DXVECTOR3 posEdit = m_pEdit->GetVec3Position();				// エディットの位置
+	D3DXVECTOR3 sizeEdit = m_building.pBuilding->GetVec3Sizing();	// エディットビルの大きさ
+
+	for (int nCntPri = 0; nCntPri < MAX_PRIO; nCntPri++)
+	{ // 優先順位の総数分繰り返す
+
+		// ポインタを宣言
+		CObject *pObjectTop = CObject::GetTop(nCntPri);	// 先頭オブジェクト
+
+		if (pObjectTop != NULL)
+		{ // 先頭が存在する場合
+
+			// ポインタを宣言
+			CObject *pObjCheck = pObjectTop;	// オブジェクト確認用
+
+			while (pObjCheck != NULL)
+			{ // オブジェクトが使用されている場合繰り返す
+
+				// 変数を宣言
+				D3DXVECTOR3 posBuild = VEC3_ZERO;	// ビル位置
+				D3DXVECTOR3 sizeBuild = VEC3_ZERO;	// ビル大きさ
+
+				// ポインタを宣言
+				CObject *pObjectNext = pObjCheck->GetNext();	// 次オブジェクト
+
+				if (pObjCheck->GetLabel() != CObject::LABEL_BUILDING)
+				{ // オブジェクトラベルがビルではない場合
+
+					// 次のオブジェクトへのポインタを代入
+					pObjCheck = pObjectNext;
+
+					// 次の繰り返しに移行
+					continue;
+				}
+
+				if (pObjCheck == (CObject*)m_building.pBuilding)
+				{ // 同じアドレスだった場合
+
+					// 次のオブジェクトへのポインタを代入
+					pObjCheck = pObjectNext;
+
+					// 次の繰り返しに移行
+					continue;
+				}
+
+				// ビルの位置を取得
+				posBuild = pObjCheck->GetVec3Position();
+
+				// ビルの大きさを取得
+				sizeBuild = pObjCheck->GetVec3Sizing();
+
+				// 球体の当たり判定
+				if (collision::Circle3D
+				( // 引数
+					posEdit,							// 判定位置
+					posBuild,							// 判定目標位置
+					(sizeBuild.x + sizeBuild.z) * 0.5f,	// 判定半径
+					(sizeEdit.x + sizeEdit.z) * 0.5f	// 判定目標半径
+				))
+				{ // 判定内だった場合
+
+					if (bRelase)
+					{ // 破棄する場合
+
+						// 終了処理
+						pObjCheck->Uninit();
+					}
+					else
+					{ // 破棄しない場合
+
+						// 赤を設定
+						pObjCheck->SetColor(XCOL_RED);
+					}
+				}
+				else
+				{ // 判定外だった場合
+
+					// 通常色を設定
+					pObjCheck->SetColor(XCOL_WHITE);
+				}
+
+				// 次のオブジェクトへのポインタを代入
+				pObjCheck = pObjectNext;
+			}
+		}
+	}
+}
+
+
+//============================================================
+//	ビルの色の全初期化処理
+//============================================================
+void CEditBuilding::InitAllColorBuilding(void)
+{
+	for (int nCntPri = 0; nCntPri < MAX_PRIO; nCntPri++)
+	{ // 優先順位の総数分繰り返す
+
+		// ポインタを宣言
+		CObject *pObjectTop = CObject::GetTop(nCntPri);	// 先頭オブジェクト
+
+		if (pObjectTop != NULL)
+		{ // 先頭が存在する場合
+
+			// ポインタを宣言
+			CObject *pObjCheck = pObjectTop;	// オブジェクト確認用
+
+			while (pObjCheck != NULL)
+			{ // オブジェクトが使用されている場合繰り返す
+
+				// ポインタを宣言
+				CObject *pObjectNext = pObjCheck->GetNext();	// 次オブジェクト
+
+				if (pObjCheck->GetLabel() != CObject::LABEL_BUILDING)
+				{ // オブジェクトラベルがビルではない場合
+
+					// 次のオブジェクトへのポインタを代入
+					pObjCheck = pObjectNext;
+
+					// 次の繰り返しに移行
+					continue;
+				}
+
+				if (pObjCheck == (CObject*)m_building.pBuilding)
+				{ // 同じアドレスだった場合
+
+					// 次のオブジェクトへのポインタを代入
+					pObjCheck = pObjectNext;
+
+					// 次の繰り返しに移行
+					continue;
+				}
+
+				// 通常色を設定
+				pObjCheck->SetColor(XCOL_WHITE);
+
+				// 次のオブジェクトへのポインタを代入
+				pObjCheck = pObjectNext;
+			}
+		}
+	}
 }

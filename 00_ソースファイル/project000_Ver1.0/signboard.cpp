@@ -288,7 +288,7 @@ CSignboard *CSignboard::Create
 		pSignboard->SetScale(fScale);
 
 		// キューブ色を設定
-		pSignboard->SetCubeColor(rCol);
+		pSignboard->SetColor(rCol);
 
 		// 確保したアドレスを返す
 		return pSignboard;

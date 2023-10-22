@@ -128,6 +128,8 @@ public:
 	D3DXVECTOR3 GetVec3Rotation(void) const override;		// 向き取得
 	void SetVec3Sizing(const D3DXVECTOR3& rSize) override;	// 大きさ設定
 	D3DXVECTOR3 GetVec3Sizing(void) const override;			// 大きさ取得
+	void SetColor(const D3DXCOLOR& rCol) override;			// キューブ色設定
+	D3DXCOLOR GetColor(void) const override;				// キューブ色取得
 	D3DXMATRIX *GetPtrMtxWorld(void) override;				// マトリックスポインタ取得
 
 	// 静的メンバ関数
@@ -152,8 +154,6 @@ public:
 
 	// メンバ関数
 	void BindTexture(const SFaceTex textureID);			// テクスチャ割当
-	void SetCubeColor(const D3DXCOLOR& rCol);			// キューブ色設定
-	D3DXCOLOR GetCubeColor(void) const;					// キューブ色取得
 	void SetBorderColor(const D3DXCOLOR& rCol);			// 縁取り色設定
 	D3DXCOLOR GetBorderColor(void) const;				// 縁取り色取得
 	HRESULT SetBorderState(const EBorder bordState);	// 縁取り状態設定

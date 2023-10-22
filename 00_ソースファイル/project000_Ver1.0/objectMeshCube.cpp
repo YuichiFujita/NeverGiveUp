@@ -378,6 +378,28 @@ D3DXVECTOR3 CObjectMeshCube::GetVec3Sizing(void) const
 }
 
 //============================================================
+//	キューブ色の設定処理
+//============================================================
+void CObjectMeshCube::SetColor(const D3DXCOLOR& rCol)
+{
+	// 引数のキューブ色を設定
+	m_meshCube.aCol[CUBECOL_CUBE] = rCol;
+
+	// 頂点情報の設定
+	SetVtx();
+}
+
+//============================================================
+//	キューブ色取得処理
+//============================================================
+D3DXCOLOR CObjectMeshCube::GetColor(void) const
+{
+	// キューブ色を返す
+	return m_meshCube.aCol[CUBECOL_CUBE];
+}
+
+
+//============================================================
 //	マトリックスポインタ取得処理
 //============================================================
 D3DXMATRIX *CObjectMeshCube::GetPtrMtxWorld(void)
@@ -450,7 +472,7 @@ CObjectMeshCube *CObjectMeshCube::Create
 		pObjectMeshCube->SetVec3Sizing(rSize);
 
 		// キューブ色を設定
-		pObjectMeshCube->SetCubeColor(rCubeCol);
+		pObjectMeshCube->SetColor(rCubeCol);
 
 		// 縁取り色を設定
 		pObjectMeshCube->SetBorderColor(rBorderCol);
@@ -501,27 +523,6 @@ void CObjectMeshCube::BindTexture(const SFaceTex textureID)
 {
 	// テクスチャインデックスを代入
 	m_meshCube.texID = textureID;
-}
-
-//============================================================
-//	キューブ色の設定処理
-//============================================================
-void CObjectMeshCube::SetCubeColor(const D3DXCOLOR& rCol)
-{
-	// 引数のキューブ色を設定
-	m_meshCube.aCol[CUBECOL_CUBE] = rCol;
-
-	// 頂点情報の設定
-	SetVtx();
-}
-
-//============================================================
-//	キューブ色取得処理
-//============================================================
-D3DXCOLOR CObjectMeshCube::GetCubeColor(void) const
-{
-	// キューブ色を返す
-	return m_meshCube.aCol[CUBECOL_CUBE];
 }
 
 //============================================================
