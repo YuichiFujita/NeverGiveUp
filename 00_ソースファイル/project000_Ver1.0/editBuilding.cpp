@@ -14,11 +14,23 @@
 #include "effect3D.h"
 
 //************************************************************
+//	マクロ定義
+//************************************************************
+#define KEY_CREATE		(DIK_0)	// 生成キー
+#define NAME_CREATE		("0")	// 生成表示
+#define KEY_RELEASE		(DIK_9)	// 破棄キー
+#define NAME_RELEASE	("9")	// 破棄表示
+#define KEY_TYPE		(DIK_2)	// 種類変更キー
+#define NAME_TYPE		("2")	// 種類変更表示
+
+//************************************************************
 //	定数宣言
 //************************************************************
 namespace
 {
-	const float INIT_ALPHA	= 0.5f;	// 配置前のα値
+	const float	INIT_ALPHA		= 0.5f;		// 配置前のα値
+	const float	EFFECT_RADIUS	= 30.0f;	// 方向表示エフェクトの半径
+	const int	EFFECT_LIFE		= 10;		// 方向表示エフェクトの寿命
 }
 
 //************************************************************
@@ -112,72 +124,25 @@ void CEditBuilding::Update(void)
 		return;
 	}
 
-	// 変数を宣言
-	D3DXVECTOR3 posEdit = m_pEdit->GetVec3Position();	// エディットの位置
-	D3DXVECTOR3 rotEdit = m_pEdit->GetVec3Rotation();	// エディットの向き
+	// 種類変更の更新
+	UpdateChangeType();
 
-	// ポインタを宣言
-	CInputKeyboard *m_pKeyboard = CManager::GetInstance()->GetKeyboard();	// キーボード情報
+	// ビルの生成
+	CreateBuilding();
 
-	//--------------------------------------------------------
-	//	操作の更新
-	//--------------------------------------------------------
-	// 種類を変更
-	if (m_pKeyboard->IsTrigger(DIK_2))
-	{
-		m_building.type = (CBuilding::EType)((m_building.type + 1) % CBuilding::TYPE_MAX);
-	}
+	// ビルの破棄
+	ReleaseBuilding();
 
-	// ビルを配置
-	if (m_pKeyboard->IsTrigger(DIK_0))
-	{
-		//----------------------------------------------------
-		//	ビルの情報を配置用に変更
-		//----------------------------------------------------
-		// 自動更新をONにする
-		m_building.pBuilding->SetEnableUpdate(true);
+	// 方向表示エフェクトの生成
+	CreateRotaEffect();
 
-		// 色を設定
-		D3DXCOLOR colSet = m_building.pBuilding->GetCubeColor();	// 元の色を取得
-		m_building.pBuilding->SetCubeColor(D3DXCOLOR(colSet.r, colSet.g, colSet.b, 1.0f));
+	// 位置を反映
+	m_building.pBuilding->SetVec3Position(m_pEdit->GetVec3Position());
 
-		//----------------------------------------------------
-		//	新しいビルの生成
-		//----------------------------------------------------
-		// ビルの生成	// TODO：種類の設定で位置と向き以外の情報は決まるように変更
-		m_building.pBuilding = CBuilding::Create(m_building.type, posEdit, rotEdit, D3DXVECTOR3(280.0f, 560.0f, 280.0f), XCOL_WHITE, CBuilding::COLLISION_GROUND);
-		assert(m_building.pBuilding != NULL);
+	// 向きを反映
+	m_building.pBuilding->SetVec3Rotation(m_pEdit->GetVec3Rotation());
 
-		// 自動更新をOFFにする
-		m_building.pBuilding->SetEnableUpdate(false);
-
-		// 色を設定
-		D3DXCOLOR colNew = m_building.pBuilding->GetCubeColor();	// 元の色を取得
-		m_building.pBuilding->SetCubeColor(D3DXCOLOR(colNew.r, colNew.g, colNew.b, INIT_ALPHA));
-	}
-
-	//--------------------------------------------------------
-	//	表示の更新
-	//--------------------------------------------------------
-	// プレイヤーの進行方向にエフェクトを表示
-	D3DXVECTOR3 posEffect = VEC3_ZERO;	// エフェクト位置
-	D3DXVECTOR3 sizeBuilding = m_building.pBuilding->GetVec3Sizing();	// ビル大きさ
-
-	// エフェクト位置を計算
-	posEffect.x = posEdit.x + sinf(rotEdit.y + D3DX_PI) * sizeBuilding.x;
-	posEffect.y = posEdit.y + sizeBuilding.y * 2.0f;
-	posEffect.z = posEdit.z + cosf(rotEdit.y + D3DX_PI) * sizeBuilding.z;
-
-	// エフェクト表示
-	CEffect3D::Create(posEffect, 30.0f, CEffect3D::TYPE_NORMAL, 10);
-
-	// 位置の反映
-	m_building.pBuilding->SetVec3Position(posEdit);
-
-	// 向きの反映
-	m_building.pBuilding->SetVec3Rotation(rotEdit);
-
-	// 種類の反映
+	// 種類を反映
 	m_building.pBuilding->SetType(m_building.type);
 
 #endif
@@ -270,4 +235,94 @@ HRESULT CEditBuilding::Release(CEditBuilding *&prEditBuilding)
 	return S_OK;
 
 #endif	// _DEBUG
+}
+
+//============================================================
+//	種類変更の更新処理
+//============================================================
+void CEditBuilding::UpdateChangeType(void)
+{
+	// ポインタを宣言
+	CInputKeyboard *m_pKeyboard = CManager::GetInstance()->GetKeyboard();	// キーボード情報
+
+	// 種類を変更
+	if (m_pKeyboard->IsTrigger(KEY_TYPE))
+	{
+		m_building.type = (CBuilding::EType)((m_building.type + 1) % CBuilding::TYPE_MAX);
+	}
+}
+
+//============================================================
+//	ビルの生成処理
+//============================================================
+void CEditBuilding::CreateBuilding(void)
+{
+	// 変数を宣言
+	D3DXVECTOR3 posEdit = m_pEdit->GetVec3Position();	// エディットの位置
+	D3DXVECTOR3 rotEdit = m_pEdit->GetVec3Rotation();	// エディットの向き
+	D3DXCOLOR colBuild = XCOL_WHITE;	// 色保存用
+
+	// ポインタを宣言
+	CInputKeyboard *m_pKeyboard = CManager::GetInstance()->GetKeyboard();	// キーボード情報
+
+	// ビルを配置
+	if (m_pKeyboard->IsTrigger(KEY_CREATE))
+	{
+		//----------------------------------------------------
+		//	ビルの情報を配置用に変更
+		//----------------------------------------------------
+		// 自動更新・自動描画をONにする
+		m_building.pBuilding->SetEnableUpdate(true);
+		m_building.pBuilding->SetEnableDraw(true);
+
+		// 色を設定
+		colBuild = m_building.pBuilding->GetCubeColor();	// 元の色を取得
+		m_building.pBuilding->SetCubeColor(D3DXCOLOR(colBuild.r, colBuild.g, colBuild.b, 1.0f));
+
+		//----------------------------------------------------
+		//	新しいビルの生成
+		//----------------------------------------------------
+		// ビルの生成	// TODO：種類の設定で位置と向き以外の情報は決まるように変更
+		m_building.pBuilding = CBuilding::Create(m_building.type, posEdit, rotEdit, D3DXVECTOR3(280.0f, 560.0f, 280.0f), XCOL_WHITE, CBuilding::COLLISION_GROUND);
+		assert(m_building.pBuilding != NULL);
+
+		// 色を設定
+		colBuild = m_building.pBuilding->GetCubeColor();	// 元の色を取得
+		m_building.pBuilding->SetCubeColor(D3DXCOLOR(colBuild.r, colBuild.g, colBuild.b, INIT_ALPHA));
+	}
+}
+
+//============================================================
+//	ビルの破棄処理
+//============================================================
+void CEditBuilding::ReleaseBuilding(void)
+{
+	// ポインタを宣言
+	CInputKeyboard *m_pKeyboard = CManager::GetInstance()->GetKeyboard();	// キーボード情報
+
+	// ビルを配置
+	if (m_pKeyboard->IsTrigger(KEY_RELEASE))
+	{
+
+	}
+}
+
+//============================================================
+//	方向表示エフェクトの生成処理
+//============================================================
+void CEditBuilding::CreateRotaEffect(void)
+{
+	// 変数を宣言
+	D3DXVECTOR3 posEffect = VEC3_ZERO;								// エフェクト位置
+	D3DXVECTOR3 posEdit   = m_pEdit->GetVec3Position();				// エディットの位置
+	D3DXVECTOR3 rotEdit   = m_pEdit->GetVec3Rotation();				// エディットの向き
+	D3DXVECTOR3 sizeBuild = m_building.pBuilding->GetVec3Sizing();	// ビル大きさ
+
+	// エフェクト位置を計算
+	posEffect.x = posEdit.x + sinf(rotEdit.y + D3DX_PI) * sizeBuild.x;
+	posEffect.y = posEdit.y + sizeBuild.y * 2.0f;
+	posEffect.z = posEdit.z + cosf(rotEdit.y + D3DX_PI) * sizeBuild.z;
+
+	// 方向表示エフェクトを生成
+	CEffect3D::Create(posEffect, EFFECT_RADIUS, CEffect3D::TYPE_NORMAL, EFFECT_LIFE);
 }

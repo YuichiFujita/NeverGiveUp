@@ -52,6 +52,12 @@ public:
 	static HRESULT Release(CEditBuilding *&prEditBuilding);	// 破棄
 
 private:
+	// メンバ関数
+	void UpdateChangeType(void);	// 種類変更の更新
+	void CreateBuilding(void);		// ビル生成
+	void ReleaseBuilding(void);		// ビル破棄
+	void CreateRotaEffect(void);	// 方向表示エフェクト生成
+
 	// メンバ変数
 	CEditStageManager *m_pEdit;	// エディットステージの情報
 	SInfo m_building;	// ビル配置情報
