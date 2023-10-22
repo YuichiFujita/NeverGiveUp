@@ -31,10 +31,10 @@ public:
 	enum EThing
 	{
 		THING_BUILDING = 0,	// ビル
-		THING_SIGNBOARD,	// 看板
-		THING_OBSTACLE,		// 障害物
-		THING_SAVEPOINT,	// セーブポイント
-		THING_GOALPOINT,	// ゴールポイント
+		//THING_SIGNBOARD,	// 看板
+		//THING_OBSTACLE,		// 障害物
+		//THING_SAVEPOINT,	// セーブポイント
+		//THING_GOALPOINT,	// ゴールポイント
 		THING_MAX			// この列挙型の総数
 	};
 

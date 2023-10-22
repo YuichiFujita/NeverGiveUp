@@ -18,6 +18,14 @@
 #define KEY_TRIGGER		(DIK_LSHIFT)	// トリガー化キー
 #define NAME_TRIGGER	("LSHIFT")		// トリガー化表示
 
+#define KEY_CHANGE_THING	(DIK_1)	// 配置物変更キー
+#define NAME_CHANGE_THING	("1")	// 配置物変更表示
+
+#define KEY_MOVE_UP		(DIK_UP)	// 移動量上昇キー
+#define NAME_MOVE_UP	("↑")		// 移動量上昇表示
+#define KEY_MOVE_DOWN	(DIK_DOWN)	// 移動量下降キー
+#define NAME_MOVE_DOWN	("↓")		// 移動量下降表示
+
 #define KEY_FAR		(DIK_W)	// 奥移動キー
 #define NAME_FAR	("W")	// 奥移動表示
 #define KEY_NEAR	(DIK_S)	// 手前移動キー
@@ -42,7 +50,10 @@
 namespace
 {
 	const char* SETUP_TXT	= "data\\TXT\\save_stage.txt";	// ステージセーブテキスト
-	const float INIT_MOVE	= 40.0f;	// 配置物の移動量
+	const float INIT_MOVE	= 40.0f;	// 配置物の初期移動量
+	const float CHANGE_MOVE = 10.0f;	// 配置物の移動量の変動量
+	const float MIN_MOVE	= 10.0f;	// 配置物の最小移動量
+	const float MAX_MOVE	= 200.0f;	// 配置物の最大移動量
 }
 
 //************************************************************
@@ -143,6 +154,12 @@ void CEditStageManager::Update(void)
 		return;
 	}
 
+	// 配置物変更の更新
+	UpdateChangeThing();
+
+	// 移動量変更の更新
+	UpdateChangeMove();
+
 	// 位置の更新
 	UpdatePosition();
 
@@ -199,7 +216,7 @@ void CEditStageManager::SetEnableEdit(const bool bEdit)
 		if (m_pBuilding != NULL)
 		{ // エディットビルが使用されている場合
 
-			// 表示の設定
+			// エディットビルの表示の設定
 			m_pBuilding->SetDisp(m_bEdit);
 		}
 		else { assert(false); }	// 非使用中
@@ -326,6 +343,108 @@ HRESULT CEditStageManager::Release(CEditStageManager *&prEditStageManager)
 	return S_OK;
 
 #endif	// _DEBUG
+}
+
+//============================================================
+//	配置物変更の更新処理
+//============================================================
+void CEditStageManager::UpdateChangeThing(void)
+{
+	// ポインタを宣言
+	CInputKeyboard *m_pKeyboard = CManager::GetInstance()->GetKeyboard();	// キーボード情報
+
+	// 配置物を変更
+	if (m_pKeyboard->IsPress(KEY_CHANGE_THING))
+	{
+		switch (m_thing)
+		{ // 配置物ごとの処理
+		case THING_BUILDING:	// ビル
+
+			if (m_pBuilding != NULL)
+			{ // エディットビルが使用されている場合
+
+				// エディットビルの表示の設定
+				m_pBuilding->SetDisp(false);
+			}
+			else { assert(false); }	// 非使用中
+
+			break;
+
+#if 0
+
+		case THING_SIGNBOARD:	// 看板
+			break;
+		case THING_OBSTACLE:	// 障害物
+			break;
+		case THING_SAVEPOINT:	// セーブポイント
+			break;
+		case THING_GOALPOINT:	// ゴールポイント
+			break;
+
+#endif
+
+		default:	// 例外処理
+			assert(false);
+			break;
+		}
+
+		// 配置物の変更
+		m_thing = (EThing)((m_thing + 1) % THING_MAX);
+
+		switch (m_thing)
+		{ // 配置物ごとの処理
+		case THING_BUILDING:	// ビル
+
+			if (m_pBuilding != NULL)
+			{ // エディットビルが使用されている場合
+
+				// エディットビルの表示の設定
+				m_pBuilding->SetDisp(true);
+			}
+			else { assert(false); }	// 非使用中
+
+			break;
+
+#if 0
+
+		case THING_SIGNBOARD:	// 看板
+			break;
+		case THING_OBSTACLE:	// 障害物
+			break;
+		case THING_SAVEPOINT:	// セーブポイント
+			break;
+		case THING_GOALPOINT:	// ゴールポイント
+			break;
+
+#endif
+
+		default:	// 例外処理
+			assert(false);
+			break;
+		}
+	}
+}
+
+//============================================================
+//	移動量変更の更新処理
+//============================================================
+void CEditStageManager::UpdateChangeMove(void)
+{
+	// ポインタを宣言
+	CInputKeyboard *m_pKeyboard = CManager::GetInstance()->GetKeyboard();	// キーボード情報
+
+	// 移動量を変更
+	if (m_pKeyboard->IsPress(KEY_MOVE_UP))
+	{
+		m_fMove += CHANGE_MOVE;
+	}
+	if (m_pKeyboard->IsPress(KEY_MOVE_DOWN))
+	{
+		m_fMove -= CHANGE_MOVE;
+	}
+
+	// 移動量を補正
+	useful::LimitNum(m_fMove, MIN_MOVE, MAX_MOVE);
 }
 
 //============================================================

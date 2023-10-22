@@ -123,7 +123,7 @@ void CEditBuilding::Update(void)
 	//	‘€ì‚ÌXV
 	//--------------------------------------------------------
 	// Ží—Þ‚ð•ÏX
-	if (m_pKeyboard->IsTrigger(DIK_1))
+	if (m_pKeyboard->IsTrigger(DIK_2))
 	{
 		m_building.type = (CBuilding::EType)((m_building.type + 1) % CBuilding::TYPE_MAX);
 	}
