@@ -123,6 +123,8 @@ public:
 	virtual D3DXVECTOR3 GetVec3Scaling(void) const;			// 拡大率取得
 	virtual void SetColor(const D3DXCOLOR& rCol);			// 色設定
 	virtual D3DXCOLOR GetColor(void) const;					// 色取得
+	virtual void SetAllMaterial(const D3DXMATERIAL& rMat);	// マテリアル全設定
+	virtual void ResetMaterial(void);						// マテリアル再設定
 
 	virtual void SetPriority(const int nPriority);		// 優先順位設定
 	virtual void SetEnableUpdate(const bool bUpdate);	// 更新状況設定

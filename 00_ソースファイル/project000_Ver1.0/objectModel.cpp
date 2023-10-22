@@ -276,6 +276,38 @@ D3DXVECTOR3 CObjectModel::GetVec3Scaling(void) const
 }
 
 //============================================================
+//	マテリアルの全設定処理
+//============================================================
+void CObjectModel::SetAllMaterial(const D3DXMATERIAL& rMat)
+{
+	// 引数のマテリアルを全マテリアルに設定
+	for (int nCntMat = 0; nCntMat < (int)m_modelData.dwNumMat; nCntMat++)
+	{ // マテリアルの数分繰り返す
+
+		m_pMat[nCntMat] = rMat;
+	}
+}
+
+//============================================================
+//	マテリアルの再設定処理
+//============================================================
+void CObjectModel::ResetMaterial(void)
+{
+	// ポインタを宣言
+	D3DXMATERIAL *pOriginMat;	// マテリアルデータへのポインタ
+
+	// マテリアルデータへのポインタを取得
+	pOriginMat = (D3DXMATERIAL*)m_modelData.pBuffMat->GetBufferPointer();
+
+	// 全マテリアルに初期マテリアルを再設定
+	for (int nCntMat = 0; nCntMat < (int)m_modelData.dwNumMat; nCntMat++)
+	{ // マテリアルの数分繰り返す
+
+		m_pMat[nCntMat] = pOriginMat[nCntMat];
+	}
+}
+
+//============================================================
 //	マトリックスポインタ取得処理
 //============================================================
 D3DXMATRIX *CObjectModel::GetPtrMtxWorld(void)
@@ -340,58 +372,6 @@ CObjectModel *CObjectModel::Create(const D3DXVECTOR3& rPos, const D3DXVECTOR3& r
 }
 
 //============================================================
-//	元マテリアルの設定処理
-//============================================================
-HRESULT CObjectModel::SetOriginMaterial(const LPD3DXBUFFER pBuffMat, const int nNumMat)
-{
-	// ポインタを宣言
-	D3DXMATERIAL *pOriginMat;	// マテリアルデータへのポインタ
-
-	//--------------------------------------------------------
-	//	メモリ開放・確保
-	//--------------------------------------------------------
-	if (m_pMat != NULL)
-	{ // ポインタが使用されていた場合
-
-		// メモリ開放
-		delete[] m_pMat;
-		m_pMat = NULL;
-	}
-
-	if (m_pMat == NULL)
-	{ // ポインタが使用されていない場合
-
-		// マテリアル数分のメモリ確保
-		m_pMat = new D3DXMATERIAL[nNumMat];
-
-		if (m_pMat != NULL)
-		{ // 確保に成功した場合
-
-			// メモリクリア
-			memset(m_pMat, 0, sizeof(D3DXMATERIAL) * nNumMat);
-		}
-		else { assert(false); return E_FAIL; }	// 確保失敗
-	}
-	else { assert(false); return E_FAIL; }	// 使用中
-
-	//--------------------------------------------------------
-	//	マテリアル情報を設定
-	//--------------------------------------------------------
-	// マテリアルデータへのポインタを取得
-	pOriginMat = (D3DXMATERIAL*)pBuffMat->GetBufferPointer();
-
-	for (int nCntMat = 0; nCntMat < nNumMat; nCntMat++)
-	{ // マテリアルの数分繰り返す
-
-		// マテリアルデータをコピー
-		m_pMat[nCntMat] = pOriginMat[nCntMat];
-	}
-
-	// 成功を返す
-	return S_OK;
-}
-
-//============================================================
 //	マテリアル設定処理
 //============================================================
 void CObjectModel::SetMaterial(const D3DXMATERIAL& rMat, const int nID)
@@ -403,38 +383,6 @@ void CObjectModel::SetMaterial(const D3DXMATERIAL& rMat, const int nID)
 		m_pMat[nID] = rMat;
 	}
 	else { assert(false); }	// 範囲外
-}
-
-//============================================================
-//	マテリアルの全設定処理
-//============================================================
-void CObjectModel::SetAllMaterial(const D3DXMATERIAL& rMat)
-{
-	// 引数のマテリアルを全マテリアルに設定
-	for (int nCntMat = 0; nCntMat < (int)m_modelData.dwNumMat; nCntMat++)
-	{ // マテリアルの数分繰り返す
-
-		m_pMat[nCntMat] = rMat;
-	}
-}
-
-//============================================================
-//	マテリアルの再設定処理
-//============================================================
-void CObjectModel::ResetMaterial(void)
-{
-	// ポインタを宣言
-	D3DXMATERIAL *pOriginMat;	// マテリアルデータへのポインタ
-
-	// マテリアルデータへのポインタを取得
-	pOriginMat = (D3DXMATERIAL*)m_modelData.pBuffMat->GetBufferPointer();
-
-	// 全マテリアルに初期マテリアルを再設定
-	for (int nCntMat = 0; nCntMat < (int)m_modelData.dwNumMat; nCntMat++)
-	{ // マテリアルの数分繰り返す
-
-		m_pMat[nCntMat] = pOriginMat[nCntMat];
-	}
 }
 
 //============================================================
@@ -568,4 +516,56 @@ void CObjectModel::SetMtxWorld(const D3DXMATRIX& rMtxWorld)
 {
 	// 引数のマトリックスを設定
 	m_mtxWorld = rMtxWorld;
+}
+
+//============================================================
+//	元マテリアルの設定処理
+//============================================================
+HRESULT CObjectModel::SetOriginMaterial(const LPD3DXBUFFER pBuffMat, const int nNumMat)
+{
+	// ポインタを宣言
+	D3DXMATERIAL *pOriginMat;	// マテリアルデータへのポインタ
+
+	//--------------------------------------------------------
+	//	メモリ開放・確保
+	//--------------------------------------------------------
+	if (m_pMat != NULL)
+	{ // ポインタが使用されていた場合
+
+		// メモリ開放
+		delete[] m_pMat;
+		m_pMat = NULL;
+	}
+
+	if (m_pMat == NULL)
+	{ // ポインタが使用されていない場合
+
+		// マテリアル数分のメモリ確保
+		m_pMat = new D3DXMATERIAL[nNumMat];
+
+		if (m_pMat != NULL)
+		{ // 確保に成功した場合
+
+			// メモリクリア
+			memset(m_pMat, 0, sizeof(D3DXMATERIAL) * nNumMat);
+		}
+		else { assert(false); return E_FAIL; }	// 確保失敗
+	}
+	else { assert(false); return E_FAIL; }	// 使用中
+
+	//--------------------------------------------------------
+	//	マテリアル情報を設定
+	//--------------------------------------------------------
+	// マテリアルデータへのポインタを取得
+	pOriginMat = (D3DXMATERIAL*)pBuffMat->GetBufferPointer();
+
+	for (int nCntMat = 0; nCntMat < nNumMat; nCntMat++)
+	{ // マテリアルの数分繰り返す
+
+		// マテリアルデータをコピー
+		m_pMat[nCntMat] = pOriginMat[nCntMat];
+	}
+
+	// 成功を返す
+	return S_OK;
 }

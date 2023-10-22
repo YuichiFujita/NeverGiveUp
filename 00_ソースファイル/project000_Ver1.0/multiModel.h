@@ -45,6 +45,8 @@ public:
 	D3DXVECTOR3 GetVec3Rotation(void) const override;			// 向き取得
 	void SetVec3Scaling(const D3DXVECTOR3& rScale) override;	// 拡大率設定
 	D3DXVECTOR3 GetVec3Scaling(void) const override;			// 拡大率取得
+	void SetAllMaterial(const D3DXMATERIAL& rMat) override;		// マテリアル全設定
+	void ResetMaterial(void) override;							// マテリアル再設定
 	D3DXMATRIX *GetPtrMtxWorld(void) override;					// マトリックスポインタ取得
 	D3DXMATRIX GetMtxWorld(void) const override;				// マトリックス取得
 
@@ -57,10 +59,7 @@ public:
 	);
 
 	// メンバ関数
-	HRESULT SetOriginMaterial(const LPD3DXBUFFER pBuffMat, const int nNumMat);	// 元マテリアル設定
 	void SetMaterial(const D3DXMATERIAL& rMat, const int nID);	// マテリアル設定
-	void SetAllMaterial(const D3DXMATERIAL& rMat);		// マテリアル全設定
-	void ResetMaterial(void);							// マテリアル再設定
 	D3DXMATERIAL GetMaterial(const int nID) const;		// マテリアル取得
 	void SetAlpha(const float fAlpha);					// 透明度設定
 	float GetAlpha(void) const;							// 透明度取得
@@ -73,6 +72,9 @@ public:
 	CModel::SModel GetModelData(void) const;			// モデル情報取得
 
 private:
+	// メンバ関数
+	HRESULT SetOriginMaterial(const LPD3DXBUFFER pBuffMat, const int nNumMat);	// 元マテリアル設定
+
 	// メンバ変数
 	CModel::SModel	m_modelData;	// モデル情報
 	CObject			*m_pParent;		// 親オブジェクトへのポインタ

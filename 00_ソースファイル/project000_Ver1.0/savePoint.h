@@ -56,6 +56,7 @@ public:
 	void Uninit(void) override;		// 終了
 	void Update(void) override;		// 更新
 	void Draw(void) override;		// 描画
+	float GetRadius(void) const override;	// 半径取得
 
 	// 静的メンバ関数
 	static CSavePoint *Create	// 生成
@@ -70,9 +71,12 @@ private:
 	// メンバ関数
 	void CollisionPlayer(void);	// プレイヤーとの当たり判定
 
+	// 静的メンバ関数
+	static CObject *GetSavePoint(void);	// 生成済みセーブポイント取得
+
 	// 静的メンバ変数
 	static const char *mc_apModelFile[];	// モデル定数
-	static CSavePoint *m_pCurrentSave;		// 現在のセーブポイントへのポインタ
+	static CObject *m_pCurrentSave;			// 現在のセーブポイントへのポインタ
 
 	static int m_nNumAll;	// セーブポイントの総数
 

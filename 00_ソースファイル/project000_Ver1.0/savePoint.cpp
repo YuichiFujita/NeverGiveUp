@@ -33,7 +33,7 @@ const char *CSavePoint::mc_apModelFile[] =	// モデル定数
 {
 	"data\\MODEL\\SAVEPOINT\\savepoint000.x",	// セーブポイントモデル
 };
-CSavePoint *CSavePoint::m_pCurrentSave = NULL;	// 現在のセーブポイントへのポインタ
+CObject *CSavePoint::m_pCurrentSave = NULL;	// 現在のセーブポイントへのポインタ
 int CSavePoint::m_nNumAll = 0;	// セーブポイントの総数
 
 //************************************************************
@@ -86,7 +86,7 @@ HRESULT CSavePoint::Init(void)
 	{ // 自身のセーブポイントが一つ目の場合
 
 		// 自身のセーブポイントを保存
-		m_pCurrentSave = this;
+		m_pCurrentSave = (CObject*)this;
 	}
 
 	// 成功を返す
@@ -100,6 +100,13 @@ void CSavePoint::Uninit(void)
 {
 	// オブジェクトモデルの終了
 	CObjectModel::Uninit();
+
+	if (m_pCurrentSave == (CObject*)this)
+	{ // 現在のセーブポイントが自身だった場合
+
+		// 見つかった生成済みのセーブポイントを設定
+		m_pCurrentSave = GetSavePoint();
+	}
 }
 
 //============================================================
@@ -145,16 +152,6 @@ void CSavePoint::Update(void)
 
 	// オブジェクトモデルの更新
 	CObjectModel::Update();
-
-#if _DEBUG
-
-	// デバッグ表示
-	if (m_nThisSaveID == 0)
-	{
-		CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "[セーブ番号]：%d\n", m_pCurrentSave->m_nThisSaveID);
-	}
-
-#endif // _DEBUG
 }
 
 //============================================================
@@ -164,6 +161,15 @@ void CSavePoint::Draw(void)
 {
 	// オブジェクトモデルの描画
 	CObjectModel::Draw();
+}
+
+//============================================================
+//	半径取得処理
+//============================================================
+float CSavePoint::GetRadius(void) const
+{
+	// 半径を返す
+	return COL_RADIUS;
 }
 
 //============================================================
@@ -264,7 +270,7 @@ void CSavePoint::CollisionPlayer(void)
 	float fPlayerRadius = pPlayer->GetRadius();	// プレイヤー半径
 	bool  bHit = false;	// 判定状況
 
-	if (this != m_pCurrentSave)
+	if ((CObject*)this != m_pCurrentSave)
 	{ // 現在のセーブポイントと一致しない場合
 
 		// プレイヤーとの判定
@@ -279,7 +285,7 @@ void CSavePoint::CollisionPlayer(void)
 		{ // プレイヤーが判定内の場合
 
 			// セーブポイントを自身に変更
-			m_pCurrentSave = this;
+			m_pCurrentSave = (CObject*)this;
 
 			// カウンターを初期化
 			m_nCounterState = 0;
@@ -291,4 +297,57 @@ void CSavePoint::CollisionPlayer(void)
 			SetMaterial(material::GlowGreen(), CHANGE_MAT_ID);
 		}
 	}
+}
+
+//============================================================
+//	生成済みセーブポイント取得処理
+//============================================================
+CObject *CSavePoint::GetSavePoint(void)
+{
+	for (int nCntPri = 0; nCntPri < MAX_PRIO; nCntPri++)
+	{ // 優先順位の総数分繰り返す
+
+		// ポインタを宣言
+		CObject *pObjectTop = CObject::GetTop(nCntPri);	// 先頭オブジェクト
+
+		if (pObjectTop != NULL)
+		{ // 先頭が存在する場合
+
+			// ポインタを宣言
+			CObject *pObjCheck = pObjectTop;	// オブジェクト確認用
+
+			while (pObjCheck != NULL)
+			{ // オブジェクトが使用されている場合繰り返す
+
+				// ポインタを宣言
+				CObject *pObjectNext = pObjCheck->GetNext();	// 次オブジェクト
+
+				if (pObjCheck->GetLabel() != CObject::LABEL_SAVEPOINT)
+				{ // オブジェクトラベルがセーブポイントではない場合
+
+					// 次のオブジェクトへのポインタを代入
+					pObjCheck = pObjectNext;
+
+					// 次の繰り返しに移行
+					continue;
+				}
+
+				if (pObjCheck->IsDeath() == true)
+				{ // オブジェクトラベルがセーブポイントではない場合
+
+					// 次のオブジェクトへのポインタを代入
+					pObjCheck = pObjectNext;
+
+					// 次の繰り返しに移行
+					continue;
+				}
+
+				// 見つかったセーブポイントを返す
+				return pObjCheck;
+			}
+		}
+	}
+
+	// NULLを返す
+	return NULL;
 }

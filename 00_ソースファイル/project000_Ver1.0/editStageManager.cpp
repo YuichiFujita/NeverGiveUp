@@ -11,6 +11,7 @@
 #include "manager.h"
 #include "input.h"
 #include "editBuilding.h"
+#include "editSavePoint.h"
 
 //************************************************************
 //	マクロ定義
@@ -68,6 +69,7 @@ CEditStageManager::CEditStageManager()
 
 	// メンバ変数をクリア
 	m_pBuilding = NULL;			// エディットビルの情報
+	m_pSavePoint = NULL;		// エディットセーブポイントの情報
 	m_pos	= VEC3_ZERO;		// 位置
 	m_rot	= VEC3_ZERO;		// 向き
 	m_fMove	= 0.0f;				// 位置移動量
@@ -95,6 +97,7 @@ HRESULT CEditStageManager::Init(void)
 
 	// メンバ変数を初期化
 	m_pBuilding = NULL;			// エディットビルの情報
+	m_pSavePoint = NULL;		// エディットセーブポイントの情報
 	m_pos	= VEC3_ZERO;		// 位置
 	m_rot	= VEC3_ZERO;		// 向き
 	m_fMove	= INIT_MOVE;		// 位置移動量
@@ -104,6 +107,16 @@ HRESULT CEditStageManager::Init(void)
 	// エディットビルの生成
 	m_pBuilding = CEditBuilding::Create(this);
 	if (m_pBuilding == NULL)
+	{ // 生成に失敗した場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
+
+	// エディットセーブポイントの生成
+	m_pSavePoint = CEditSavePoint::Create(this);
+	if (m_pSavePoint == NULL)
 	{ // 生成に失敗した場合
 
 		// 失敗を返す
@@ -134,6 +147,14 @@ void CEditStageManager::Uninit(void)
 
 		// エディットビルの破棄
 		CEditBuilding::Release(m_pBuilding);
+	}
+	else { assert(false); }	// 非使用中
+
+	if (m_pSavePoint != NULL)
+	{ // エディットセーブポイントが使用されている場合
+
+		// エディットセーブポイントの破棄
+		CEditSavePoint::Release(m_pSavePoint);
 	}
 	else { assert(false); }	// 非使用中
 
@@ -188,7 +209,13 @@ void CEditStageManager::Update(void)
 
 	case THING_SAVEPOINT:	// セーブポイント
 
+		if (m_pSavePoint != NULL)
+		{ // エディットセーブポイントが使用されている場合
 
+			// エディットセーブポイントの更新
+			m_pSavePoint->Update();
+		}
+		else { assert(false); }	// 非使用中
 
 		break;
 
@@ -239,7 +266,13 @@ void CEditStageManager::SetEnableEdit(const bool bEdit)
 
 	case THING_SAVEPOINT:	// セーブポイント
 
+		if (m_pSavePoint != NULL)
+		{ // エディットセーブポイントが使用されている場合
 
+			// エディットセーブポイントの表示の設定
+			m_pSavePoint->SetDisp(m_bEdit);
+		}
+		else { assert(false); }	// 非使用中
 
 		break;
 
@@ -388,7 +421,13 @@ void CEditStageManager::UpdateChangeThing(void)
 
 		case THING_SAVEPOINT:	// セーブポイント
 
+			if (m_pSavePoint != NULL)
+			{ // エディットセーブポイントが使用されている場合
 
+				// エディットセーブポイントの表示の設定
+				m_pSavePoint->SetDisp(false);
+			}
+			else { assert(false); }	// 非使用中
 
 			break;
 
@@ -425,7 +464,13 @@ void CEditStageManager::UpdateChangeThing(void)
 
 		case THING_SAVEPOINT:	// セーブポイント
 
+			if (m_pSavePoint != NULL)
+			{ // エディットセーブポイントが使用されている場合
 
+				// エディットセーブポイントの表示の設定
+				m_pSavePoint->SetDisp(true);
+			}
+			else { assert(false); }	// 非使用中
 
 			break;
 
@@ -586,7 +631,13 @@ void CEditStageManager::DrawDebugControl(void)
 
 	case THING_SAVEPOINT:	// セーブポイント
 
+		if (m_pSavePoint != NULL)
+		{ // エディットセーブポイントが使用されている場合
 
+			// エディットセーブポイントの操作表示
+			m_pSavePoint->DrawDebugControl();
+		}
+		else { assert(false); }	// 非使用中
 
 		break;
 
@@ -641,7 +692,13 @@ void CEditStageManager::DrawDebugInfo(void)
 
 	case THING_SAVEPOINT:	// セーブポイント
 
+		if (m_pSavePoint != NULL)
+		{ // エディットセーブポイントが使用されている場合
 
+			// エディットセーブポイントの情報表示
+			m_pSavePoint->DrawDebugInfo();
+		}
+		else { assert(false); }	// 非使用中
 
 		break;
 

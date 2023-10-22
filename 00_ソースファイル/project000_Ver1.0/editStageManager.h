@@ -19,6 +19,7 @@
 //	前方宣言
 //************************************************************
 class CEditBuilding;	// エディットビルクラス
+class CEditSavePoint;	// エディットセーブポイントクラス
 
 //************************************************************
 //	クラス定義
@@ -67,7 +68,8 @@ private:
 	void DrawDebugInfo(void);		// 情報表示描画
 
 	// メンバ変数
-	CEditBuilding *m_pBuilding;	// エディットビルの情報
+	CEditBuilding *m_pBuilding;		// エディットビルの情報
+	CEditSavePoint *m_pSavePoint;	// エディットセーブポイントの情報
 
 	D3DXVECTOR3 m_pos;	// 位置
 	D3DXVECTOR3 m_rot;	// 向き
