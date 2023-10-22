@@ -141,7 +141,7 @@ HRESULT CPlayer::Init(void)
 	m_oldPos		= VEC3_ZERO;	// 過去位置
 	m_move			= VEC3_ZERO;	// 移動量
 	m_destRot		= VEC3_ZERO;	// 目標向き
-	m_state			= STATE_NORMAL;	// 状態
+	m_state			= STATE_NONE;	// 状態
 	m_nCounterState	= 0;			// 状態管理カウンター
 	m_nCounterSlide = 0;			// スライディング管理カウンター
 	m_fMove			= basic::MOVE;	// 移動量
@@ -400,6 +400,13 @@ CPlayer *CPlayer::Create(void)
 //============================================================
 void CPlayer::SetSpawn(void)
 {
+	if (CSavePoint::GetNumAll() <= 0)
+	{ // セーブポイントが一つもない場合
+
+		// 処理を抜ける
+		return;
+	}
+
 	// 変数を宣言
 	CSavePoint::SInfo SavePointInfo = CSavePoint::GetSavePointInfo();	// セーブポイントの情報
 

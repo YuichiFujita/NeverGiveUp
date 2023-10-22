@@ -224,10 +224,6 @@ HRESULT CSceneGame::Init(void)
 
 #endif
 
-#else
-
-	CSavePoint::Create(D3DXVECTOR3(-2800.0f, 1120.0f, 1120.0f), D3DXToRadian(D3DXVECTOR3(0.0f, 0.0f, 0.0f)));
-
 #endif
 
 	//--------------------------------------------------------

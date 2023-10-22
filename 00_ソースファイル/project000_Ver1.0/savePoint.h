@@ -63,6 +63,7 @@ public:
 		const D3DXVECTOR3& rPos,	// 位置
 		const D3DXVECTOR3& rRot		// 向き
 	);
+	static int GetNumAll(void);	// 総数取得
 	static SInfo GetSavePointInfo(void);	// セーブポイント情報取得
 
 private:
