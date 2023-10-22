@@ -180,18 +180,20 @@ void CEditStageManager::Update(void)
 
 		break;
 
-#if 0
-
 	case THING_SIGNBOARD:	// 看板
 		break;
+
 	case THING_OBSTACLE:	// 障害物
 		break;
+
 	case THING_SAVEPOINT:	// セーブポイント
-		break;
-	case THING_GOALPOINT:	// ゴールポイント
+
+
+
 		break;
 
-#endif
+	case THING_GOALPOINT:	// ゴールポイント
+		break;
 
 	default:	// 例外処理
 		assert(false);
@@ -229,18 +231,20 @@ void CEditStageManager::SetEnableEdit(const bool bEdit)
 
 		break;
 
-#if 0
-
 	case THING_SIGNBOARD:	// 看板
 		break;
+
 	case THING_OBSTACLE:	// 障害物
 		break;
+
 	case THING_SAVEPOINT:	// セーブポイント
-		break;
-	case THING_GOALPOINT:	// ゴールポイント
+
+
+
 		break;
 
-#endif
+	case THING_GOALPOINT:	// ゴールポイント
+		break;
 
 	default:	// 例外処理
 		assert(false);
@@ -360,7 +364,7 @@ void CEditStageManager::UpdateChangeThing(void)
 	CInputKeyboard *m_pKeyboard = CManager::GetInstance()->GetKeyboard();	// キーボード情報
 
 	// 配置物を変更
-	if (m_pKeyboard->IsPress(KEY_CHANGE_THING))
+	if (m_pKeyboard->IsTrigger(KEY_CHANGE_THING))
 	{
 		switch (m_thing)
 		{ // 配置物ごとの処理
@@ -376,18 +380,20 @@ void CEditStageManager::UpdateChangeThing(void)
 
 			break;
 
-#if 0
-
 		case THING_SIGNBOARD:	// 看板
 			break;
+
 		case THING_OBSTACLE:	// 障害物
 			break;
+
 		case THING_SAVEPOINT:	// セーブポイント
-			break;
-		case THING_GOALPOINT:	// ゴールポイント
+
+
+
 			break;
 
-#endif
+		case THING_GOALPOINT:	// ゴールポイント
+			break;
 
 		default:	// 例外処理
 			assert(false);
@@ -411,18 +417,20 @@ void CEditStageManager::UpdateChangeThing(void)
 
 			break;
 
-#if 0
-
 		case THING_SIGNBOARD:	// 看板
 			break;
+
 		case THING_OBSTACLE:	// 障害物
 			break;
+
 		case THING_SAVEPOINT:	// セーブポイント
-			break;
-		case THING_GOALPOINT:	// ゴールポイント
+
+
+
 			break;
 
-#endif
+		case THING_GOALPOINT:	// ゴールポイント
+			break;
 
 		default:	// 例外処理
 			assert(false);
@@ -570,18 +578,20 @@ void CEditStageManager::DrawDebugControl(void)
 
 		break;
 
-#if 0
-
 	case THING_SIGNBOARD:	// 看板
 		break;
+
 	case THING_OBSTACLE:	// 障害物
 		break;
+
 	case THING_SAVEPOINT:	// セーブポイント
-		break;
-	case THING_GOALPOINT:	// ゴールポイント
+
+
+
 		break;
 
-#endif
+	case THING_GOALPOINT:	// ゴールポイント
+		break;
 
 	default:	// 例外処理
 		assert(false);
@@ -596,7 +606,7 @@ void CEditStageManager::DrawDebugInfo(void)
 {
 	// ポインタを宣言
 	CDebugProc *pDebug = CManager::GetInstance()->GetDebugProc();	// デバッグプロックの情報
-	static char* apThing[] = { "ビル" };	// 配置物
+	static char* apThing[] = { "ビル", "看板", "障害物", "セーブポイント", "ゴールポイント" };	// 配置物
 
 	// 配置物数の不一致
 	assert((sizeof(apThing) / sizeof(apThing[0])) == THING_MAX);
@@ -623,18 +633,20 @@ void CEditStageManager::DrawDebugInfo(void)
 
 		break;
 
-#if 0
-
 	case THING_SIGNBOARD:	// 看板
 		break;
+
 	case THING_OBSTACLE:	// 障害物
 		break;
+
 	case THING_SAVEPOINT:	// セーブポイント
-		break;
-	case THING_GOALPOINT:	// ゴールポイント
+
+
+
 		break;
 
-#endif
+	case THING_GOALPOINT:	// ゴールポイント
+		break;
 
 	default:	// 例外処理
 		assert(false);
