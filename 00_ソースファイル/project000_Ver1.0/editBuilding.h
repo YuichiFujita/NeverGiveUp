@@ -45,6 +45,7 @@ public:
 	HRESULT Init(void);	// 初期化
 	void Uninit(void);	// 終了
 	void Update(void);	// 更新
+	void SetDisp(const bool bDisp);	// 表示設定
 
 	// 静的メンバ関数
 	static CEditBuilding *Create(CEditStageManager *pEdit);	// 生成

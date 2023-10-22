@@ -48,6 +48,8 @@ public:
 	HRESULT Init(void);	// 初期化
 	void Uninit(void);	// 終了
 	void Update(void);	// 更新
+	void SetEnableEdit(const bool bEdit);		// エディット状況設定
+	bool IsEdit(void) const;					// エディット状況取得
 	D3DXVECTOR3 GetVec3Position(void) const;	// 位置取得
 	D3DXVECTOR3 GetVec3Rotation(void) const;	// 向き取得
 
@@ -57,8 +59,10 @@ public:
 
 private:
 	// メンバ関数
-	void UpdatePosition(void);	// 位置更新
-	void UpdateRotation(void);	// 向き更新
+	void UpdateChangeThing(void);	// 配置物変更の更新
+	void UpdateChangeMove(void);	// 移動量変更の更新
+	void UpdatePosition(void);		// 位置更新
+	void UpdateRotation(void);		// 向き更新
 
 	// メンバ変数
 	CEditBuilding *m_pBuilding;	// エディットビルの情報
@@ -67,6 +71,7 @@ private:
 	D3DXVECTOR3 m_rot;	// 向き
 	EThing m_thing;		// 配置物
 	float m_fMove;		// 位置移動量
+	bool m_bEdit;		// エディット状況
 };
 
 #endif	// _EDIT_STAGEMANAGER_H_

@@ -13,6 +13,7 @@
 #include "input.h"
 
 #include "gameManager.h"
+#include "editStageManager.h"
 #include "timerManager.h"
 #include "stage.h"
 #include "pause.h"
@@ -302,36 +303,43 @@ void CSceneGame::Update(void)
 
 	if (CManager::GetInstance()->GetKeyboard()->IsTrigger(DIK_F2))
 	{
+		// エディット状況を反転
+		CGameManager::GetEditStage()->SetEnableEdit((!CGameManager::GetEditStage()->IsEdit()) ? true : false);
+	}
+	if (CManager::GetInstance()->GetKeyboard()->IsTrigger(DIK_F3))
+	{
 		// UIの描画状況を反転
 		SetEnableDrawUI((!m_bDrawUI) ? true : false);
 	}
-	else if (CManager::GetInstance()->GetKeyboard()->IsTrigger(DIK_F3))
+	else if (CManager::GetInstance()->GetKeyboard()->IsTrigger(DIK_F4))
 	{
 		// ポーズの描画状況を反転
 		SetEnableDrawPause((!m_bDrawPause) ? true : false);
 	}
-	else if (CManager::GetInstance()->GetKeyboard()->IsTrigger(DIK_F4))
+	else if (CManager::GetInstance()->GetKeyboard()->IsTrigger(DIK_F5))
 	{
 		// カメラの操作状況を反転
 		SetEnableControlCamera((!m_bControlCamera) ? true : false);
 	}
-	else if (CManager::GetInstance()->GetKeyboard()->IsTrigger(DIK_F5))
+	else if (CManager::GetInstance()->GetKeyboard()->IsTrigger(DIK_F6))
 	{
 		// プレイヤーの出現を設定
 		CScene::GetPlayer()->SetSpawn();
 	}
-	//else if (CManager::GetInstance()->GetKeyboard()->IsTrigger(DIK_F6))
+	//else if (CManager::GetInstance()->GetKeyboard()->IsTrigger(DIK_F7))
 	//{
 	//	// リザルトに遷移
 	//	CManager::GetInstance()->SetScene(CScene::MODE_RESULT);	// リザルト画面
 	//}
 
 	// デバッグ表示
-	CManager::GetInstance()->GetDebugProc()->Print("[F2]：UI描画のON/OFF\n");
-	CManager::GetInstance()->GetDebugProc()->Print("[F3]：ポーズ描画のON/OFF\n");
-	CManager::GetInstance()->GetDebugProc()->Print("[F4]：カメラ操作のON/OFF\n");
-	CManager::GetInstance()->GetDebugProc()->Print("[F5]：プレイヤースポーン\n");
-	//CManager::GetInstance()->GetDebugProc()->Print("[F6]：リザルト遷移\n");
+	CManager::GetInstance()->GetDebugProc()->Print("[F1]：デバッグ表示のON/OFF\n");
+	CManager::GetInstance()->GetDebugProc()->Print("[F2]：エディットモードのON/OFF\n");
+	CManager::GetInstance()->GetDebugProc()->Print("[F3]：UI描画のON/OFF\n");
+	CManager::GetInstance()->GetDebugProc()->Print("[F4]：ポーズ描画のON/OFF\n");
+	CManager::GetInstance()->GetDebugProc()->Print("[F5]：カメラ操作のON/OFF\n");
+	CManager::GetInstance()->GetDebugProc()->Print("[F6]：プレイヤースポーン\n");
+	//CManager::GetInstance()->GetDebugProc()->Print("[F7]：リザルト遷移\n");
 
 #endif
 

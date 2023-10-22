@@ -61,6 +61,7 @@ CEditStageManager::CEditStageManager()
 	m_rot	= VEC3_ZERO;		// 向き
 	m_fMove	= 0.0f;				// 位置移動量
 	m_thing	= THING_BUILDING;	// 配置物
+	m_bEdit	= false;			// エディット状況
 
 #endif	// _DEBUG
 }
@@ -87,6 +88,7 @@ HRESULT CEditStageManager::Init(void)
 	m_rot	= VEC3_ZERO;		// 向き
 	m_fMove	= INIT_MOVE;		// 位置移動量
 	m_thing	= THING_BUILDING;	// 配置物
+	m_bEdit	= false;			// エディット状況
 
 	// エディットビルの生成
 	m_pBuilding = CEditBuilding::Create(this);
@@ -134,6 +136,13 @@ void CEditStageManager::Update(void)
 {
 #if _DEBUG
 
+	if (!m_bEdit)
+	{ // エディットモードではない場合
+
+		// 処理を抜ける
+		return;
+	}
+
 	// 位置の更新
 	UpdatePosition();
 
@@ -173,6 +182,56 @@ void CEditStageManager::Update(void)
 	}
 
 #endif	// _DEBUG
+}
+
+//============================================================
+//	エディット状況の設定処理
+//============================================================
+void CEditStageManager::SetEnableEdit(const bool bEdit)
+{
+	// 引数のエディット状況にする
+	m_bEdit = bEdit;
+
+	switch (m_thing)
+	{ // 配置物ごとの処理
+	case THING_BUILDING:	// ビル
+
+		if (m_pBuilding != NULL)
+		{ // エディットビルが使用されている場合
+
+			// 表示の設定
+			m_pBuilding->SetDisp(m_bEdit);
+		}
+		else { assert(false); }	// 非使用中
+
+		break;
+
+#if 0
+
+	case THING_SIGNBOARD:	// 看板
+		break;
+	case THING_OBSTACLE:	// 障害物
+		break;
+	case THING_SAVEPOINT:	// セーブポイント
+		break;
+	case THING_GOALPOINT:	// ゴールポイント
+		break;
+
+#endif
+
+	default:	// 例外処理
+		assert(false);
+		break;
+	}
+}
+
+//============================================================
+//	エディット状況取得処理
+//============================================================
+bool CEditStageManager::IsEdit(void) const
+{
+	// エディット状況を返す
+	return m_bEdit;
 }
 
 //============================================================

@@ -69,8 +69,9 @@ HRESULT CEditBuilding::Init(void)
 		return E_FAIL;
 	}
 
-	// 自動更新をOFFにする
+	// 自動更新・自動描画をOFFにする
 	m_building.pBuilding->SetEnableUpdate(false);
+	m_building.pBuilding->SetEnableDraw(false);
 
 	// 色を設定
 	D3DXCOLOR col = m_building.pBuilding->GetCubeColor();	// 元の色を取得
@@ -170,16 +171,26 @@ void CEditBuilding::Update(void)
 	// エフェクト表示
 	CEffect3D::Create(posEffect, 30.0f, CEffect3D::TYPE_NORMAL, 10);
 
-	// 位置を反映
+	// 位置の反映
 	m_building.pBuilding->SetVec3Position(posEdit);
 
-	// 向きを反映
+	// 向きの反映
 	m_building.pBuilding->SetVec3Rotation(rotEdit);
 
-	// 種類を反映
+	// 種類の反映
 	m_building.pBuilding->SetType(m_building.type);
 
 #endif
+}
+
+//============================================================
+//	表示の設定処理
+//============================================================
+void CEditBuilding::SetDisp(const bool bDisp)
+{
+	// 自動更新・自動描画を表示状況に合わせる
+	m_building.pBuilding->SetEnableUpdate(bDisp);	// 更新
+	m_building.pBuilding->SetEnableDraw(bDisp);		// 描画
 }
 
 //============================================================
