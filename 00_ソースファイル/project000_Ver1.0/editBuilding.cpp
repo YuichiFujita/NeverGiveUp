@@ -321,6 +321,9 @@ void CEditBuilding::CreateBuilding(void)
 		colBuild = m_building.pBuilding->GetColor();	// 元の色を取得
 		m_building.pBuilding->SetColor(D3DXCOLOR(colBuild.r, colBuild.g, colBuild.b, 1.0f));
 
+		// 未保存を設定
+		m_pEdit->UnSave();
+
 		//----------------------------------------------------
 		//	新しいビルの生成
 		//----------------------------------------------------
@@ -449,6 +452,9 @@ void CEditBuilding::DeleteCollisionBuilding(const bool bRelase)
 
 						// 終了処理
 						pObjCheck->Uninit();
+
+						// 未保存を設定
+						m_pEdit->UnSave();
 					}
 					else
 					{ // 破棄しない場合

@@ -16,8 +16,15 @@
 //************************************************************
 //	マクロ定義
 //************************************************************
+#define KEY_DOUBLE		(DIK_LCONTROL)	// 二重化キー
+#define NAME_DOUBLE		("LCTRL")		// 二重化表示
 #define KEY_TRIGGER		(DIK_LSHIFT)	// トリガー化キー
 #define NAME_TRIGGER	("LSHIFT")		// トリガー化表示
+
+#define KEY_SAVE	(DIK_F9)	// 保存キー
+#define NAME_SAVE	("F9")		// 保存表示
+#define KEY_LOAD	(DIK_F10)	// 読込キー
+#define NAME_LOAD	("F10")		// 読込表示
 
 #define KEY_CHANGE_THING	(DIK_1)	// 配置物変更キー
 #define NAME_CHANGE_THING	("1")	// 配置物変更表示
@@ -35,10 +42,10 @@
 #define NAME_RIGHT	("D")	// 右移動表示
 #define KEY_LEFT	(DIK_A)	// 左移動キー
 #define NAME_LEFT	("A")	// 左移動表示
-#define KEY_UP		(DIK_Q)	// 上移動キー
-#define NAME_UP		("Q")	// 上移動表示
-#define KEY_DOWN	(DIK_E)	// 下移動キー
-#define NAME_DOWN	("E")	// 下移動表示
+#define KEY_UP		(DIK_E)	// 上移動キー
+#define NAME_UP		("E")	// 上移動表示
+#define KEY_DOWN	(DIK_Q)	// 下移動キー
+#define NAME_DOWN	("Q")	// 下移動表示
 
 #define KEY_ROTA_RIGHT	(DIK_Z)	// 右回転キー
 #define NAME_ROTA_RIGHT	("Z")	// 右回転表示
@@ -74,6 +81,7 @@ CEditStageManager::CEditStageManager()
 	m_rot	= VEC3_ZERO;		// 向き
 	m_fMove	= 0.0f;				// 位置移動量
 	m_thing	= THING_BUILDING;	// 配置物
+	m_bSave	= false;			// 保存状況
 	m_bEdit	= false;			// エディット状況
 
 #endif	// _DEBUG
@@ -102,6 +110,7 @@ HRESULT CEditStageManager::Init(void)
 	m_rot	= VEC3_ZERO;		// 向き
 	m_fMove	= INIT_MOVE;		// 位置移動量
 	m_thing	= THING_BUILDING;	// 配置物
+	m_bSave = false;			// 保存状況
 	m_bEdit	= false;			// エディット状況
 
 	// エディットビルの生成
@@ -227,6 +236,12 @@ void CEditStageManager::Update(void)
 		break;
 	}
 
+	// ステージ保存
+	SaveStage();
+
+	// ステージ読込
+	LoadStage();
+
 	// 操作表示の描画
 	DrawDebugControl();
 
@@ -234,6 +249,15 @@ void CEditStageManager::Update(void)
 	DrawDebugInfo();
 
 #endif	// _DEBUG
+}
+
+//============================================================
+//	未保存の設定処理
+//============================================================
+void CEditStageManager::UnSave(void)
+{
+	// 保存していない状況にする
+	m_bSave = false;
 }
 
 //============================================================
@@ -604,6 +628,8 @@ void CEditStageManager::DrawDebugControl(void)
 	pDebug->Print(CDebugProc::POINT_RIGHT, "======================================\n");
 	pDebug->Print(CDebugProc::POINT_RIGHT, "[エディット操作]　\n");
 	pDebug->Print(CDebugProc::POINT_RIGHT, "======================================\n");
+	pDebug->Print(CDebugProc::POINT_RIGHT, "ステージ保存：[%s+%s]\n", NAME_SAVE, NAME_DOUBLE);
+	pDebug->Print(CDebugProc::POINT_RIGHT, "ステージ読込：[%s+%s]\n", NAME_LOAD, NAME_DOUBLE);
 	pDebug->Print(CDebugProc::POINT_RIGHT, "移動：[%s/%s/%s/%s/%s/%s+%s]\n", NAME_FAR, NAME_LEFT, NAME_NEAR, NAME_RIGHT, NAME_UP, NAME_DOWN, NAME_TRIGGER);
 	pDebug->Print(CDebugProc::POINT_RIGHT, "移動量変更：[%s/%s]\n", NAME_MOVE_UP, NAME_MOVE_DOWN);
 	pDebug->Print(CDebugProc::POINT_RIGHT, "回転：[%s/%s]\n", NAME_ROTA_RIGHT, NAME_ROTA_LEFT);
@@ -665,6 +691,7 @@ void CEditStageManager::DrawDebugInfo(void)
 	pDebug->Print(CDebugProc::POINT_RIGHT, "======================================\n");
 	pDebug->Print(CDebugProc::POINT_RIGHT, "[エディット情報]　\n");
 	pDebug->Print(CDebugProc::POINT_RIGHT, "======================================\n");
+	pDebug->Print(CDebugProc::POINT_RIGHT, (m_bSave) ? "保存済：[保存状況]\n" : "未保存：[保存状況]\n");
 	pDebug->Print(CDebugProc::POINT_RIGHT, "%s：[配置物]\n", apThing[m_thing]);
 	pDebug->Print(CDebugProc::POINT_RIGHT, "%f %f %f：[位置]\n", m_pos.x, m_pos.y, m_pos.z);
 	pDebug->Print(CDebugProc::POINT_RIGHT, "%f %f %f：[向き]\n", m_rot.x, m_rot.y, m_rot.z);
@@ -708,5 +735,42 @@ void CEditStageManager::DrawDebugInfo(void)
 	default:	// 例外処理
 		assert(false);
 		break;
+	}
+}
+
+//============================================================
+//	ステージ保存処理
+//============================================================
+void CEditStageManager::SaveStage(void)
+{
+	// ポインタを宣言
+	CInputKeyboard *m_pKeyboard = CManager::GetInstance()->GetKeyboard();	// キーボード情報
+
+	// ステージを保存
+	if (m_pKeyboard->IsPress(KEY_DOUBLE))
+	{
+		if (m_pKeyboard->IsTrigger(KEY_SAVE))
+		{
+			// 保存した状態にする
+			m_bSave = true;
+		}
+	}
+}
+
+//============================================================
+//	ステージ読込処理
+//============================================================
+void CEditStageManager::LoadStage(void)
+{
+	// ポインタを宣言
+	CInputKeyboard *m_pKeyboard = CManager::GetInstance()->GetKeyboard();	// キーボード情報
+
+	// ステージを読込
+	if (m_pKeyboard->IsPress(KEY_DOUBLE))
+	{
+		if (m_pKeyboard->IsTrigger(KEY_LOAD))
+		{
+
+		}
 	}
 }

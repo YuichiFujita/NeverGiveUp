@@ -49,6 +49,7 @@ public:
 	HRESULT Init(void);	// 初期化
 	void Uninit(void);	// 終了
 	void Update(void);	// 更新
+	void UnSave(void);	// 未保存設定
 	void SetEnableEdit(const bool bEdit);		// エディット状況設定
 	bool IsEdit(void) const;					// エディット状況取得
 	D3DXVECTOR3 GetVec3Position(void) const;	// 位置取得
@@ -66,6 +67,8 @@ private:
 	void UpdateRotation(void);		// 向き更新
 	void DrawDebugControl(void);	// 操作表示描画
 	void DrawDebugInfo(void);		// 情報表示描画
+	void SaveStage(void);			// ステージ保存
+	void LoadStage(void);			// ステージ読込
 
 	// メンバ変数
 	CEditBuilding *m_pBuilding;		// エディットビルの情報
@@ -75,6 +78,7 @@ private:
 	D3DXVECTOR3 m_rot;	// 向き
 	EThing m_thing;		// 配置物
 	float m_fMove;		// 位置移動量
+	bool m_bSave;		// 保存状況
 	bool m_bEdit;		// エディット状況
 };
 

@@ -288,6 +288,9 @@ void CEditSavePoint::CreateSavePoint(void)
 		// マテリアルを再設定
 		m_savePoint.pSavePoint->ResetMaterial();
 
+		// 未保存を設定
+		m_pEdit->UnSave();
+
 		//----------------------------------------------------
 		//	新しいセーブポイントの生成
 		//----------------------------------------------------
@@ -414,6 +417,9 @@ void CEditSavePoint::DeleteCollisionSavePoint(const bool bRelase)
 
 						// 終了処理
 						pObjCheck->Uninit();
+
+						// 未保存を設定
+						m_pEdit->UnSave();
 					}
 					else
 					{ // 破棄しない場合
