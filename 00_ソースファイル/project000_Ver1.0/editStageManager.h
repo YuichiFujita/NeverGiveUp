@@ -56,6 +56,10 @@ public:
 	static HRESULT Release(CEditStageManager *&prEditStageManager);	// 破棄
 
 private:
+	// メンバ関数
+	void UpdatePosition(void);	// 位置更新
+	void UpdateRotation(void);	// 向き更新
+
 	// メンバ変数
 	CEditBuilding *m_pBuilding;	// エディットビルの情報
 

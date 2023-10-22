@@ -13,6 +13,30 @@
 #include "editBuilding.h"
 
 //************************************************************
+//	マクロ定義
+//************************************************************
+#define KEY_TRIGGER		(DIK_LSHIFT)	// トリガー化キー
+#define NAME_TRIGGER	("LSHIFT")		// トリガー化表示
+
+#define KEY_FAR		(DIK_W)	// 奥移動キー
+#define NAME_FAR	("W")	// 奥移動表示
+#define KEY_NEAR	(DIK_S)	// 手前移動キー
+#define NAME_NEAR	("S")	// 手前移動表示
+#define KEY_RIGHT	(DIK_D)	// 右移動キー
+#define NAME_RIGHT	("D")	// 右移動表示
+#define KEY_LEFT	(DIK_A)	// 左移動キー
+#define NAME_LEFT	("A")	// 左移動表示
+#define KEY_UP		(DIK_Q)	// 上移動キー
+#define NAME_UP		("Q")	// 上移動表示
+#define KEY_DOWN	(DIK_E)	// 下移動キー
+#define NAME_DOWN	("E")	// 下移動表示
+
+#define KEY_ROTA_RIGHT	(DIK_Z)	// 右回転キー
+#define NAME_ROTA_RIGHT	("Z")	// 右回転表示
+#define KEY_ROTA_LEFT	(DIK_C)	// 左回転キー
+#define NAME_ROTA_LEFT	("C")	// 左回転表示
+
+//************************************************************
 //	定数宣言
 //************************************************************
 namespace
@@ -110,46 +134,11 @@ void CEditStageManager::Update(void)
 {
 #if _DEBUG
 
-	// ポインタを宣言
-	CInputKeyboard *m_pKeyboard = CManager::GetInstance()->GetKeyboard();	// キーボード情報
+	// 位置の更新
+	UpdatePosition();
 
-	// 位置を変更
-	if (m_pKeyboard->IsTrigger(DIK_S))
-	{
-		m_pos.z += m_fMove;
-	}
-	if (m_pKeyboard->IsTrigger(DIK_W))
-	{
-		m_pos.z -= m_fMove;
-	}
-	if (m_pKeyboard->IsTrigger(DIK_A))
-	{
-		m_pos.x += m_fMove;
-	}
-	if (m_pKeyboard->IsTrigger(DIK_D))
-	{
-		m_pos.x -= m_fMove;
-	}
-	if (m_pKeyboard->IsTrigger(DIK_E))
-	{
-		m_pos.y += m_fMove;
-	}
-	if (m_pKeyboard->IsTrigger(DIK_Q))
-	{
-		m_pos.y -= m_fMove;
-	}
-
-	// 向きを変更
-	if (m_pKeyboard->IsTrigger(DIK_Z))
-	{
-		m_rot.y += HALF_PI;
-		useful::Vec3NormalizeRot(m_rot);
-	}
-	if (m_pKeyboard->IsTrigger(DIK_C))
-	{
-		m_rot.y -= HALF_PI;
-		useful::Vec3NormalizeRot(m_rot);
-	}
+	// 向きの更新
+	UpdateRotation();
 
 	switch (m_thing)
 	{ // 配置物ごとの処理
@@ -278,4 +267,91 @@ HRESULT CEditStageManager::Release(CEditStageManager *&prEditStageManager)
 	return S_OK;
 
 #endif	// _DEBUG
+}
+
+//============================================================
+//	位置の更新処理
+//============================================================
+void CEditStageManager::UpdatePosition(void)
+{
+	// ポインタを宣言
+	CInputKeyboard *m_pKeyboard = CManager::GetInstance()->GetKeyboard();	// キーボード情報
+
+	// 位置を変更
+	if (!m_pKeyboard->IsPress(KEY_TRIGGER))
+	{
+		if (m_pKeyboard->IsPress(KEY_FAR))
+		{
+			m_pos.z += m_fMove;
+		}
+		if (m_pKeyboard->IsPress(KEY_NEAR))
+		{
+			m_pos.z -= m_fMove;
+		}
+		if (m_pKeyboard->IsPress(KEY_RIGHT))
+		{
+			m_pos.x += m_fMove;
+		}
+		if (m_pKeyboard->IsPress(KEY_LEFT))
+		{
+			m_pos.x -= m_fMove;
+		}
+		if (m_pKeyboard->IsPress(KEY_UP))
+		{
+			m_pos.y += m_fMove;
+		}
+		if (m_pKeyboard->IsPress(KEY_DOWN))
+		{
+			m_pos.y -= m_fMove;
+		}
+	}
+	else
+	{
+		if (m_pKeyboard->IsTrigger(KEY_FAR))
+		{
+			m_pos.z += m_fMove;
+		}
+		if (m_pKeyboard->IsTrigger(KEY_NEAR))
+		{
+			m_pos.z -= m_fMove;
+		}
+		if (m_pKeyboard->IsTrigger(KEY_RIGHT))
+		{
+			m_pos.x += m_fMove;
+		}
+		if (m_pKeyboard->IsTrigger(KEY_LEFT))
+		{
+			m_pos.x -= m_fMove;
+		}
+		if (m_pKeyboard->IsTrigger(KEY_UP))
+		{
+			m_pos.y += m_fMove;
+		}
+		if (m_pKeyboard->IsTrigger(KEY_DOWN))
+		{
+			m_pos.y -= m_fMove;
+		}
+	}
+}
+
+//============================================================
+//	向きの更新処理
+//============================================================
+void CEditStageManager::UpdateRotation(void)
+{
+	// ポインタを宣言
+	CInputKeyboard *m_pKeyboard = CManager::GetInstance()->GetKeyboard();	// キーボード情報
+
+	// 向きを変更
+	if (m_pKeyboard->IsTrigger(KEY_ROTA_RIGHT))
+	{
+		m_rot.y += HALF_PI;
+	}
+	if (m_pKeyboard->IsTrigger(KEY_ROTA_LEFT))
+	{
+		m_rot.y -= HALF_PI;
+	}
+
+	// 向きを正規化
+	useful::Vec3NormalizeRot(m_rot);
 }
