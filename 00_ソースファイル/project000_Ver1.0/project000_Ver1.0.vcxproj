@@ -160,6 +160,7 @@
     <ClCompile Include="collision.cpp" />
     <ClCompile Include="debug.cpp" />
     <ClCompile Include="debugproc.cpp" />
+    <ClCompile Include="editBuilding.cpp" />
     <ClCompile Include="editStageManager.cpp" />
     <ClCompile Include="effect2D.cpp" />
     <ClCompile Include="effect3D.cpp" />
@@ -234,6 +235,7 @@
     <ClInclude Include="collision.h" />
     <ClInclude Include="debug.h" />
     <ClInclude Include="debugproc.h" />
+    <ClInclude Include="editBuilding.h" />
     <ClInclude Include="editStageManager.h" />
     <ClInclude Include="effect2D.h" />
     <ClInclude Include="effect3D.h" />

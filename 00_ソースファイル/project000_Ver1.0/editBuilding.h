@@ -1,68 +1,59 @@
 //============================================================
 //
-//	エディットステージマネージャーヘッダー [editStageManager.h]
+//	エディットビルヘッダー [editBuilding.h]
 //	Author：藤田勇一
 //
 //============================================================
 //************************************************************
 //	二重インクルード防止
 //************************************************************
-#ifndef _EDIT_STAGEMANAGER_H_
-#define _EDIT_STAGEMANAGER_H_
+#ifndef _EDIT_BUILDING_H_
+#define _EDIT_BUILDING_H_
 
 //************************************************************
 //	インクルードファイル
 //************************************************************
 #include "main.h"
+#include "building.h"
 
 //************************************************************
 //	前方宣言
 //************************************************************
-class CEditBuilding;	// エディットビルクラス
+class CEditStageManager;	// エディットステージマネージャー
 
 //************************************************************
 //	クラス定義
 //************************************************************
-// エディットステージマネージャークラス
-class CEditStageManager
+// エディットビルクラス
+class CEditBuilding
 {
 public:
-	// 配置物列挙
-	enum EThing
-	{
-		THING_BUILDING = 0,	// ビル
-		THING_SIGNBOARD,	// 看板
-		THING_OBSTACLE,		// 障害物
-		THING_SAVEPOINT,	// セーブポイント
-		THING_GOALPOINT,	// ゴールポイント
-		THING_MAX			// この列挙型の総数
-	};
-
 	// コンストラクタ
-	CEditStageManager();
+	CEditBuilding();
 
 	// デストラクタ
-	~CEditStageManager();
+	~CEditBuilding();
+
+	// ビル情報構造体
+	struct SInfo
+	{
+		CBuilding *pBuilding;	// ビル情報
+		CBuilding::EType type;	// ビル種類
+	};
 
 	// メンバ関数
 	HRESULT Init(void);	// 初期化
 	void Uninit(void);	// 終了
 	void Update(void);	// 更新
-	D3DXVECTOR3 GetVec3Position(void) const;	// 位置取得
-	D3DXVECTOR3 GetVec3Rotation(void) const;	// 向き取得
 
 	// 静的メンバ関数
-	static CEditStageManager *Create(void);	// 生成
-	static HRESULT Release(CEditStageManager *&prEditStageManager);	// 破棄
+	static CEditBuilding *Create(CEditStageManager *pEdit);	// 生成
+	static HRESULT Release(CEditBuilding *&prEditBuilding);	// 破棄
 
 private:
 	// メンバ変数
-	CEditBuilding *m_pBuilding;	// エディットビルの情報
-
-	D3DXVECTOR3 m_pos;	// 位置
-	D3DXVECTOR3 m_rot;	// 向き
-	EThing m_thing;		// 配置物
-	float m_fMove;		// 位置移動量
+	CEditStageManager *m_pEdit;	// エディットステージの情報
+	SInfo m_building;	// ビル配置情報
 };
 
-#endif	// _EDIT_STAGEMANAGER_H_
+#endif	// _EDIT_BUILDING_H_
