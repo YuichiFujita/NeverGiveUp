@@ -146,11 +146,15 @@ void CSavePoint::Update(void)
 	// オブジェクトモデルの更新
 	CObjectModel::Update();
 
+#if _DEBUG
+
 	// デバッグ表示
 	if (m_nThisSaveID == 0)
 	{
-		CManager::GetInstance()->GetDebugProc()->Print("今のセーブポイント：%d\n", m_pCurrentSave->m_nThisSaveID);
+		CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "[セーブ番号]：%d\n", m_pCurrentSave->m_nThisSaveID);
 	}
+
+#endif // _DEBUG
 }
 
 //============================================================

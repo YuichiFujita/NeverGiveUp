@@ -63,6 +63,8 @@ private:
 	void UpdateChangeMove(void);	// 移動量変更の更新
 	void UpdatePosition(void);		// 位置更新
 	void UpdateRotation(void);		// 向き更新
+	void DrawDebugControl(void);	// 操作表示描画
+	void DrawDebugInfo(void);		// 情報表示描画
 
 	// メンバ変数
 	CEditBuilding *m_pBuilding;	// エディットビルの情報

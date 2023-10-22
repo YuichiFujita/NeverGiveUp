@@ -406,7 +406,7 @@ void CManager::Update(void)
 #ifdef _DEBUG	// デバッグ処理
 
 	// デバッグ表示
-	m_pDebugProc->Print("FPS：%d\n", m_pDebug->GetFps());
+	m_pDebugProc->Print(CDebugProc::POINT_CENTER, "[FPS]：%d\n", m_pDebug->GetFps());
 
 #endif	// _DEBUG
 

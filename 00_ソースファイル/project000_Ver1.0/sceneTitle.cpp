@@ -128,6 +128,11 @@ HRESULT CSceneTitle::Uninit(void)
 //============================================================
 void CSceneTitle::Update(void)
 {
+	// デバッグ表示
+	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "======================================\n");
+	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "　[デバッグ情報]\n");
+	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "======================================\n");
+
 	if (m_pTitleManager != NULL)
 	{ // 使用中の場合
 

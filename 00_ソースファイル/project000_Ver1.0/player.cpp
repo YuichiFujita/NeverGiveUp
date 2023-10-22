@@ -514,9 +514,9 @@ CPlayer::EMotion CPlayer::UpdateNormal(void)
 	SetVec3Rotation(rotPlayer);
 
 	// デバッグ表示
-	CManager::GetInstance()->GetDebugProc()->Print("プレイヤー移動量：%f\n", m_fMove);
-	CManager::GetInstance()->GetDebugProc()->Print((m_bJump) ? "ジャンプ：ON\n" : "ジャンプ：OFF\n");
-	CManager::GetInstance()->GetDebugProc()->Print((m_bSlide) ? "スライディング：ON\n" : "スライディング：OFF\n");
+	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "[プレイヤー移動速度]：%f\n", m_fMove);
+	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, (m_bJump) ? "[ジャンプ]：ON\n" : "[ジャンプ]：OFF\n");
+	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, (m_bSlide) ? "[スライディング]：ON\n" : "[スライディング]：OFF\n");
 
 	// 現在のモーションを返す
 	return currentMotion;
@@ -566,7 +566,7 @@ CPlayer::EMotion CPlayer::UpdateDamage(void)
 	}
 
 	// デバッグ表示
-	CManager::GetInstance()->GetDebugProc()->Print("プレイヤー移動量：%f %f %f\n", m_move.x, m_move.y, m_move.z);
+	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "[プレイヤー移動量]：%f %f %f\n", m_move.x, m_move.y, m_move.z);
 
 	// 現在のモーションを返す
 	return currentMotion;

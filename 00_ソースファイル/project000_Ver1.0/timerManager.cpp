@@ -209,8 +209,8 @@ void CTimerManager::Update(void)
 	}
 
 	// デバッグ表示
-	CManager::GetInstance()->GetDebugProc()->Print("タイマー：[%d:%d:%d]\n", m_dwTime / 60000, (m_dwTime / 1000) % 60, m_dwTime % 1000);
-	CManager::GetInstance()->GetDebugProc()->Print("停止タイマー：[%d:%d:%d]\n", m_dwStopTime / 60000, (m_dwStopTime / 1000) % 60, m_dwStopTime % 1000);
+	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "[タイマー]：%d:%d:%d\n", m_dwTime / 60000, (m_dwTime / 1000) % 60, m_dwTime % 1000);
+	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "[停止タイマー]：%d:%d:%d\n", m_dwStopTime / 60000, (m_dwStopTime / 1000) % 60, m_dwStopTime % 1000);
 }
 
 //============================================================

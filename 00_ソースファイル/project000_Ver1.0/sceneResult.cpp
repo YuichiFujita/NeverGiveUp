@@ -127,6 +127,11 @@ HRESULT CSceneResult::Uninit(void)
 //============================================================
 void CSceneResult::Update(void)
 {
+	// デバッグ表示
+	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "======================================\n");
+	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "　[デバッグ情報]\n");
+	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "======================================\n");
+
 	if (m_pResultManager != NULL)
 	{ // 使用中の場合
 

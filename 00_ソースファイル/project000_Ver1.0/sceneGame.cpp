@@ -333,13 +333,20 @@ void CSceneGame::Update(void)
 	//}
 
 	// デバッグ表示
-	CManager::GetInstance()->GetDebugProc()->Print("[F1]：デバッグ表示のON/OFF\n");
-	CManager::GetInstance()->GetDebugProc()->Print("[F2]：エディットモードのON/OFF\n");
-	CManager::GetInstance()->GetDebugProc()->Print("[F3]：UI描画のON/OFF\n");
-	CManager::GetInstance()->GetDebugProc()->Print("[F4]：ポーズ描画のON/OFF\n");
-	CManager::GetInstance()->GetDebugProc()->Print("[F5]：カメラ操作のON/OFF\n");
-	CManager::GetInstance()->GetDebugProc()->Print("[F6]：プレイヤースポーン\n");
-	//CManager::GetInstance()->GetDebugProc()->Print("[F7]：リザルト遷移\n");
+	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "======================================\n");
+	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "　[デバッグ操作]\n");
+	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "======================================\n");
+	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "[F1]：デバッグ表示のON/OFF\n");
+	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "[F2]：エディットモードのON/OFF\n");
+	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "[F3]：UI描画のON/OFF\n");
+	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "[F4]：ポーズ描画のON/OFF\n");
+	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "[F5]：カメラ操作のON/OFF\n");
+	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "[F6]：プレイヤースポーン\n");
+	//CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "[F7]：リザルト遷移\n");
+
+	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "======================================\n");
+	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "　[デバッグ情報]\n");
+	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "======================================\n");
 
 #endif
 

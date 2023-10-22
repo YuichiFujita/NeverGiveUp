@@ -46,6 +46,8 @@ public:
 	void Uninit(void);	// 終了
 	void Update(void);	// 更新
 	void SetDisp(const bool bDisp);	// 表示設定
+	void DrawDebugControl(void);	// 操作表示描画
+	void DrawDebugInfo(void);		// 情報表示描画
 
 	// 静的メンバ関数
 	static CEditBuilding *Create(CEditStageManager *pEdit);	// 生成

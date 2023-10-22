@@ -28,7 +28,7 @@ CDebugProc::CDebugProc()
 	//デバッグ表示情報のクリア
 	m_bDisp = false;
 	m_pFont = NULL;
-	memset(&m_aStr[0], NULL, sizeof(m_aStr));
+	memset(&m_aStr[0][0], 0, sizeof(m_aStr));
 }
 
 //==========================================================
@@ -47,7 +47,7 @@ void CDebugProc::Init(void)
 	//デバッグ表示情報の初期化
 	m_bDisp = false;
 	m_pFont = NULL;
-	memset(&m_aStr[0], NULL, sizeof(m_aStr));
+	memset(&m_aStr[0][0], 0, sizeof(m_aStr));
 
 	LPDIRECT3DDEVICE9 pDevice;		//デバイスへのポインタ
 
@@ -109,18 +109,21 @@ void CDebugProc::Draw(void)
 
 	if (m_bDisp == true)
 	{//デバックモードがオンの時
+
 		//テキストの描画
-		m_pFont->DrawText(NULL, &m_aStr[0], -1, &rect, DT_LEFT, D3DCOLOR_RGBA(0, 0, 0, 255));
+		m_pFont->DrawText(NULL, &m_aStr[POINT_CENTER][0], NONE_IDX, &rect, DT_CENTER, D3DCOLOR_RGBA(0, 0, 0, 255));
+		m_pFont->DrawText(NULL, &m_aStr[POINT_LEFT][0],   NONE_IDX, &rect, DT_LEFT,   D3DCOLOR_RGBA(0, 0, 0, 255));
+		m_pFont->DrawText(NULL, &m_aStr[POINT_RIGHT][0],  NONE_IDX, &rect, DT_RIGHT,  D3DCOLOR_RGBA(0, 0, 0, 255));
 	}
 
 	//デバッグ表示情報のクリア
-	memset(&m_aStr[0], NULL, sizeof(m_aStr));
+	memset(&m_aStr[0][0], 0, sizeof(m_aStr));
 }
 
 //==========================================================
 //デバッグ表示の設定処理
 //==========================================================
-void CDebugProc::Print(const char *fmt, ...)
+void CDebugProc::Print(const EPoint point, const char *fmt, ...)
 {
 	va_list args;
 	char aString[MAX_DEBUGSTRING];		// 指定文字格納用
@@ -209,7 +212,7 @@ void CDebugProc::Print(const char *fmt, ...)
 	va_end(args);
 
 	//文字列を連結する
-	strcat(&m_aStr[0], &aString[0]);
+	strcat(&m_aStr[point][0], &aString[0]);
 }
 
 //==========================================================

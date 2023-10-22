@@ -648,7 +648,7 @@ void CObject::UpdateAll(void)
 	CObject *pObject;	// オブジェクト代入用
 
 	// デバッグ表示
-	CManager::GetInstance()->GetDebugProc()->Print("オブジェクト数：%d\n", m_nNumAll);
+	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "[オブジェクト数]：%d\n", m_nNumAll);
 
 	for (int nCntPri = 0; nCntPri < MAX_PRIO; nCntPri++)
 	{ // 優先順位の総数分繰り返す

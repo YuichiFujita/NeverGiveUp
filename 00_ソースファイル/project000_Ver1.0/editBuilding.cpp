@@ -177,6 +177,30 @@ void CEditBuilding::SetDisp(const bool bDisp)
 }
 
 //============================================================
+//	操作表示の描画処理
+//============================================================
+void CEditBuilding::DrawDebugControl(void)
+{
+	// ポインタを宣言
+	CDebugProc *pDebug = CManager::GetInstance()->GetDebugProc();	// デバッグプロックの情報
+
+	pDebug->Print(CDebugProc::POINT_RIGHT, "種類変更：[%s]\n", NAME_TYPE);
+	pDebug->Print(CDebugProc::POINT_RIGHT, "削除：[%s]\n", NAME_RELEASE);
+	pDebug->Print(CDebugProc::POINT_RIGHT, "設置：[%s]\n", NAME_CREATE);
+}
+
+//============================================================
+//	情報表示の描画処理
+//============================================================
+void CEditBuilding::DrawDebugInfo(void)
+{
+	// ポインタを宣言
+	CDebugProc *pDebug = CManager::GetInstance()->GetDebugProc();	// デバッグプロックの情報
+
+	pDebug->Print(CDebugProc::POINT_RIGHT, "%d：[種類]\n", m_building.type);
+}
+
+//============================================================
 //	生成処理
 //============================================================
 CEditBuilding *CEditBuilding::Create(CEditStageManager *pEdit)

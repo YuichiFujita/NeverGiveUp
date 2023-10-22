@@ -124,6 +124,11 @@ HRESULT CSceneTutorial::Uninit(void)
 //============================================================
 void CSceneTutorial::Update(void)
 {
+	// デバッグ表示
+	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "======================================\n");
+	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "　[デバッグ情報]\n");
+	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "======================================\n");
+
 	if (m_pTutorialManager != NULL)
 	{ // 使用中の場合
 

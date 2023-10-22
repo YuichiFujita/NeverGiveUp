@@ -198,6 +198,12 @@ void CEditStageManager::Update(void)
 		break;
 	}
 
+	// 操作表示の描画
+	DrawDebugControl();
+
+	// 情報表示の描画
+	DrawDebugInfo();
+
 #endif	// _DEBUG
 }
 
@@ -532,4 +538,106 @@ void CEditStageManager::UpdateRotation(void)
 
 	// 向きを正規化
 	useful::Vec3NormalizeRot(m_rot);
+}
+
+//============================================================
+//	操作表示の描画処理
+//============================================================
+void CEditStageManager::DrawDebugControl(void)
+{
+	// ポインタを宣言
+	CDebugProc *pDebug = CManager::GetInstance()->GetDebugProc();	// デバッグプロックの情報
+
+	pDebug->Print(CDebugProc::POINT_RIGHT, "======================================\n");
+	pDebug->Print(CDebugProc::POINT_RIGHT, "[エディット操作]　\n");
+	pDebug->Print(CDebugProc::POINT_RIGHT, "======================================\n");
+	pDebug->Print(CDebugProc::POINT_RIGHT, "移動：[%s/%s/%s/%s/%s/%s+%s]\n", NAME_FAR, NAME_LEFT, NAME_NEAR, NAME_RIGHT, NAME_UP, NAME_DOWN, NAME_TRIGGER);
+	pDebug->Print(CDebugProc::POINT_RIGHT, "移動量変更：[%s/%s]\n", NAME_MOVE_UP, NAME_MOVE_DOWN);
+	pDebug->Print(CDebugProc::POINT_RIGHT, "回転：[%s/%s]\n", NAME_ROTA_RIGHT, NAME_ROTA_LEFT);
+	pDebug->Print(CDebugProc::POINT_RIGHT, "配置物変更：[%s]\n", NAME_CHANGE_THING);
+
+	switch (m_thing)
+	{ // 配置物ごとの処理
+	case THING_BUILDING:	// ビル
+
+		if (m_pBuilding != NULL)
+		{ // エディットビルが使用されている場合
+
+			// エディットビルの操作表示
+			m_pBuilding->DrawDebugControl();
+		}
+		else { assert(false); }	// 非使用中
+
+		break;
+
+#if 0
+
+	case THING_SIGNBOARD:	// 看板
+		break;
+	case THING_OBSTACLE:	// 障害物
+		break;
+	case THING_SAVEPOINT:	// セーブポイント
+		break;
+	case THING_GOALPOINT:	// ゴールポイント
+		break;
+
+#endif
+
+	default:	// 例外処理
+		assert(false);
+		break;
+	}
+}
+
+//============================================================
+//	情報表示の描画処理
+//============================================================
+void CEditStageManager::DrawDebugInfo(void)
+{
+	// ポインタを宣言
+	CDebugProc *pDebug = CManager::GetInstance()->GetDebugProc();	// デバッグプロックの情報
+	static char* apThing[] = { "ビル" };	// 配置物
+
+	// 配置物数の不一致
+	assert((sizeof(apThing) / sizeof(apThing[0])) == THING_MAX);
+
+	pDebug->Print(CDebugProc::POINT_RIGHT, "======================================\n");
+	pDebug->Print(CDebugProc::POINT_RIGHT, "[エディット情報]　\n");
+	pDebug->Print(CDebugProc::POINT_RIGHT, "======================================\n");
+	pDebug->Print(CDebugProc::POINT_RIGHT, "%s：[配置物]\n", apThing[m_thing]);
+	pDebug->Print(CDebugProc::POINT_RIGHT, "%f %f %f：[位置]\n", m_pos.x, m_pos.y, m_pos.z);
+	pDebug->Print(CDebugProc::POINT_RIGHT, "%f %f %f：[向き]\n", m_rot.x, m_rot.y, m_rot.z);
+	pDebug->Print(CDebugProc::POINT_RIGHT, "%f：[移動量]\n", m_fMove);
+
+	switch (m_thing)
+	{ // 配置物ごとの処理
+	case THING_BUILDING:	// ビル
+
+		if (m_pBuilding != NULL)
+		{ // エディットビルが使用されている場合
+
+			// エディットビルの情報表示
+			m_pBuilding->DrawDebugInfo();
+		}
+		else { assert(false); }	// 非使用中
+
+		break;
+
+#if 0
+
+	case THING_SIGNBOARD:	// 看板
+		break;
+	case THING_OBSTACLE:	// 障害物
+		break;
+	case THING_SAVEPOINT:	// セーブポイント
+		break;
+	case THING_GOALPOINT:	// ゴールポイント
+		break;
+
+#endif
+
+	default:	// 例外処理
+		assert(false);
+		break;
+	}
 }
