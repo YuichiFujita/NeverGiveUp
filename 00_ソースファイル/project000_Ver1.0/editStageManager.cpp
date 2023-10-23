@@ -792,8 +792,20 @@ void CEditStageManager::Save(void)
 	if (pFile != NULL)
 	{ // ファイルが開けた場合
 
+		// 見出しを書き出し
+		fprintf(pFile, "#==============================================================================\n");
+		fprintf(pFile, "#\n");
+		fprintf(pFile, "#	ステージセーブテキスト [save_stage.txt]\n");
+		fprintf(pFile, "#	Author : you\n");
+		fprintf(pFile, "#\n");
+		fprintf(pFile, "#==============================================================================\n");
+		fprintf(pFile, "---------->--<---------- ここから下を コピーし貼り付け ---------->--<----------\n\n");
+
 		// ビルの保存
 		m_pBuilding->Save(pFile);
+
+		// セーブポイントの保存
+		m_pSavePoint->Save(pFile);
 
 		// ファイルを閉じる
 		fclose(pFile);

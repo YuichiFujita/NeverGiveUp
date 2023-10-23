@@ -231,6 +231,9 @@ void CEditBuilding::Save(FILE *pFile)
 		fprintf(pFile, "#	ビルの配置情報\n");
 		fprintf(pFile, "#------------------------------------------------------------------------------\n");
 
+		// 情報開始地点を書き出し
+		fprintf(pFile, "STAGE_BUILDINGSET\n\n");
+
 		for (int nCntPri = 0; nCntPri < MAX_PRIO; nCntPri++)
 		{ // 優先順位の総数分繰り返す
 	
@@ -276,18 +279,21 @@ void CEditBuilding::Save(FILE *pFile)
 					int nCollision = pObjCheck->GetState();	// 当たり判定
 	
 					// 情報を書き出し
-					fprintf(pFile, "	SETBUILDING\n");
+					fprintf(pFile, "	BUILDINGSET\n");
 					fprintf(pFile, "		TYPE = %d\n", nType);
 					fprintf(pFile, "		POS = %.2f %.2f %.2f\n", posBuild.x, posBuild.y, posBuild.z);
 					fprintf(pFile, "		ROT = %.2f %.2f %.2f\n", rotBuild.x, rotBuild.y, rotBuild.z);
 					fprintf(pFile, "		COLL = %d\n", nCollision);
-					fprintf(pFile, "	END_SETBUILDING\n");
-	
+					fprintf(pFile, "	END_BUILDINGSE\n\n");
+
 					// 次のオブジェクトへのポインタを代入
 					pObjCheck = pObjectNext;
 				}
 			}
 		}
+
+		// 情報終了地点を書き出し
+		fprintf(pFile, "END_STAGE_BUILDINGSET\n\n");
 	}
 
 #endif	// _DEBUG

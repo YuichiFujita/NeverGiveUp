@@ -47,6 +47,7 @@ public:
 	void SetDisp(const bool bDisp);	// 表示設定
 	void DrawDebugControl(void);	// 操作表示描画
 	void DrawDebugInfo(void);		// 情報表示描画
+	void Save(FILE *pFile);			// 保存
 
 	// 静的メンバ関数
 	static CEditSavePoint *Create(CEditStageManager *pEdit);	// 生成

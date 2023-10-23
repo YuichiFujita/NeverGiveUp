@@ -184,6 +184,85 @@ void CEditSavePoint::DrawDebugInfo(void)
 }
 
 //============================================================
+//	保存処理
+//============================================================
+void CEditSavePoint::Save(FILE *pFile)
+{
+#if _DEBUG
+
+	if (pFile != NULL)
+	{ // ファイルが存在する場合
+
+		// 見出しを書き出し
+		fprintf(pFile, "#------------------------------------------------------------------------------\n");
+		fprintf(pFile, "#	セーブポイントの配置情報\n");
+		fprintf(pFile, "#------------------------------------------------------------------------------\n");
+
+		// 情報開始地点を書き出し
+		fprintf(pFile, "STAGE_SAVEPOINTSET\n\n");
+
+		for (int nCntPri = 0; nCntPri < MAX_PRIO; nCntPri++)
+		{ // 優先順位の総数分繰り返す
+	
+			// ポインタを宣言
+			CObject *pObjectTop = CObject::GetTop(nCntPri);	// 先頭オブジェクト
+	
+			if (pObjectTop != NULL)
+			{ // 先頭が存在する場合
+	
+				// ポインタを宣言
+				CObject *pObjCheck = pObjectTop;	// オブジェクト確認用
+	
+				while (pObjCheck != NULL)
+				{ // オブジェクトが使用されている場合繰り返す
+		
+					// ポインタを宣言
+					CObject *pObjectNext = pObjCheck->GetNext();	// 次オブジェクト
+	
+					if (pObjCheck->GetLabel() != CObject::LABEL_SAVEPOINT)
+					{ // オブジェクトラベルがセーブポイントではない場合
+	
+						// 次のオブジェクトへのポインタを代入
+						pObjCheck = pObjectNext;
+	
+						// 次の繰り返しに移行
+						continue;
+					}
+	
+					if (pObjCheck == (CObject*)m_savePoint.pSavePoint)
+					{ // 同じアドレスだった場合
+	
+						// 次のオブジェクトへのポインタを代入
+						pObjCheck = pObjectNext;
+	
+						// 次の繰り返しに移行
+						continue;
+					}
+
+					// セーブポイントの情報を取得
+					D3DXVECTOR3 posSave = pObjCheck->GetVec3Position();	// 位置
+					D3DXVECTOR3 rotSave = pObjCheck->GetVec3Rotation();	// 向き
+	
+					// 情報を書き出し
+					fprintf(pFile, "	SAVEPOINTSET\n");
+					fprintf(pFile, "		POS = %.2f %.2f %.2f\n", posSave.x, posSave.y, posSave.z);
+					fprintf(pFile, "		ROT = %.2f %.2f %.2f\n", rotSave.x, rotSave.y, rotSave.z);
+					fprintf(pFile, "	END_SAVEPOINTSE\n\n");
+
+					// 次のオブジェクトへのポインタを代入
+					pObjCheck = pObjectNext;
+				}
+			}
+		}
+
+		// 情報終了地点を書き出し
+		fprintf(pFile, "END_STAGE_SAVEPOINTSET\n\n");
+	}
+
+#endif	// _DEBUG
+}
+
+//============================================================
 //	生成処理
 //============================================================
 CEditSavePoint *CEditSavePoint::Create(CEditStageManager *pEdit)
