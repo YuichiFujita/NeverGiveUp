@@ -58,6 +58,7 @@ public:
 private:
 	// メンバ関数
 	void UpdateChangeType(void);	// 種類変更の更新
+	void UpdateChangeColl(void);	// 判定変更の更新
 	void CreateBuilding(void);		// ビル生成
 	void ReleaseBuilding(void);		// ビル破棄
 	void CreateRotaEffect(void);	// 方向表示エフェクト生成

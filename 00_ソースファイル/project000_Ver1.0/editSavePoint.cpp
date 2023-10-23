@@ -121,12 +121,6 @@ void CEditSavePoint::Update(void)
 		return;
 	}
 
-	// セーブポイントの生成
-	CreateSavePoint();
-
-	// セーブポイントの破棄
-	ReleaseSavePoint();
-
 	// 方向表示エフェクトの生成
 	CreateRotaEffect();
 
@@ -135,6 +129,12 @@ void CEditSavePoint::Update(void)
 
 	// 向きを反映
 	m_savePoint.pSavePoint->SetVec3Rotation(m_pEdit->GetVec3Rotation());
+
+	// セーブポイントの生成
+	CreateSavePoint();
+
+	// セーブポイントの破棄
+	ReleaseSavePoint();
 
 #endif
 }

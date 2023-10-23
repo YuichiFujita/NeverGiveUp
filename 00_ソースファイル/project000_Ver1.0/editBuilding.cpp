@@ -24,6 +24,8 @@
 #define NAME_RELEASE	("9")	// 破棄表示
 #define KEY_TYPE		(DIK_2)	// 種類変更キー
 #define NAME_TYPE		("2")	// 種類変更表示
+#define KEY_COLL		(DIK_3)	// 判定変更キー
+#define NAME_COLL		("3")	// 判定変更表示
 
 //************************************************************
 //	定数宣言
@@ -130,11 +132,8 @@ void CEditBuilding::Update(void)
 	// 種類変更の更新
 	UpdateChangeType();
 
-	// ビルの生成
-	CreateBuilding();
-
-	// ビルの破棄
-	ReleaseBuilding();
+	// 判定変更の更新
+	UpdateChangeColl();
 
 	// 方向表示エフェクトの生成
 	CreateRotaEffect();
@@ -147,6 +146,15 @@ void CEditBuilding::Update(void)
 
 	// 種類を反映
 	m_building.pBuilding->SetType(m_building.type);
+
+	// 判定を反映
+	m_building.pBuilding->SetState(m_building.coll);
+
+	// ビルの生成
+	CreateBuilding();
+
+	// ビルの破棄
+	ReleaseBuilding();
 
 #endif	// _DEBUG
 }
@@ -187,6 +195,7 @@ void CEditBuilding::DrawDebugControl(void)
 	CDebugProc *pDebug = CManager::GetInstance()->GetDebugProc();	// デバッグプロックの情報
 
 	pDebug->Print(CDebugProc::POINT_RIGHT, "種類変更：[%s]\n", NAME_TYPE);
+	pDebug->Print(CDebugProc::POINT_RIGHT, "判定変更：[%s]\n", NAME_COLL);
 	pDebug->Print(CDebugProc::POINT_RIGHT, "削除：[%s]\n", NAME_RELEASE);
 	pDebug->Print(CDebugProc::POINT_RIGHT, "設置：[%s]\n", NAME_CREATE);
 }
@@ -198,8 +207,13 @@ void CEditBuilding::DrawDebugInfo(void)
 {
 	// ポインタを宣言
 	CDebugProc *pDebug = CManager::GetInstance()->GetDebugProc();	// デバッグプロックの情報
+	static char* apColl[] = { "無し", "地面", "天井" };	// 判定
+
+	// 判定数の不一致
+	assert((sizeof(apColl) / sizeof(apColl[0])) == CBuilding::COLLISION_MAX);
 
 	pDebug->Print(CDebugProc::POINT_RIGHT, "%d：[種類]\n", m_building.type);
+	pDebug->Print(CDebugProc::POINT_RIGHT, "%s：[判定]\n", apColl[m_building.coll]);
 }
 
 //============================================================
@@ -370,6 +384,21 @@ void CEditBuilding::UpdateChangeType(void)
 	if (m_pKeyboard->IsTrigger(KEY_TYPE))
 	{
 		m_building.type = (CBuilding::EType)((m_building.type + 1) % CBuilding::TYPE_MAX);
+	}
+}
+
+//============================================================
+//	判定変更の更新処理
+//============================================================
+void CEditBuilding::UpdateChangeColl(void)
+{
+	// ポインタを宣言
+	CInputKeyboard *m_pKeyboard = CManager::GetInstance()->GetKeyboard();	// キーボード情報
+
+	// 判定を変更
+	if (m_pKeyboard->IsTrigger(KEY_COLL))
+	{
+		m_building.coll = (CBuilding::ECollision)((m_building.coll + 1) % CBuilding::COLLISION_MAX);
 	}
 }
 
