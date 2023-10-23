@@ -192,6 +192,34 @@ CObstacle *CObstacle::Create
 }
 
 //============================================================
+//	ステータス情報の設定処理
+//============================================================
+void CObstacle::SetStatusInfo(const SStatusInfo info, const int nID)
+{
+	if (nID > NONE_IDX && nID < TYPE_MAX)
+	{ // 種類が範囲内の場合
+
+		// 引数のステータスを設定
+		m_aStatusInfo[nID] = info;
+	}
+	else { assert(false); }	// 種類オーバー
+}
+
+//============================================================
+//	ステータス情報取得処理
+//============================================================
+CObstacle::SStatusInfo CObstacle::GetStatusInfo(const int nID)
+{
+	if (nID > NONE_IDX && nID < TYPE_MAX)
+	{ // 種類が範囲内の場合
+
+		// ステータスを返す
+		return m_aStatusInfo[nID];
+	}
+	else { assert(false); return m_aStatusInfo[0]; }	// 種類オーバー
+}
+
+//============================================================
 //	種類の設定処理
 //============================================================
 void CObstacle::SetType(const EType type)

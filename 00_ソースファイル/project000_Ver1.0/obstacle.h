@@ -71,6 +71,8 @@ public:
 		const D3DXVECTOR3& rPos,	// 位置
 		const D3DXVECTOR3& rRot		// 向き
 	);
+	static void SetStatusInfo(const SStatusInfo info, const int nID);	// ステータス情報設定
+	static SStatusInfo GetStatusInfo(const int nID);					// ステータス情報取得
 
 	// メンバ関数
 	void SetType(const EType type);	// 種類設定
