@@ -892,6 +892,6 @@ void CEditStageManager::Save(void)
 	{ // ファイルが開けなかった場合
 
 		// エラーメッセージボックス
-		MessageBox(NULL, "セーブファイルの読み込みに失敗！", "警告！", MB_ICONWARNING);
+		MessageBox(NULL, "ステ－ジセーブファイルの書き出しに失敗！", "警告！", MB_ICONWARNING);
 	}
 }

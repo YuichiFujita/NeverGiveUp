@@ -19,7 +19,8 @@
 //************************************************************
 //	前方宣言
 //************************************************************
-class CEditStageManager;	// エディットステージマネージャー
+class CEditStageManager;	// エディットステージマネージャークラス
+class CObjectMeshCube;		// オブジェクトメッシュキューブクラス
 
 //************************************************************
 //	クラス定義
@@ -56,15 +57,21 @@ public:
 
 private:
 	// メンバ関数
+	void UpdateCollSize(void);		// 判定大きさの更新
 	void UpdateChangeType(void);	// 種類変更の更新
+	void UpdateChangeDodge(void);	// 回避法変更の更新
 	void CreateObstacle(void);		// 障害物生成
 	void ReleaseObstacle(void);		// 障害物破棄
 
 	void DeleteCollisionObstacle(const bool bRelase);	// 障害物の削除判定
 	void InitAllColorObstacle(void);					// 障害物の色全初期化
 
+	void SaveObstacle(void);	// 障害物保存
+	void Save(void);			// 保存
+
 	// メンバ変数
-	CEditStageManager *m_pEdit;	// エディットステージの情報
+	CEditStageManager *m_pEdit;		// エディットステージの情報
+	CObjectMeshCube *m_pCollision;	// 当たり判定の情報
 	SInfo m_obstacle;	// 障害物配置情報
 };
 

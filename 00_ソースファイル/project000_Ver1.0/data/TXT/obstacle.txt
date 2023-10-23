@@ -13,17 +13,15 @@
 #------------------------------------------------------------------------------
 STATUSSET
 
-	# 箱
 	OBSTACLESET
 		TYPE = 0	# 種類
-		SIZE = 230.0 0.0 130.0	# 大きさ
+		SIZE = 230.0 60.0 130.0	# 大きさ
 		DODGE = 1	# 回避法
 	END_OBSTACLESET
 	
-	# ベンチ
 	OBSTACLESET
 		TYPE = 1	# 種類
-		SIZE = 230.0 0.0 130.0	# 大きさ
+		SIZE = 230.0 120.0 130.0	# 大きさ
 		DODGE = 2	# 回避法
 	END_OBSTACLESET
 
