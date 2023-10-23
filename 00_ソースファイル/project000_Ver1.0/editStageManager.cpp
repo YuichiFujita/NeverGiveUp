@@ -11,6 +11,7 @@
 #include "manager.h"
 #include "input.h"
 #include "editBuilding.h"
+#include "editObstacle.h"
 #include "editSavePoint.h"
 
 //************************************************************
@@ -76,6 +77,7 @@ CEditStageManager::CEditStageManager()
 
 	// メンバ変数をクリア
 	m_pBuilding = NULL;			// エディットビルの情報
+	m_pObstacle = NULL;			// エディット障害物の情報
 	m_pSavePoint = NULL;		// エディットセーブポイントの情報
 	m_pos	= VEC3_ZERO;		// 位置
 	m_rot	= VEC3_ZERO;		// 向き
@@ -105,6 +107,7 @@ HRESULT CEditStageManager::Init(void)
 
 	// メンバ変数を初期化
 	m_pBuilding = NULL;			// エディットビルの情報
+	m_pObstacle = NULL;			// エディット障害物の情報
 	m_pSavePoint = NULL;		// エディットセーブポイントの情報
 	m_pos	= VEC3_ZERO;		// 位置
 	m_rot	= VEC3_ZERO;		// 向き
@@ -116,6 +119,16 @@ HRESULT CEditStageManager::Init(void)
 	// エディットビルの生成
 	m_pBuilding = CEditBuilding::Create(this);
 	if (m_pBuilding == NULL)
+	{ // 生成に失敗した場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
+
+	// エディット障害物の生成
+	m_pObstacle = CEditObstacle::Create(this);
+	if (m_pObstacle == NULL)
 	{ // 生成に失敗した場合
 
 		// 失敗を返す
@@ -156,6 +169,14 @@ void CEditStageManager::Uninit(void)
 
 		// エディットビルの破棄
 		CEditBuilding::Release(m_pBuilding);
+	}
+	else { assert(false); }	// 非使用中
+
+	if (m_pObstacle != NULL)
+	{ // エディット障害物が使用されている場合
+
+		// エディット障害物の破棄
+		CEditObstacle::Release(m_pObstacle);
 	}
 	else { assert(false); }	// 非使用中
 
@@ -214,6 +235,15 @@ void CEditStageManager::Update(void)
 		break;
 
 	case THING_OBSTACLE:	// 障害物
+
+		if (m_pObstacle != NULL)
+		{ // エディット障害物が使用されている場合
+
+			// エディット障害物の更新
+			m_pObstacle->Update();
+		}
+		else { assert(false); }	// 非使用中
+
 		break;
 
 	case THING_SAVEPOINT:	// セーブポイント
@@ -286,6 +316,15 @@ void CEditStageManager::SetEnableEdit(const bool bEdit)
 		break;
 
 	case THING_OBSTACLE:	// 障害物
+
+		if (m_pObstacle != NULL)
+		{ // エディット障害物が使用されている場合
+
+			// エディット障害物の表示の設定
+			m_pObstacle->SetDisp(m_bEdit);
+		}
+		else { assert(false); }	// 非使用中
+
 		break;
 
 	case THING_SAVEPOINT:	// セーブポイント
@@ -441,6 +480,15 @@ void CEditStageManager::UpdateChangeThing(void)
 			break;
 
 		case THING_OBSTACLE:	// 障害物
+
+			if (m_pObstacle != NULL)
+			{ // エディット障害物が使用されている場合
+
+				// エディット障害物の表示の設定
+				m_pObstacle->SetDisp(false);
+			}
+			else { assert(false); }	// 非使用中
+
 			break;
 
 		case THING_SAVEPOINT:	// セーブポイント
@@ -484,6 +532,15 @@ void CEditStageManager::UpdateChangeThing(void)
 			break;
 
 		case THING_OBSTACLE:	// 障害物
+
+			if (m_pObstacle != NULL)
+			{ // エディット障害物が使用されている場合
+
+				// エディット障害物の表示の設定
+				m_pObstacle->SetDisp(true);
+			}
+			else { assert(false); }	// 非使用中
+
 			break;
 
 		case THING_SAVEPOINT:	// セーブポイント
@@ -653,6 +710,15 @@ void CEditStageManager::DrawDebugControl(void)
 		break;
 
 	case THING_OBSTACLE:	// 障害物
+
+		if (m_pObstacle != NULL)
+		{ // エディット障害物が使用されている場合
+
+			// エディット障害物の操作表示
+			m_pObstacle->DrawDebugControl();
+		}
+		else { assert(false); }	// 非使用中
+
 		break;
 
 	case THING_SAVEPOINT:	// セーブポイント
@@ -715,6 +781,15 @@ void CEditStageManager::DrawDebugInfo(void)
 		break;
 
 	case THING_OBSTACLE:	// 障害物
+
+		if (m_pObstacle != NULL)
+		{ // エディット障害物が使用されている場合
+
+			// エディット障害物の情報表示
+			m_pObstacle->DrawDebugInfo();
+		}
+		else { assert(false); }	// 非使用中
+
 		break;
 
 	case THING_SAVEPOINT:	// セーブポイント
@@ -803,6 +878,9 @@ void CEditStageManager::Save(void)
 
 		// ビルの保存
 		m_pBuilding->Save(pFile);
+
+		// 障害物の保存
+		m_pObstacle->Save(pFile);
 
 		// セーブポイントの保存
 		m_pSavePoint->Save(pFile);

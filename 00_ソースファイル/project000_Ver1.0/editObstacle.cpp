@@ -1,19 +1,18 @@
 //============================================================
 //
-//	エディットビル処理 [editBuilding.cpp]
+//	エディット障害物処理 [editObstacle.cpp]
 //	Author：藤田勇一
 //
 //============================================================
 //************************************************************
 //	インクルードファイル
 //************************************************************
-#include "editBuilding.h"
+#include "editObstacle.h"
 #include "manager.h"
 #include "input.h"
 #include "collision.h"
 #include "editStageManager.h"
 #include "stage.h"
-#include "effect3D.h"
 
 //************************************************************
 //	マクロ定義
@@ -24,32 +23,28 @@
 #define NAME_RELEASE	("9")	// 破棄表示
 #define KEY_TYPE		(DIK_2)	// 種類変更キー
 #define NAME_TYPE		("2")	// 種類変更表示
-#define KEY_COLL		(DIK_3)	// 判定変更キー
-#define NAME_COLL		("3")	// 判定変更表示
 
 //************************************************************
 //	定数宣言
 //************************************************************
 namespace
 {
-	const float	INIT_ALPHA		= 0.5f;		// 配置前のα値
-	const float	EFFECT_RADIUS	= 30.0f;	// 方向表示エフェクトの半径
-	const int	EFFECT_LIFE		= 10;		// 方向表示エフェクトの寿命
+	const float	INIT_ALPHA = 0.5f;	// 配置前のα値
 }
 
 //************************************************************
-//	親クラス [CEditBuilding] のメンバ関数
+//	親クラス [CEditObstacle] のメンバ関数
 //************************************************************
 //============================================================
 //	コンストラクタ
 //============================================================
-CEditBuilding::CEditBuilding()
+CEditObstacle::CEditObstacle()
 {
 #if _DEBUG
 
 	// メンバ変数をクリア
 	m_pEdit = NULL;	// エディットステージの情報
-	memset(&m_building, 0, sizeof(m_building));	// ビル配置情報
+	memset(&m_obstacle, 0, sizeof(m_obstacle));	// 障害物配置情報
 
 #endif	// _DEBUG
 }
@@ -57,7 +52,7 @@ CEditBuilding::CEditBuilding()
 //============================================================
 //	デストラクタ
 //============================================================
-CEditBuilding::~CEditBuilding()
+CEditObstacle::~CEditObstacle()
 {
 #if _DEBUG
 #endif	// _DEBUG
@@ -66,20 +61,19 @@ CEditBuilding::~CEditBuilding()
 //============================================================
 //	初期化処理
 //============================================================
-HRESULT CEditBuilding::Init(void)
+HRESULT CEditObstacle::Init(void)
 {
 #if _DEBUG
 
 	// メンバ変数を初期化
 	m_pEdit = NULL;	// エディットステージの情報
 
-	m_building.pBuilding = NULL;					// ビル情報
-	m_building.type = CBuilding::TYPE_00;			// ビル種類
-	m_building.coll = CBuilding::COLLISION_GROUND;	// ビル判定
+	m_obstacle.pObstacle = NULL;			// 障害物情報
+	m_obstacle.type = CObstacle::TYPE_BOX;	// 障害物種類
 
-	// ビルの生成
-	m_building.pBuilding = CBuilding::Create(m_building.type, VEC3_ZERO, VEC3_ZERO, m_building.coll);
-	if (m_building.pBuilding == NULL)
+	// 障害物の生成
+	m_obstacle.pObstacle = CObstacle::Create(m_obstacle.type, VEC3_ZERO, VEC3_ZERO);
+	if (m_obstacle.pObstacle == NULL)
 	{ // 生成に失敗した場合
 
 		// 失敗を返す
@@ -87,9 +81,8 @@ HRESULT CEditBuilding::Init(void)
 		return E_FAIL;
 	}
 
-	// 色を設定
-	D3DXCOLOR col = m_building.pBuilding->GetColor();	// 元の色を取得
-	m_building.pBuilding->SetColor(D3DXCOLOR(col.r, col.g, col.b, INIT_ALPHA));
+	// 透明度を設定
+	m_obstacle.pObstacle->SetAlpha(INIT_ALPHA);
 
 	// 表示をOFFにする
 	SetDisp(false);
@@ -108,7 +101,7 @@ HRESULT CEditBuilding::Init(void)
 //============================================================
 //	終了処理
 //============================================================
-void CEditBuilding::Uninit(void)
+void CEditObstacle::Uninit(void)
 {
 #if _DEBUG
 #endif	// _DEBUG
@@ -117,7 +110,7 @@ void CEditBuilding::Uninit(void)
 //============================================================
 //	更新処理
 //============================================================
-void CEditBuilding::Update(void)
+void CEditObstacle::Update(void)
 {
 #if _DEBUG
 
@@ -132,29 +125,17 @@ void CEditBuilding::Update(void)
 	// 種類変更の更新
 	UpdateChangeType();
 
-	// 判定変更の更新
-	UpdateChangeColl();
+	// 障害物の生成
+	CreateObstacle();
 
-	// 方向表示エフェクトの生成
-	CreateRotaEffect();
-
-	// ビルの生成
-	CreateBuilding();
-
-	// ビルの破棄
-	ReleaseBuilding();
+	// 障害物の破棄
+	ReleaseObstacle();
 
 	// 位置を反映
-	m_building.pBuilding->SetVec3Position(m_pEdit->GetVec3Position());
+	m_obstacle.pObstacle->SetVec3Position(m_pEdit->GetVec3Position());
 
 	// 向きを反映
-	m_building.pBuilding->SetVec3Rotation(m_pEdit->GetVec3Rotation());
-
-	// 種類を反映
-	m_building.pBuilding->SetType(m_building.type);
-
-	// 判定を反映
-	m_building.pBuilding->SetState(m_building.coll);
+	m_obstacle.pObstacle->SetVec3Rotation(m_pEdit->GetVec3Rotation());
 
 #endif	// _DEBUG
 }
@@ -162,40 +143,40 @@ void CEditBuilding::Update(void)
 //============================================================
 //	表示の設定処理
 //============================================================
-void CEditBuilding::SetDisp(const bool bDisp)
+void CEditObstacle::SetDisp(const bool bDisp)
 {
 	// 自動更新・自動描画を表示状況に合わせる
-	m_building.pBuilding->SetEnableUpdate(bDisp);	// 更新
-	m_building.pBuilding->SetEnableDraw(bDisp);		// 描画
+	m_obstacle.pObstacle->SetEnableUpdate(bDisp);	// 更新
+	m_obstacle.pObstacle->SetEnableDraw(bDisp);		// 描画
 
 	if (bDisp)
 	{ // 表示ONの場合
 
 		// 位置を反映
-		m_building.pBuilding->SetVec3Position(m_pEdit->GetVec3Position());
+		m_obstacle.pObstacle->SetVec3Position(m_pEdit->GetVec3Position());
 	}
 	else
 	{ // 表示OFFの場合
 
-		// ビルの色の全初期化
-		InitAllColorBuilding();
+		// 障害物の色の全初期化
+		InitAllColorObstacle();
 
 		// 位置をステージの範囲外に設定
-		D3DXVECTOR3 outLimit = D3DXVECTOR3(0.0f, 0.0f, CScene::GetStage()->GetStageLimit().fNear - m_building.pBuilding->GetVec3Sizing().z);
-		m_building.pBuilding->SetVec3Position(outLimit);
+		D3DXVECTOR3 sizeObs = m_obstacle.pObstacle->GetVec3Sizing();
+		D3DXVECTOR3 outLimit = D3DXVECTOR3(0.0f, 0.0f, CScene::GetStage()->GetStageLimit().fNear - ((sizeObs.z < sizeObs.x) ? sizeObs.x : sizeObs.z) * 0.5f);
+		m_obstacle.pObstacle->SetVec3Position(outLimit);
 	}
 }
 
 //============================================================
 //	操作表示の描画処理
 //============================================================
-void CEditBuilding::DrawDebugControl(void)
+void CEditObstacle::DrawDebugControl(void)
 {
 	// ポインタを宣言
 	CDebugProc *pDebug = CManager::GetInstance()->GetDebugProc();	// デバッグプロックの情報
 
 	pDebug->Print(CDebugProc::POINT_RIGHT, "種類変更：[%s]\n", NAME_TYPE);
-	pDebug->Print(CDebugProc::POINT_RIGHT, "判定変更：[%s]\n", NAME_COLL);
 	pDebug->Print(CDebugProc::POINT_RIGHT, "削除：[%s]\n", NAME_RELEASE);
 	pDebug->Print(CDebugProc::POINT_RIGHT, "設置：[%s]\n", NAME_CREATE);
 }
@@ -203,23 +184,18 @@ void CEditBuilding::DrawDebugControl(void)
 //============================================================
 //	情報表示の描画処理
 //============================================================
-void CEditBuilding::DrawDebugInfo(void)
+void CEditObstacle::DrawDebugInfo(void)
 {
 	// ポインタを宣言
 	CDebugProc *pDebug = CManager::GetInstance()->GetDebugProc();	// デバッグプロックの情報
-	static char* apColl[] = { "無し", "地面", "天井" };	// 判定
 
-	// 判定数の不一致
-	assert((sizeof(apColl) / sizeof(apColl[0])) == CBuilding::COLLISION_MAX);
-
-	pDebug->Print(CDebugProc::POINT_RIGHT, "%d：[種類]\n", m_building.type);
-	pDebug->Print(CDebugProc::POINT_RIGHT, "%s：[判定]\n", apColl[m_building.coll]);
+	pDebug->Print(CDebugProc::POINT_RIGHT, "%d：[種類]\n", m_obstacle.type);
 }
 
 //============================================================
 //	保存処理
 //============================================================
-void CEditBuilding::Save(FILE *pFile)
+void CEditObstacle::Save(FILE *pFile)
 {
 #if _DEBUG
 
@@ -228,11 +204,11 @@ void CEditBuilding::Save(FILE *pFile)
 
 		// 見出しを書き出し
 		fprintf(pFile, "#------------------------------------------------------------------------------\n");
-		fprintf(pFile, "#	ビルの配置情報\n");
+		fprintf(pFile, "#	障害物の配置情報\n");
 		fprintf(pFile, "#------------------------------------------------------------------------------\n");
 
 		// 情報開始地点を書き出し
-		fprintf(pFile, "STAGE_BUILDINGSET\n\n");
+		fprintf(pFile, "STAGE_OBSTACLESET\n\n");
 
 		for (int nCntPri = 0; nCntPri < MAX_PRIO; nCntPri++)
 		{ // 優先順位の総数分繰り返す
@@ -252,8 +228,8 @@ void CEditBuilding::Save(FILE *pFile)
 					// ポインタを宣言
 					CObject *pObjectNext = pObjCheck->GetNext();	// 次オブジェクト
 	
-					if (pObjCheck->GetLabel() != CObject::LABEL_BUILDING)
-					{ // オブジェクトラベルがビルではない場合
+					if (pObjCheck->GetLabel() != CObject::LABEL_OBSTACLE)
+					{ // オブジェクトラベルが障害物ではない場合
 	
 						// 次のオブジェクトへのポインタを代入
 						pObjCheck = pObjectNext;
@@ -262,7 +238,7 @@ void CEditBuilding::Save(FILE *pFile)
 						continue;
 					}
 	
-					if (pObjCheck == (CObject*)m_building.pBuilding)
+					if (pObjCheck == (CObject*)m_obstacle.pObstacle)
 					{ // 同じアドレスだった場合
 	
 						// 次のオブジェクトへのポインタを代入
@@ -272,19 +248,17 @@ void CEditBuilding::Save(FILE *pFile)
 						continue;
 					}
 
-					// ビルの情報を取得
+					// 障害物の情報を取得
 					D3DXVECTOR3 posBuild = pObjCheck->GetVec3Position();	// 位置
 					D3DXVECTOR3 rotBuild = pObjCheck->GetVec3Rotation();	// 向き
-					int nType = pObjCheck->GetType();		// 種類
-					int nCollision = pObjCheck->GetState();	// 当たり判定
+					int nType = pObjCheck->GetType();	// 種類
 	
 					// 情報を書き出し
-					fprintf(pFile, "	BUILDINGSET\n");
+					fprintf(pFile, "	OBSTACLESET\n");
 					fprintf(pFile, "		TYPE = %d\n", nType);
 					fprintf(pFile, "		POS = %.2f %.2f %.2f\n", posBuild.x, posBuild.y, posBuild.z);
 					fprintf(pFile, "		ROT = %.2f %.2f %.2f\n", rotBuild.x, rotBuild.y, rotBuild.z);
-					fprintf(pFile, "		COLL = %d\n", nCollision);
-					fprintf(pFile, "	END_BUILDINGSE\n\n");
+					fprintf(pFile, "	END_OBSTACLESE\n\n");
 
 					// 次のオブジェクトへのポインタを代入
 					pObjCheck = pObjectNext;
@@ -293,7 +267,7 @@ void CEditBuilding::Save(FILE *pFile)
 		}
 
 		// 情報終了地点を書き出し
-		fprintf(pFile, "END_STAGE_BUILDINGSET\n\n");
+		fprintf(pFile, "END_STAGE_OBSTACLESET\n\n");
 	}
 
 #endif	// _DEBUG
@@ -302,41 +276,41 @@ void CEditBuilding::Save(FILE *pFile)
 //============================================================
 //	生成処理
 //============================================================
-CEditBuilding *CEditBuilding::Create(CEditStageManager *pEdit)
+CEditObstacle *CEditObstacle::Create(CEditStageManager *pEdit)
 {
 #if _DEBUG
 
 	// ポインタを宣言
-	CEditBuilding *pEditBuilding = NULL;	// エディットビル生成用
+	CEditObstacle *pEditObstacle = NULL;	// エディット障害物生成用
 
-	if (pEditBuilding == NULL)
+	if (pEditObstacle == NULL)
 	{ // 使用されていない場合
 
 		// メモリ確保
-		pEditBuilding = new CEditBuilding;	// エディットビル
+		pEditObstacle = new CEditObstacle;	// エディット障害物
 	}
 	else { assert(false); return NULL; }	// 使用中
 
-	if (pEditBuilding != NULL)
+	if (pEditObstacle != NULL)
 	{ // 使用されている場合
 		
-		// エディットビルの初期化
-		if (FAILED(pEditBuilding->Init()))
+		// エディット障害物の初期化
+		if (FAILED(pEditObstacle->Init()))
 		{ // 初期化に失敗した場合
 
 			// メモリ開放
-			delete pEditBuilding;
-			pEditBuilding = NULL;
+			delete pEditObstacle;
+			pEditObstacle = NULL;
 
 			// 失敗を返す
 			return NULL;
 		}
 
 		// エディットステージの情報を設定
-		pEditBuilding->m_pEdit = pEdit;
+		pEditObstacle->m_pEdit = pEdit;
 
 		// 確保したアドレスを返す
-		return pEditBuilding;
+		return pEditObstacle;
 	}
 	else { assert(false); return NULL; }	// 確保失敗
 
@@ -351,19 +325,19 @@ CEditBuilding *CEditBuilding::Create(CEditStageManager *pEdit)
 //============================================================
 //	破棄処理
 //============================================================
-HRESULT CEditBuilding::Release(CEditBuilding *&prEditBuilding)
+HRESULT CEditObstacle::Release(CEditObstacle *&prEditObstacle)
 {
 #if _DEBUG
 
-	if (prEditBuilding != NULL)
+	if (prEditObstacle != NULL)
 	{ // 使用中の場合
 
-		// エディットビルの終了
-		prEditBuilding->Uninit();
+		// エディット障害物の終了
+		prEditObstacle->Uninit();
 
 		// メモリ開放
-		delete prEditBuilding;
-		prEditBuilding = NULL;
+		delete prEditObstacle;
+		prEditObstacle = NULL;
 
 		// 成功を返す
 		return S_OK;
@@ -381,7 +355,7 @@ HRESULT CEditBuilding::Release(CEditBuilding *&prEditBuilding)
 //============================================================
 //	種類変更の更新処理
 //============================================================
-void CEditBuilding::UpdateChangeType(void)
+void CEditObstacle::UpdateChangeType(void)
 {
 	// ポインタを宣言
 	CInputKeyboard *m_pKeyboard = CManager::GetInstance()->GetKeyboard();	// キーボード情報
@@ -389,72 +363,59 @@ void CEditBuilding::UpdateChangeType(void)
 	// 種類を変更
 	if (m_pKeyboard->IsTrigger(KEY_TYPE))
 	{
-		m_building.type = (CBuilding::EType)((m_building.type + 1) % CBuilding::TYPE_MAX);
+		// 種類を変更
+		m_obstacle.type = (CObstacle::EType)((m_obstacle.type + 1) % CObstacle::TYPE_MAX);
+
+		// 種類を反映
+		m_obstacle.pObstacle->SetType(m_obstacle.type);
+		m_obstacle.pObstacle->SetAlpha(INIT_ALPHA);	// 透明度を再設定
 	}
 }
 
 //============================================================
-//	判定変更の更新処理
+//	障害物の生成処理
 //============================================================
-void CEditBuilding::UpdateChangeColl(void)
-{
-	// ポインタを宣言
-	CInputKeyboard *m_pKeyboard = CManager::GetInstance()->GetKeyboard();	// キーボード情報
-
-	// 判定を変更
-	if (m_pKeyboard->IsTrigger(KEY_COLL))
-	{
-		m_building.coll = (CBuilding::ECollision)((m_building.coll + 1) % CBuilding::COLLISION_MAX);
-	}
-}
-
-//============================================================
-//	ビルの生成処理
-//============================================================
-void CEditBuilding::CreateBuilding(void)
+void CEditObstacle::CreateObstacle(void)
 {
 	// 変数を宣言
 	D3DXVECTOR3 posEdit = m_pEdit->GetVec3Position();	// エディットの位置
 	D3DXVECTOR3 rotEdit = m_pEdit->GetVec3Rotation();	// エディットの向き
-	D3DXCOLOR colBuild = XCOL_WHITE;	// 色保存用
 
 	// ポインタを宣言
 	CInputKeyboard *m_pKeyboard = CManager::GetInstance()->GetKeyboard();	// キーボード情報
 
-	// ビルを配置
+	// 障害物を配置
 	if (m_pKeyboard->IsTrigger(KEY_CREATE))
 	{
 		//----------------------------------------------------
-		//	ビルの情報を配置用に変更
+		//	障害物の情報を配置用に変更
 		//----------------------------------------------------
 		// 自動更新・自動描画をONにする
-		m_building.pBuilding->SetEnableUpdate(true);
-		m_building.pBuilding->SetEnableDraw(true);
+		m_obstacle.pObstacle->SetEnableUpdate(true);
+		m_obstacle.pObstacle->SetEnableDraw(true);
 
-		// 色を設定
-		colBuild = m_building.pBuilding->GetColor();	// 元の色を取得
-		m_building.pBuilding->SetColor(D3DXCOLOR(colBuild.r, colBuild.g, colBuild.b, 1.0f));
+		// マテリアルを再設定
+		m_obstacle.pObstacle->ResetMaterial();
 
 		// 未保存を設定
 		m_pEdit->UnSave();
 
 		//----------------------------------------------------
-		//	新しいビルの生成
+		//	新しい障害物の生成
 		//----------------------------------------------------
-		// ビルの生成
-		m_building.pBuilding = CBuilding::Create(m_building.type, posEdit, rotEdit, m_building.coll);
-		assert(m_building.pBuilding != NULL);
+		// 障害物の生成
+		m_obstacle.pObstacle = CObstacle::Create(m_obstacle.type, posEdit, rotEdit);
+		assert(m_obstacle.pObstacle != NULL);
 
-		// 色を設定
-		colBuild = m_building.pBuilding->GetColor();	// 元の色を取得
-		m_building.pBuilding->SetColor(D3DXCOLOR(colBuild.r, colBuild.g, colBuild.b, INIT_ALPHA));
+		// 透明度を設定
+		m_obstacle.pObstacle->SetAlpha(INIT_ALPHA);
 	}
 }
 
 //============================================================
-//	ビルの破棄処理
+//	障害物の破棄処理
 //============================================================
-void CEditBuilding::ReleaseBuilding(void)
+void CEditObstacle::ReleaseObstacle(void)
 {
 	// 変数を宣言
 	bool bRelease = false;	// 破棄状況
@@ -462,46 +423,25 @@ void CEditBuilding::ReleaseBuilding(void)
 	// ポインタを宣言
 	CInputKeyboard *m_pKeyboard = CManager::GetInstance()->GetKeyboard();	// キーボード情報
 
-	// ビルを削除
+	// 障害物を削除
 	if (m_pKeyboard->IsTrigger(KEY_RELEASE))
 	{
 		// 破棄する状態を設定
 		bRelease = true;
 	}
 
-	// ビルの削除判定
-	DeleteCollisionBuilding(bRelease);
+	// 障害物の削除判定
+	DeleteCollisionObstacle(bRelease);
 }
 
 //============================================================
-//	方向表示エフェクトの生成処理
+//	障害物の削除判定
 //============================================================
-void CEditBuilding::CreateRotaEffect(void)
-{
-	// 変数を宣言
-	D3DXVECTOR3 posEffect = VEC3_ZERO;								// エフェクト位置
-	D3DXVECTOR3 posEdit   = m_pEdit->GetVec3Position();				// エディットの位置
-	D3DXVECTOR3 rotEdit   = m_pEdit->GetVec3Rotation();				// エディットの向き
-	D3DXVECTOR3 sizeBuild = m_building.pBuilding->GetVec3Sizing();	// ビル大きさ
-	float fAverageSizeBuild = (sizeBuild.x + sizeBuild.z) * 0.5f;	// ビル大きさ平均
-
-	// エフェクト位置を計算
-	posEffect.x = posEdit.x + sinf(rotEdit.y + D3DX_PI) * fAverageSizeBuild;
-	posEffect.y = posEdit.y + sizeBuild.y * 2.0f;
-	posEffect.z = posEdit.z + cosf(rotEdit.y + D3DX_PI) * fAverageSizeBuild;
-
-	// 方向表示エフェクトを生成
-	CEffect3D::Create(posEffect, EFFECT_RADIUS, CEffect3D::TYPE_NORMAL, EFFECT_LIFE);
-}
-
-//============================================================
-//	ビルの削除判定
-//============================================================
-void CEditBuilding::DeleteCollisionBuilding(const bool bRelase)
+void CEditObstacle::DeleteCollisionObstacle(const bool bRelase)
 {
 	// 変数を宣言
 	D3DXVECTOR3 posEdit = m_pEdit->GetVec3Position();				// エディットの位置
-	D3DXVECTOR3 sizeEdit = m_building.pBuilding->GetVec3Sizing();	// エディットビルの大きさ
+	D3DXVECTOR3 sizeEdit = m_obstacle.pObstacle->GetVec3Sizing();	// エディット障害物の大きさ
 
 	for (int nCntPri = 0; nCntPri < MAX_PRIO; nCntPri++)
 	{ // 優先順位の総数分繰り返す
@@ -519,14 +459,14 @@ void CEditBuilding::DeleteCollisionBuilding(const bool bRelase)
 			{ // オブジェクトが使用されている場合繰り返す
 
 				// 変数を宣言
-				D3DXVECTOR3 posBuild = VEC3_ZERO;	// ビル位置
-				D3DXVECTOR3 sizeBuild = VEC3_ZERO;	// ビル大きさ
+				D3DXVECTOR3 posBuild = VEC3_ZERO;	// 障害物位置
+				D3DXVECTOR3 sizeBuild = VEC3_ZERO;	// 障害物大きさ
 
 				// ポインタを宣言
 				CObject *pObjectNext = pObjCheck->GetNext();	// 次オブジェクト
 
-				if (pObjCheck->GetLabel() != CObject::LABEL_BUILDING)
-				{ // オブジェクトラベルがビルではない場合
+				if (pObjCheck->GetLabel() != CObject::LABEL_OBSTACLE)
+				{ // オブジェクトラベルが障害物ではない場合
 
 					// 次のオブジェクトへのポインタを代入
 					pObjCheck = pObjectNext;
@@ -535,7 +475,7 @@ void CEditBuilding::DeleteCollisionBuilding(const bool bRelase)
 					continue;
 				}
 
-				if (pObjCheck == (CObject*)m_building.pBuilding)
+				if (pObjCheck == (CObject*)m_obstacle.pObstacle)
 				{ // 同じアドレスだった場合
 
 					// 次のオブジェクトへのポインタを代入
@@ -545,19 +485,19 @@ void CEditBuilding::DeleteCollisionBuilding(const bool bRelase)
 					continue;
 				}
 
-				// ビルの位置を取得
+				// 障害物の位置を取得
 				posBuild = pObjCheck->GetVec3Position();
 
-				// ビルの大きさを取得
+				// 障害物の大きさを取得
 				sizeBuild = pObjCheck->GetVec3Sizing();
 
 				// 球体の当たり判定
 				if (collision::Circle3D
 				( // 引数
-					posEdit,							// 判定位置
-					posBuild,							// 判定目標位置
-					(sizeBuild.x + sizeBuild.z) * 0.5f,	// 判定半径
-					(sizeEdit.x + sizeEdit.z) * 0.5f	// 判定目標半径
+					posEdit,	// 判定位置
+					posBuild,	// 判定目標位置
+					((sizeBuild.x + sizeBuild.z) * 0.5f) * 0.5f,	// 判定半径
+					((sizeEdit.x + sizeEdit.z) * 0.5f) * 0.5f		// 判定目標半径
 				))
 				{ // 判定内だった場合
 
@@ -573,15 +513,15 @@ void CEditBuilding::DeleteCollisionBuilding(const bool bRelase)
 					else
 					{ // 破棄しない場合
 
-						// 赤を設定
-						pObjCheck->SetColor(XCOL_RED);
+						// 赤マテリアルを全設定
+						pObjCheck->SetAllMaterial(material::Red());
 					}
 				}
 				else
 				{ // 判定外だった場合
 
-					// 通常色を設定
-					pObjCheck->SetColor(XCOL_WHITE);
+					// マテリアルを再設定
+					pObjCheck->ResetMaterial();
 				}
 
 				// 次のオブジェクトへのポインタを代入
@@ -592,9 +532,9 @@ void CEditBuilding::DeleteCollisionBuilding(const bool bRelase)
 }
 
 //============================================================
-//	ビルの色の全初期化処理
+//	障害物の色の全初期化処理
 //============================================================
-void CEditBuilding::InitAllColorBuilding(void)
+void CEditObstacle::InitAllColorObstacle(void)
 {
 	for (int nCntPri = 0; nCntPri < MAX_PRIO; nCntPri++)
 	{ // 優先順位の総数分繰り返す
@@ -614,8 +554,8 @@ void CEditBuilding::InitAllColorBuilding(void)
 				// ポインタを宣言
 				CObject *pObjectNext = pObjCheck->GetNext();	// 次オブジェクト
 
-				if (pObjCheck->GetLabel() != CObject::LABEL_BUILDING)
-				{ // オブジェクトラベルがビルではない場合
+				if (pObjCheck->GetLabel() != CObject::LABEL_OBSTACLE)
+				{ // オブジェクトラベルが障害物ではない場合
 
 					// 次のオブジェクトへのポインタを代入
 					pObjCheck = pObjectNext;
@@ -624,7 +564,7 @@ void CEditBuilding::InitAllColorBuilding(void)
 					continue;
 				}
 
-				if (pObjCheck == (CObject*)m_building.pBuilding)
+				if (pObjCheck == (CObject*)m_obstacle.pObstacle)
 				{ // 同じアドレスだった場合
 
 					// 次のオブジェクトへのポインタを代入
@@ -634,8 +574,8 @@ void CEditBuilding::InitAllColorBuilding(void)
 					continue;
 				}
 
-				// 通常色を設定
-				pObjCheck->SetColor(XCOL_WHITE);
+				// マテリアルを再設定
+				pObjCheck->ResetMaterial();
 
 				// 次のオブジェクトへのポインタを代入
 				pObjCheck = pObjectNext;

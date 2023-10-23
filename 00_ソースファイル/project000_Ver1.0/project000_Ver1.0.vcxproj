@@ -161,6 +161,7 @@
     <ClCompile Include="debug.cpp" />
     <ClCompile Include="debugproc.cpp" />
     <ClCompile Include="editBuilding.cpp" />
+    <ClCompile Include="editObstacle.cpp" />
     <ClCompile Include="editSavePoint.cpp" />
     <ClCompile Include="editStageManager.cpp" />
     <ClCompile Include="effect2D.cpp" />
@@ -237,6 +238,7 @@
     <ClInclude Include="debug.h" />
     <ClInclude Include="debugproc.h" />
     <ClInclude Include="editBuilding.h" />
+    <ClInclude Include="editObstacle.h" />
     <ClInclude Include="editSavePoint.h" />
     <ClInclude Include="editStageManager.h" />
     <ClInclude Include="effect2D.h" />

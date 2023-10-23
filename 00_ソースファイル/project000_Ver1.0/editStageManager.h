@@ -19,6 +19,7 @@
 //	前方宣言
 //************************************************************
 class CEditBuilding;	// エディットビルクラス
+class CEditObstacle;	// エディット障害物クラス
 class CEditSavePoint;	// エディットセーブポイントクラス
 
 //************************************************************
@@ -73,6 +74,7 @@ private:
 
 	// メンバ変数
 	CEditBuilding *m_pBuilding;		// エディットビルの情報
+	CEditObstacle *m_pObstacle;		// エディット障害物の情報
 	CEditSavePoint *m_pSavePoint;	// エディットセーブポイントの情報
 
 	D3DXVECTOR3 m_pos;	// 位置
