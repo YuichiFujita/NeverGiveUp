@@ -34,8 +34,9 @@
 //************************************************************
 namespace
 {
-	const int PRIORITY = 3;	// プレイヤーの優先順位
 	const char* SETUP_TXT = "data\\TXT\\player.txt";	// プレイヤーセットアップテキスト
+
+	const int PRIORITY = 3;	// プレイヤーの優先順位
 
 	// プレイヤー基本情報
 	namespace basic

@@ -53,13 +53,6 @@ public:
 		EDodge dodge;		// 回避法
 	};
 
-	// モデル情報構造体
-	struct SModelInfo
-	{
-		const char *pTextureFile;	// モデルファイル名
-		SStatusInfo status;			// ステータス情報
-	};
-
 	// オーバーライド関数
 	HRESULT Init(void) override;	// 初期化
 	void Uninit(void) override;		// 終了
@@ -71,7 +64,8 @@ public:
 	D3DXVECTOR3 GetVec3Sizing(void) const override;	// 大きさ取得
 
 	// 静的メンバ関数
-	static CObstacle *Create	// 生成
+	static void LoadSetup(void);	// セットアップ
+	static CObstacle *Create		// 生成
 	( // 引数
 		const EType type,			// 種類
 		const D3DXVECTOR3& rPos,	// 位置
@@ -83,13 +77,14 @@ public:
 
 private:
 	// 静的メンバ変数
-	static SModelInfo m_aStatusInfo[];	// モデル情報
+	static const char *mc_apModelFile[];		// モデル定数
+	static SStatusInfo m_aStatusInfo[TYPE_MAX];	// ステータス情報
 
 	// メンバ変数
-	const SStatusInfo m_status;	// ステータス定数
-	const EType m_type;	// 種類定数
-	float m_fAngle;		// 対角線の角度
-	float m_fLength;	// 対角線の長さ
+	const EType m_type;		// 種類定数
+	SStatusInfo m_status;	// ステータス
+	float m_fAngle;			// 対角線の角度
+	float m_fLength;		// 対角線の長さ
 };
 
 #endif	// _OBSTACLE_H_
