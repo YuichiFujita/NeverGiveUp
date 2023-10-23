@@ -42,18 +42,26 @@ public:
 	};
 
 	// コンストラクタ
-	CBuilding();
+	CBuilding(const EType type);
 
 	// デストラクタ
 	~CBuilding();
+
+	// ステータス情報構造体
+	struct SStatusInfo
+	{
+		D3DXVECTOR3 size;	// 大きさ
+	};
 
 	// オーバーライド関数
 	HRESULT Init(void) override;	// 初期化
 	void Uninit(void) override;		// 終了
 	void Update(void) override;		// 更新
 	void Draw(void) override;		// 描画
-	void SetType(const int nType) override;	// 種類設定
-	int GetState(void) const override;		// 状態取得
+	void SetType(const int nType) override;		// 種類設定
+	int GetType(void) const override;			// 種類取得
+	void SetState(const int nState) override;	// 当たり判定設定
+	int GetState(void) const override;			// 当たり判定取得
 
 	// 静的メンバ関数
 	static CBuilding *Create	// 生成
@@ -61,20 +69,18 @@ public:
 		const EType type,			// 種類
 		const D3DXVECTOR3& rPos,	// 位置
 		const D3DXVECTOR3& rRot,	// 向き
-		const D3DXVECTOR3& rSize,	// 大きさ
-		const D3DXCOLOR& rCol,		// 色
 		const ECollision collision	// 当たり判定
 	);
 
 private:
-	// メンバ関数
-	void SetCollision(const ECollision collision);	// 当たり判定設定
-
 	// 静的メンバ変数
 	static const char *mc_apTextureFile[][6];	// テクスチャ定数
+	static SStatusInfo m_aStatusInfo[];			// ステータス情報
 
 	// メンバ変数
-	ECollision m_collision;	// 当たり判定
+	ECollision m_collision;		// 当たり判定
+	const SStatusInfo m_status;	// ステータス定数
+	const EType m_type;			// 種類定数
 };
 
 #endif	// _BUILDING_H_

@@ -70,11 +70,13 @@ HRESULT CEditBuilding::Init(void)
 
 	// メンバ変数を初期化
 	m_pEdit = NULL;	// エディットステージの情報
-	m_building.pBuilding = NULL;			// ビル情報
-	m_building.type = CBuilding::TYPE_00;	// ビル種類
 
-	// ビルの生成	// TODO：種類の設定で位置と向き以外の情報は決まるように変更
-	m_building.pBuilding = CBuilding::Create(m_building.type, VEC3_ZERO, VEC3_ZERO, D3DXVECTOR3(280.0f, 560.0f, 280.0f), XCOL_WHITE, CBuilding::COLLISION_GROUND);
+	m_building.pBuilding = NULL;					// ビル情報
+	m_building.type = CBuilding::TYPE_00;			// ビル種類
+	m_building.coll = CBuilding::COLLISION_GROUND;	// ビル判定
+
+	// ビルの生成
+	m_building.pBuilding = CBuilding::Create(m_building.type, VEC3_ZERO, VEC3_ZERO, m_building.coll);
 	if (m_building.pBuilding == NULL)
 	{ // 生成に失敗した場合
 
@@ -146,7 +148,7 @@ void CEditBuilding::Update(void)
 	// 種類を反映
 	m_building.pBuilding->SetType(m_building.type);
 
-#endif
+#endif	// _DEBUG
 }
 
 //============================================================
@@ -198,6 +200,83 @@ void CEditBuilding::DrawDebugInfo(void)
 	CDebugProc *pDebug = CManager::GetInstance()->GetDebugProc();	// デバッグプロックの情報
 
 	pDebug->Print(CDebugProc::POINT_RIGHT, "%d：[種類]\n", m_building.type);
+}
+
+//============================================================
+//	保存処理
+//============================================================
+void CEditBuilding::Save(FILE *pFile)
+{
+#if _DEBUG
+
+	if (pFile != NULL)
+	{ // ファイルが存在する場合
+
+		// 見出しを書き出し
+		fprintf(pFile, "#------------------------------------------------------------------------------\n");
+		fprintf(pFile, "#	ビルの配置情報\n");
+		fprintf(pFile, "#------------------------------------------------------------------------------\n");
+
+		for (int nCntPri = 0; nCntPri < MAX_PRIO; nCntPri++)
+		{ // 優先順位の総数分繰り返す
+	
+			// ポインタを宣言
+			CObject *pObjectTop = CObject::GetTop(nCntPri);	// 先頭オブジェクト
+	
+			if (pObjectTop != NULL)
+			{ // 先頭が存在する場合
+	
+				// ポインタを宣言
+				CObject *pObjCheck = pObjectTop;	// オブジェクト確認用
+	
+				while (pObjCheck != NULL)
+				{ // オブジェクトが使用されている場合繰り返す
+		
+					// ポインタを宣言
+					CObject *pObjectNext = pObjCheck->GetNext();	// 次オブジェクト
+	
+					if (pObjCheck->GetLabel() != CObject::LABEL_BUILDING)
+					{ // オブジェクトラベルがビルではない場合
+	
+						// 次のオブジェクトへのポインタを代入
+						pObjCheck = pObjectNext;
+	
+						// 次の繰り返しに移行
+						continue;
+					}
+	
+					if (pObjCheck == (CObject*)m_building.pBuilding)
+					{ // 同じアドレスだった場合
+	
+						// 次のオブジェクトへのポインタを代入
+						pObjCheck = pObjectNext;
+	
+						// 次の繰り返しに移行
+						continue;
+					}
+
+					// ビルの情報を取得
+					D3DXVECTOR3 posBuild = pObjCheck->GetVec3Position();	// 位置
+					D3DXVECTOR3 rotBuild = pObjCheck->GetVec3Rotation();	// 向き
+					int nType = pObjCheck->GetType();		// 種類
+					int nCollision = pObjCheck->GetState();	// 当たり判定
+	
+					// 情報を書き出し
+					fprintf(pFile, "	SETBUILDING\n");
+					fprintf(pFile, "		TYPE = %d\n", nType);
+					fprintf(pFile, "		POS = %.2f %.2f %.2f\n", posBuild.x, posBuild.y, posBuild.z);
+					fprintf(pFile, "		ROT = %.2f %.2f %.2f\n", rotBuild.x, rotBuild.y, rotBuild.z);
+					fprintf(pFile, "		COLL = %d\n", nCollision);
+					fprintf(pFile, "	END_SETBUILDING\n");
+	
+					// 次のオブジェクトへのポインタを代入
+					pObjCheck = pObjectNext;
+				}
+			}
+		}
+	}
+
+#endif	// _DEBUG
 }
 
 //============================================================
@@ -327,8 +406,8 @@ void CEditBuilding::CreateBuilding(void)
 		//----------------------------------------------------
 		//	新しいビルの生成
 		//----------------------------------------------------
-		// ビルの生成	// TODO：種類の設定で位置と向き以外の情報は決まるように変更
-		m_building.pBuilding = CBuilding::Create(m_building.type, posEdit, rotEdit, D3DXVECTOR3(280.0f, 560.0f, 280.0f), XCOL_WHITE, CBuilding::COLLISION_GROUND);
+		// ビルの生成
+		m_building.pBuilding = CBuilding::Create(m_building.type, posEdit, rotEdit, m_building.coll);
 		assert(m_building.pBuilding != NULL);
 
 		// 色を設定
@@ -476,7 +555,6 @@ void CEditBuilding::DeleteCollisionBuilding(const bool bRelase)
 		}
 	}
 }
-
 
 //============================================================
 //	ビルの色の全初期化処理

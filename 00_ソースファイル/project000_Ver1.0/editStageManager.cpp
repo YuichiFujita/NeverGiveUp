@@ -57,7 +57,7 @@
 //************************************************************
 namespace
 {
-	const char* SETUP_TXT	= "data\\TXT\\save_stage.txt";	// ステージセーブテキスト
+	const char* SAVE_TXT	= "data\\TXT\\save_stage.txt";	// ステージセーブテキスト
 	const float INIT_MOVE	= 40.0f;	// 配置物の初期移動量
 	const float CHANGE_MOVE = 10.0f;	// 配置物の移動量の変動量
 	const float MIN_MOVE	= 10.0f;	// 配置物の最小移動量
@@ -751,6 +751,9 @@ void CEditStageManager::SaveStage(void)
 	{
 		if (m_pKeyboard->IsTrigger(KEY_SAVE))
 		{
+			// 保存処理
+			Save();
+
 			// 保存した状態にする
 			m_bSave = true;
 		}
@@ -772,5 +775,33 @@ void CEditStageManager::LoadStage(void)
 		{
 
 		}
+	}
+}
+
+//============================================================
+//	保存処理
+//============================================================
+void CEditStageManager::Save(void)
+{
+	// ポインタを宣言
+	FILE *pFile = NULL;	// ファイルポインタ
+
+	// ファイルを書き出し形式で開く
+	pFile = fopen(SAVE_TXT, "w");
+
+	if (pFile != NULL)
+	{ // ファイルが開けた場合
+
+		// ビルの保存
+		m_pBuilding->Save(pFile);
+
+		// ファイルを閉じる
+		fclose(pFile);
+	}
+	else
+	{ // ファイルが開けなかった場合
+
+		// エラーメッセージボックス
+		MessageBox(NULL, "セーブファイルの読み込みに失敗！", "警告！", MB_ICONWARNING);
 	}
 }

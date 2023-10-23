@@ -37,8 +37,9 @@ public:
 	// ビル情報構造体
 	struct SInfo
 	{
-		CBuilding *pBuilding;	// ビル情報
-		CBuilding::EType type;	// ビル種類
+		CBuilding *pBuilding;		// ビル情報
+		CBuilding::EType type;		// ビル種類
+		CBuilding::ECollision coll;	// ビル判定
 	};
 
 	// メンバ関数
@@ -48,6 +49,7 @@ public:
 	void SetDisp(const bool bDisp);	// 表示設定
 	void DrawDebugControl(void);	// 操作表示描画
 	void DrawDebugInfo(void);		// 情報表示描画
+	void Save(FILE *pFile);			// 保存
 
 	// 静的メンバ関数
 	static CEditBuilding *Create(CEditStageManager *pEdit);	// 生成

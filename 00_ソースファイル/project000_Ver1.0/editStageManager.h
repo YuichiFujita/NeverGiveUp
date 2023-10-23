@@ -69,6 +69,7 @@ private:
 	void DrawDebugInfo(void);		// 情報表示描画
 	void SaveStage(void);			// ステージ保存
 	void LoadStage(void);			// ステージ読込
+	void Save(void);				// 保存
 
 	// メンバ変数
 	CEditBuilding *m_pBuilding;		// エディットビルの情報

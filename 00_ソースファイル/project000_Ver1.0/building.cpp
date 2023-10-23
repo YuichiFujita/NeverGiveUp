@@ -50,13 +50,28 @@ const char *CBuilding::mc_apTextureFile[][6] =	// テクスチャ定数
 	},
 };
 
+CBuilding::SStatusInfo CBuilding::m_aStatusInfo[] =	// ステータス情報
+{
+	{ // ビル00ステータス
+		D3DXVECTOR3(280.0f, 560.0f, 280.0f),	// 大きさ
+	},
+
+	{ // ビル01ステータス
+		D3DXVECTOR3(280.0f, 560.0f, 280.0f),	// 大きさ
+	},
+
+	{ // ビル02ステータス
+		D3DXVECTOR3(280.0f, 560.0f, 280.0f),	// 大きさ
+	},
+};
+
 //************************************************************
 //	子クラス [CBuilding] のメンバ関数
 //************************************************************
 //============================================================
 //	コンストラクタ
 //============================================================
-CBuilding::CBuilding() : CObjectMeshCube(CObject::LABEL_BUILDING, BUILDING_PRIO)
+CBuilding::CBuilding(const EType type) : CObjectMeshCube(CObject::LABEL_BUILDING, BUILDING_PRIO), m_status(m_aStatusInfo[type]), m_type(type)
 {
 	// メンバ変数をクリア
 	m_collision = COLLISION_NONE;	// 当たり判定
@@ -89,6 +104,9 @@ HRESULT CBuilding::Init(void)
 
 	// 原点を設定
 	SetOrigin(CObjectMeshCube::ORIGIN_DOWN);
+
+	// キューブ色を設定
+	SetColor(XCOL_WHITE);
 
 	// 縁取り色を設定
 	SetBorderColor(XCOL_WHITE);
@@ -172,8 +190,8 @@ void CBuilding::SetType(const int nType)
 		return;
 	}
 
-	if (nType < TYPE_MAX)
-	{ // 種類がある場合
+	if (nType > NONE_IDX && nType < TYPE_MAX)
+	{ // 種類が範囲内の場合
 
 		// 引数の種類のテクスチャを登録
 		faceTex = SFaceTex
@@ -188,12 +206,38 @@ void CBuilding::SetType(const int nType)
 
 		// テクスチャを割当
 		BindTexture(faceTex);
+
+		// 引数の種類のステータスを設定
+		SetVec3Sizing(m_status.size);	// 大きさ
 	}
 	else { assert(false); }	// 種類オーバー
 }
 
 //============================================================
-//	状態取得処理
+//	種類取得処理
+//============================================================
+int CBuilding::GetType(void) const
+{
+	// 種類を返す
+	return m_type;
+}
+
+//============================================================
+//	当たり判定の設定処理
+//============================================================
+void CBuilding::SetState(const int nState)
+{
+	if (nState > NONE_IDX && nState < COLLISION_MAX)
+	{ // インデックスが範囲内の場合
+
+		// 引数の当たり判定を設定
+		m_collision = (ECollision)nState;
+	}
+	else { assert(false); }	// 範囲外
+}
+
+//============================================================
+//	当たり判定取得処理
 //============================================================
 int CBuilding::GetState(void) const
 {
@@ -209,8 +253,6 @@ CBuilding *CBuilding::Create
 	const EType type,			// 種類
 	const D3DXVECTOR3& rPos,	// 位置
 	const D3DXVECTOR3& rRot,	// 向き
-	const D3DXVECTOR3& rSize,	// 大きさ
-	const D3DXCOLOR& rCol,		// 色
 	const ECollision collision	// 当たり判定
 )
 {
@@ -221,7 +263,7 @@ CBuilding *CBuilding::Create
 	{ // 使用されていない場合
 
 		// メモリ確保
-		pBuilding = new CBuilding;	// ビル
+		pBuilding = new CBuilding(type);	// ビル
 	}
 	else { assert(false); return NULL; }	// 使用中
 
@@ -249,31 +291,11 @@ CBuilding *CBuilding::Create
 		// 向きを設定
 		pBuilding->SetVec3Rotation(rRot);
 
-		// 大きさを設定
-		pBuilding->SetVec3Sizing(rSize);
-
-		// キューブ色を設定
-		pBuilding->SetColor(rCol);
-
 		// 当たり判定を設定
-		pBuilding->SetCollision(collision);
+		pBuilding->SetState(collision);
 
 		// 確保したアドレスを返す
 		return pBuilding;
 	}
 	else { assert(false); return NULL; }	// 確保失敗
-}
-
-//============================================================
-//	当たり判定の設定処理
-//============================================================
-void CBuilding::SetCollision(const ECollision collision)
-{
-	if (collision > NONE_IDX && collision < COLLISION_MAX)
-	{ // インデックスが範囲内の場合
-
-		// 引数の当たり判定を設定
-		m_collision = collision;
-	}
-	else { assert(false); }	// 範囲外
 }
