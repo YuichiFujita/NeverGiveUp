@@ -282,12 +282,12 @@ D3DXVECTOR3 CShadow::SetDrawPosition(void)
 		// 高さをビルの上に設定
 		posShadow.y = fPosHeight + PLUS_POSY;
 	}
-	else if (CScene::GetField()->IsPositionRange(posParent))
-	{ // 地面の範囲内の場合
+	//else if (CScene::GetField()->IsPositionRange(posParent))
+	//{ // 地面の範囲内の場合
 
-		// 高さを地面に設定
-		posShadow.y = CScene::GetField()->GetPositionHeight(posParent) + PLUS_POSY;
-	}
+	//	// 高さを地面に設定
+	//	posShadow.y = CScene::GetField()->GetPositionHeight(posParent) + PLUS_POSY;
+	//}
 	else
 	{ // 全ての範囲外の場合
 

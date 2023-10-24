@@ -39,7 +39,11 @@
 CStage::CStage()
 {
 	// メンバ変数をクリア
-	memset(&m_stageLimit, 0, sizeof(m_stageLimit));	// 範囲
+	memset(&m_stageLimit,	0, sizeof(m_stageLimit));	// 範囲
+	memset(&m_field,		0, sizeof(m_field));		// 地面情報
+	memset(&m_wall,			0, sizeof(m_wall));			// 壁情報
+	memset(&m_scenery,		0, sizeof(m_scenery));		// 景色情報
+	memset(&m_sky,			0, sizeof(m_sky));			// 空情報
 }
 
 //============================================================
@@ -58,6 +62,22 @@ HRESULT CStage::Init(void)
 	// メンバ変数を初期化
 	memset(&m_stageLimit, 0, sizeof(m_stageLimit));	// 範囲
 
+	// 地面の情報を初期化
+	m_field.ppField = NULL;	// 地面の情報
+	m_field.nNum = 0;		// 地面の総数
+
+	// 壁の情報を初期化
+	m_wall.ppWall = NULL;	// 壁の情報
+	m_wall.nNum = 0;		// 壁の総数
+
+	// 景色の情報を初期化
+	m_scenery.ppScenery = NULL;	// 景色の情報
+	m_scenery.nNum = 0;			// 景色の総数
+
+	// 空の情報を初期化
+	m_sky.ppSky = NULL;	// 空の情報
+	m_sky.nNum = 0;		// 空の総数
+
 	// 成功を返す
 	return S_OK;
 }
@@ -67,7 +87,41 @@ HRESULT CStage::Init(void)
 //============================================================
 void CStage::Uninit(void)
 {
+	// 地面の破棄
+	if (m_field.ppField != NULL)
+	{ // 地面が使用されている場合
 
+		// メモリ開放
+		delete[] m_field.ppField;
+		m_field.ppField = NULL;
+	}
+
+	// 壁の破棄
+	if (m_wall.ppWall != NULL)
+	{ // 壁が使用されている場合
+
+		// メモリ開放
+		delete[] m_wall.ppWall;
+		m_wall.ppWall = NULL;
+	}
+
+	// 景色の破棄
+	if (m_scenery.ppScenery != NULL)
+	{ // 景色が使用されている場合
+
+		// メモリ開放
+		delete[] m_scenery.ppScenery;
+		m_scenery.ppScenery = NULL;
+	}
+
+	// 空の破棄
+	if (m_sky.ppSky != NULL)
+	{ // 空が使用されている場合
+
+		// メモリ開放
+		delete[] m_sky.ppSky;
+		m_sky.ppSky = NULL;
+	}
 }
 
 //============================================================
@@ -140,7 +194,7 @@ void CStage::LimitPosition(D3DXVECTOR3& rPos, const float fRadius)
 //============================================================
 //	範囲外の着地処理
 //============================================================
-bool CStage::LandPosition(D3DXVECTOR3& rPos, D3DXVECTOR3& rMove, const float fHeight)
+bool CStage::LandLimitPosition(D3DXVECTOR3& rPos, D3DXVECTOR3& rMove, const float fHeight)
 {
 	if (rPos.y - fHeight < m_stageLimit.fField)
 	{ // 位置が地面より下の場合
@@ -156,6 +210,14 @@ bool CStage::LandPosition(D3DXVECTOR3& rPos, D3DXVECTOR3& rMove, const float fHe
 	}
 
 	// 着地していない状況を返す
+	return false;
+}
+
+//============================================================
+//	地面着地の着地処理
+//============================================================
+bool CStage::LandFieldPosition(D3DXVECTOR3& rPos, D3DXVECTOR3& rMove)
+{
 	return false;
 }
 
@@ -219,7 +281,7 @@ HRESULT CStage::Release(CStage *&prStage)
 //============================================================
 //	セットアップ処理
 //============================================================
-void CStage::LoadSetup(CStage *pStage)
+HRESULT CStage::LoadSetup(CStage *pStage)
 {
 	// 変数を宣言
 	SStageLimit stageLimit;				// ステージ範囲の代入用
@@ -233,6 +295,7 @@ void CStage::LoadSetup(CStage *pStage)
 	bool bLight = false;	// ライティング状況の代入用
 	float fRadius = 0.0f;	// 半径の代入用
 	float fHeight = 0.0f;	// 縦幅の代入用
+	int nCurrentID = 0;		// 現在の読み込み数の保存用
 	int nTextureID = 0;		// テクスチャインデックスの代入用
 	int nLight = 0;			// ライティング状況の変換用
 	int nEnd = 0;			// テキスト読み込み終了の確認用
@@ -334,13 +397,48 @@ void CStage::LoadSetup(CStage *pStage)
 			else if (strcmp(&aString[0], "STAGE_SKYSET") == 0)
 			{ // 読み込んだ文字列が STAGE_SKYSET の場合
 
+				// 現在の読み込み数を初期化
+				nCurrentID = 0;
+
 				do
 				{ // 読み込んだ文字列が END_STAGE_SKYSET ではない場合ループ
 
 					// ファイルから文字列を読み込む
 					fscanf(pFile, "%s", &aString[0]);
 
-					if (strcmp(&aString[0], "SKYSET") == 0)
+					if (strcmp(&aString[0], "NUM") == 0)
+					{ // 読み込んだ文字列が NUM の場合
+
+						fscanf(pFile, "%s", &aString[0]);			// = を読み込む (不要)
+						fscanf(pFile, "%d", &pStage->m_sky.nNum);	// 読み込み数を読み込む
+
+						if (pStage->m_sky.nNum > 0)
+						{ // 読み込むものがある場合
+
+							if (pStage->m_sky.ppSky == NULL)
+							{ // 空が使用されていない場合
+
+								// 空の読み込み数分メモリ確保
+								pStage->m_sky.ppSky = new CSky*[pStage->m_sky.nNum];
+
+								if (pStage->m_sky.ppSky != NULL)
+								{ // 確保に成功した場合
+
+									// メモリクリア
+									memset(pStage->m_sky.ppSky, 0, sizeof(CSky*) * pStage->m_sky.nNum);
+								}
+								else { assert(false); return E_FAIL; }	// 確保失敗
+							}
+							else { assert(false); return E_FAIL; }	// 使用中
+						}
+						else
+						{ // 読み込むものがない場合
+
+							// 処理を抜ける
+							break;
+						}
+					}
+					else if (strcmp(&aString[0], "SKYSET") == 0)
 					{ // 読み込んだ文字列が SKYSET の場合
 		
 						do
@@ -395,15 +493,39 @@ void CStage::LoadSetup(CStage *pStage)
 							}
 						} while (strcmp(&aString[0], "END_SKYSET") != 0);	// 読み込んだ文字列が END_SKYSET ではない場合ループ
 
-						// 空オブジェクトの生成
-						CSky::Create((CSky::ETexture)nTextureID, pos, D3DXToRadian(rot), col, part, fRadius);
+						if (pStage->m_sky.ppSky[nCurrentID] == NULL)
+						{ // 使用されていない場合
+
+							// 空オブジェクトの生成
+							pStage->m_sky.ppSky[nCurrentID] = CSky::Create((CSky::ETexture)nTextureID, pos, D3DXToRadian(rot), col, part, fRadius);
+							if (pStage->m_sky.ppSky[nCurrentID] == NULL)
+							{ // 確保に失敗した場合
+
+								// 失敗を返す
+								assert(false);
+								return E_FAIL;
+							}
+						}
+						else { assert(false); }	// 使用中
+
+						// 読込総数オーバー
+						assert(nCurrentID < pStage->m_sky.nNum);
+
+						// 現在の読み込み数を加算
+						nCurrentID++;
 					}
 				} while (strcmp(&aString[0], "END_STAGE_SKYSET") != 0);	// 読み込んだ文字列が END_STAGE_SKYSET ではない場合ループ
+
+				// 読込総数の不一致
+				assert(nCurrentID == pStage->m_sky.nNum);
 			}
 
 			// 景色の設定
 			else if (strcmp(&aString[0], "STAGE_SCENERYSET") == 0)
 			{ // 読み込んだ文字列が STAGE_SCENERYSET の場合
+
+				// 現在の読み込み数を初期化
+				nCurrentID = 0;
 
 				do
 				{ // 読み込んだ文字列が END_STAGE_SCENERYSET ではない場合ループ
@@ -411,7 +533,39 @@ void CStage::LoadSetup(CStage *pStage)
 					// ファイルから文字列を読み込む
 					fscanf(pFile, "%s", &aString[0]);
 
-					if (strcmp(&aString[0], "SCENERYSET") == 0)
+					if (strcmp(&aString[0], "NUM") == 0)
+					{ // 読み込んだ文字列が NUM の場合
+
+						fscanf(pFile, "%s", &aString[0]);				// = を読み込む (不要)
+						fscanf(pFile, "%d", &pStage->m_scenery.nNum);	// 読み込み数を読み込む
+
+						if (pStage->m_scenery.nNum > 0)
+						{ // 読み込むものがある場合
+
+							if (pStage->m_scenery.ppScenery == NULL)
+							{ // 景色が使用されていない場合
+
+								// 景色の読み込み数分メモリ確保
+								pStage->m_scenery.ppScenery = new CScenery*[pStage->m_scenery.nNum];
+
+								if (pStage->m_scenery.ppScenery != NULL)
+								{ // 確保に成功した場合
+
+									// メモリクリア
+									memset(pStage->m_scenery.ppScenery, 0, sizeof(CScenery*) * pStage->m_scenery.nNum);
+								}
+								else { assert(false); return E_FAIL; }	// 確保失敗
+							}
+							else { assert(false); return E_FAIL; }	// 使用中
+						}
+						else
+						{ // 読み込むものがない場合
+
+							// 処理を抜ける
+							break;
+						}
+					}
+					else if (strcmp(&aString[0], "SCENERYSET") == 0)
 					{ // 読み込んだ文字列が SCENERYSET の場合
 		
 						do
@@ -472,15 +626,39 @@ void CStage::LoadSetup(CStage *pStage)
 							}
 						} while (strcmp(&aString[0], "END_SCENERYSET") != 0);	// 読み込んだ文字列が END_SCENERYSET ではない場合ループ
 
-						// 景色オブジェクトの生成
-						CScenery::Create((CScenery::ETexture)nTextureID, pos, D3DXToRadian(rot), col, part, fRadius, fHeight);
+						if (pStage->m_scenery.ppScenery[nCurrentID] == NULL)
+						{ // 使用されていない場合
+
+							// 景色オブジェクトの生成
+							pStage->m_scenery.ppScenery[nCurrentID] = CScenery::Create((CScenery::ETexture)nTextureID, pos, D3DXToRadian(rot), col, part, fRadius, fHeight);
+							if (pStage->m_scenery.ppScenery[nCurrentID] == NULL)
+							{ // 確保に失敗した場合
+
+								// 失敗を返す
+								assert(false);
+								return E_FAIL;
+							}
+						}
+						else { assert(false); }	// 使用中
+
+						// 読込総数オーバー
+						assert(nCurrentID < pStage->m_scenery.nNum);
+
+						// 現在の読み込み数を加算
+						nCurrentID++;
 					}
 				} while (strcmp(&aString[0], "END_STAGE_SCENERYSET") != 0);	// 読み込んだ文字列が END_STAGE_SCENERYSET ではない場合ループ
+
+				// 読込総数の不一致
+				assert(nCurrentID == pStage->m_scenery.nNum);
 			}
 
 			// 壁の設定
 			else if (strcmp(&aString[0], "STAGE_WALLSET") == 0)
 			{ // 読み込んだ文字列が STAGE_WALLSET の場合
+
+				// 現在の読み込み数を初期化
+				nCurrentID = 0;
 
 				do
 				{ // 読み込んだ文字列が END_STAGE_SCENERYSET ではない場合ループ
@@ -488,7 +666,39 @@ void CStage::LoadSetup(CStage *pStage)
 					// ファイルから文字列を読み込む
 					fscanf(pFile, "%s", &aString[0]);
 
-					if (strcmp(&aString[0], "WALLSET") == 0)
+					if (strcmp(&aString[0], "NUM") == 0)
+					{ // 読み込んだ文字列が NUM の場合
+
+						fscanf(pFile, "%s", &aString[0]);			// = を読み込む (不要)
+						fscanf(pFile, "%d", &pStage->m_wall.nNum);	// 読み込み数を読み込む
+
+						if (pStage->m_wall.nNum > 0)
+						{ // 読み込むものがある場合
+
+							if (pStage->m_wall.ppWall == NULL)
+							{ // 壁が使用されていない場合
+
+								// 壁の読み込み数分メモリ確保
+								pStage->m_wall.ppWall = new CWall*[pStage->m_wall.nNum];
+
+								if (pStage->m_wall.ppWall != NULL)
+								{ // 確保に成功した場合
+
+									// メモリクリア
+									memset(pStage->m_wall.ppWall, 0, sizeof(CWall*) * pStage->m_wall.nNum);
+								}
+								else { assert(false); return E_FAIL; }	// 確保失敗
+							}
+							else { assert(false); return E_FAIL; }	// 使用中
+						}
+						else
+						{ // 読み込むものがない場合
+
+							// 処理を抜ける
+							break;
+						}
+					}
+					else if (strcmp(&aString[0], "WALLSET") == 0)
 					{ // 読み込んだ文字列が WALLSET の場合
 		
 						do
@@ -559,15 +769,39 @@ void CStage::LoadSetup(CStage *pStage)
 							}
 						} while (strcmp(&aString[0], "END_WALLSET") != 0);	// 読み込んだ文字列が END_WALLSET ではない場合ループ
 
-						// 壁オブジェクトの生成
-						CWall::Create((CWall::ETexture)nTextureID, pos, D3DXToRadian(rot), sizeVec2, col, part, cull, bLight);
+						if (pStage->m_wall.ppWall[nCurrentID] == NULL)
+						{ // 使用されていない場合
+
+							// 壁オブジェクトの生成
+							pStage->m_wall.ppWall[nCurrentID] = CWall::Create((CWall::ETexture)nTextureID, pos, D3DXToRadian(rot), sizeVec2, col, part, cull, bLight);
+							if (pStage->m_wall.ppWall[nCurrentID] == NULL)
+							{ // 確保に失敗した場合
+
+								// 失敗を返す
+								assert(false);
+								return E_FAIL;
+							}
+						}
+						else { assert(false); }	// 使用中
+
+						// 読込総数オーバー
+						assert(nCurrentID < pStage->m_wall.nNum);
+
+						// 現在の読み込み数を加算
+						nCurrentID++;
 					}
 				} while (strcmp(&aString[0], "END_STAGE_WALLSET") != 0);	// 読み込んだ文字列が END_STAGE_WALLSET ではない場合ループ
+
+				// 読込総数の不一致
+				assert(nCurrentID == pStage->m_wall.nNum);
 			}
 
 			// 地面の設定
 			else if (strcmp(&aString[0], "STAGE_FIELDSET") == 0)
 			{ // 読み込んだ文字列が STAGE_FIELDSET の場合
+
+				// 現在の読み込み数を初期化
+				nCurrentID = 0;
 
 				do
 				{ // 読み込んだ文字列が END_STAGE_FIELDSET ではない場合ループ
@@ -575,7 +809,39 @@ void CStage::LoadSetup(CStage *pStage)
 					// ファイルから文字列を読み込む
 					fscanf(pFile, "%s", &aString[0]);
 
-					if (strcmp(&aString[0], "FIELDSET") == 0)
+					if (strcmp(&aString[0], "NUM") == 0)
+					{ // 読み込んだ文字列が NUM の場合
+
+						fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
+						fscanf(pFile, "%d", &pStage->m_field.nNum);			// 読み込み数を読み込む
+
+						if (pStage->m_field.nNum > 0)
+						{ // 読み込むものがある場合
+
+							if (pStage->m_field.ppField == NULL)
+							{ // 地面が使用されていない場合
+
+								// 地面の読み込み数分メモリ確保
+								pStage->m_field.ppField = new CField*[pStage->m_field.nNum];
+
+								if (pStage->m_field.ppField != NULL)
+								{ // 確保に成功した場合
+
+									// メモリクリア
+									memset(pStage->m_field.ppField, 0, sizeof(CField*) * pStage->m_field.nNum);
+								}
+								else { assert(false); return E_FAIL; }	// 確保失敗
+							}
+							else { assert(false); return E_FAIL; }	// 使用中
+						}
+						else
+						{ // 読み込むものがない場合
+
+							// 処理を抜ける
+							break;
+						}
+					}
+					else if (strcmp(&aString[0], "FIELDSET") == 0)
 					{ // 読み込んだ文字列が FIELDSET の場合
 		
 						do
@@ -646,20 +912,47 @@ void CStage::LoadSetup(CStage *pStage)
 							}
 						} while (strcmp(&aString[0], "END_FIELDSET") != 0);	// 読み込んだ文字列が END_FIELDSET ではない場合ループ
 
-						// 地面オブジェクトの生成
-						CField::Create((CField::ETexture)nTextureID, pos, D3DXToRadian(rot), sizeVec2, col, part, cull, bLight);
+						if (pStage->m_field.ppField[nCurrentID] == NULL)
+						{ // 使用されていない場合
+
+							// 地面オブジェクトの生成
+							pStage->m_field.ppField[nCurrentID] = CField::Create((CField::ETexture)nTextureID, pos, D3DXToRadian(rot), sizeVec2, col, part, cull, bLight);
+							if (pStage->m_field.ppField[nCurrentID] == NULL)
+							{ // 確保に失敗した場合
+
+								// 失敗を返す
+								assert(false);
+								return E_FAIL;
+							}
+						}
+						else { assert(false); }	// 使用中
+
+						// 読込総数オーバー
+						assert(nCurrentID < pStage->m_field.nNum);
+
+						// 現在の読み込み数を加算
+						nCurrentID++;
 					}
 				} while (strcmp(&aString[0], "END_STAGE_FIELDSET") != 0);	// 読み込んだ文字列が END_STAGE_FIELDSET ではない場合ループ
+
+				// 読込総数の不一致
+				assert(nCurrentID == pStage->m_field.nNum);
 			}
 		} while (nEnd != EOF);	// 読み込んだ文字列が EOF ではない場合ループ
 		
 		// ファイルを閉じる
 		fclose(pFile);
+
+		// 成功を返す
+		return S_OK;
 	}
 	else
 	{ // ファイルが開けなかった場合
 
 		// エラーメッセージボックス
 		MessageBox(NULL, "ステージセットアップの読み込みに失敗！", "警告！", MB_ICONWARNING);
+
+		// 失敗を返す
+		return E_FAIL;
 	}
 }

@@ -16,6 +16,14 @@
 #include "main.h"
 
 //************************************************************
+//	前方宣言
+//************************************************************
+class CField;	// 地面クラス
+class CWall;	// 壁クラス
+class CScenery;	// 景色クラス
+class CSky;		// 空クラス
+
+//************************************************************
 //	クラス定義
 //************************************************************
 // ステージクラス
@@ -49,14 +57,45 @@ public:
 		float fField;		// 制限位置 (地面)
 	};
 
+	// 地面構造体
+	struct SField
+	{
+		CField **ppField;	// 地面の情報
+		int nNum;			// 地面の総数
+	};
+
+	// 壁構造体
+	struct SWall
+	{
+		CWall **ppWall;	// 壁の情報
+		int nNum;		// 壁の総数
+	};
+
+	// 風景構造体
+	struct SScenery
+	{
+		CScenery **ppScenery;	// 風景の情報
+		int nNum;				// 風景の総数
+	};
+
+	// 空構造体
+	struct SSky
+	{
+		CSky **ppSky;	// 空の情報
+		int nNum;		// 空の総数
+	};
+
 	// メンバ関数
 	HRESULT Init(void);	// 初期化
 	void Uninit(void);	// 終了
 	void Update(void);	// 更新
 	void SetStageLimit(const SStageLimit& rLimit);	// ステージ範囲設定
 	SStageLimit GetStageLimit(void) const;			// ステージ範囲取得
-	void LimitPosition(D3DXVECTOR3& rPos, const float fRadius);						// 位置補正
-	bool LandPosition(D3DXVECTOR3& rPos, D3DXVECTOR3& rMove, const float fHeight);	// 範囲外着地
+
+	void LimitPosition(D3DXVECTOR3& rPos, const float fRadius);	// 位置補正
+	bool LandLimitPosition(D3DXVECTOR3& rPos, D3DXVECTOR3& rMove, const float fHeight);	// 範囲外着地
+
+	bool LandFieldPosition(D3DXVECTOR3& rPos, D3DXVECTOR3& rMove);	// 地面着地
 
 	// 静的メンバ関数
 	static CStage *Create(void);				// 生成
@@ -64,10 +103,14 @@ public:
 
 private:
 	// 静的メンバ関数
-	static void LoadSetup(CStage *pStage);	// セットアップ
+	static HRESULT LoadSetup(CStage *pStage);	// セットアップ
 
 	// メンバ変数
-	SStageLimit m_stageLimit;	// 範囲情報
+	SStageLimit	m_stageLimit;	// 範囲情報
+	SField		m_field;		// 地面情報
+	SWall		m_wall;			// 壁情報
+	SScenery	m_scenery;		// 景色情報
+	SSky		m_sky;			// 空情報
 };
 
 #endif	// _STAGE_H_

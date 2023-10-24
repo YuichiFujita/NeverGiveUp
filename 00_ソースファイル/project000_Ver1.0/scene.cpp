@@ -32,7 +32,6 @@
 //************************************************************
 CStage *CScene::m_pStage = NULL;	// ステージ
 CPlayer	*CScene::m_pPlayer = NULL;	// プレイヤーオブジェクト
-CField *CScene::m_pField = NULL;	// 地面オブジェクト
 
 //************************************************************
 //	親クラス [CScene] のメンバ関数
@@ -69,17 +68,6 @@ HRESULT CScene::Init(void)
 		return E_FAIL;
 	}
 
-	// 地面オブジェクトの生成
-	m_pField = CField::Create(CField::TEXTURE_FIELD, VEC3_ZERO, VEC3_ZERO, FIELD_SIZE, XCOL_WHITE, FIELD_PART);
-	if (m_pField == NULL)
-	{ // 非使用中の場合
-
-		// 失敗を返す
-		assert(false);
-		return E_FAIL;
-	}
-	m_pField->SetEnableDraw(false);
-
 	// プレイヤーオブジェクトの生成
 	m_pPlayer = CPlayer::Create();
 
@@ -103,7 +91,6 @@ HRESULT CScene::Uninit(void)
 
 	// 終了済みのオブジェクトポインタをNULLにする
 	m_pPlayer = NULL;	// プレイヤーオブジェクト
-	m_pField = NULL;	// 地面オブジェクト
 
 	// 成功を返す
 	return S_OK;
@@ -274,15 +261,6 @@ CPlayer *CScene::GetPlayer(void)
 {
 	// プレイヤーのポインタを返す
 	return m_pPlayer;
-}
-
-//============================================================
-//	地面取得処理
-//============================================================
-CField *CScene::GetField(void)
-{
-	// 地面のポインタを返す
-	return m_pField;
 }
 
 //============================================================

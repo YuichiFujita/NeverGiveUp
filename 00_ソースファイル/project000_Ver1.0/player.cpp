@@ -820,8 +820,8 @@ bool CPlayer::UpdateLanding(D3DXVECTOR3& rPos)
 		// ジャンプしていない状態にする
 		m_bJump = false;
 	}
-	else if (CScene::GetField()->LandPosition(rPos, m_move)
-	||       CScene::GetStage()->LandPosition(rPos, m_move, 0.0f))
+	else if (CScene::GetStage()->LandFieldPosition(rPos, m_move)
+	||       CScene::GetStage()->LandLimitPosition(rPos, m_move, 0.0f))
 	{ // プレイヤーが着地していた場合
 
 		// 着地している状態にする
