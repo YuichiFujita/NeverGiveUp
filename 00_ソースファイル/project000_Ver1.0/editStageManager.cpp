@@ -13,6 +13,7 @@
 #include "editBuilding.h"
 #include "editObstacle.h"
 #include "editSavePoint.h"
+#include "editGoalPoint.h"
 
 //************************************************************
 //	マクロ定義
@@ -79,6 +80,7 @@ CEditStageManager::CEditStageManager()
 	m_pBuilding = NULL;			// エディットビルの情報
 	m_pObstacle = NULL;			// エディット障害物の情報
 	m_pSavePoint = NULL;		// エディットセーブポイントの情報
+	m_pGoalPoint = NULL;		// エディットゴールポイントの情報
 	m_pos	= VEC3_ZERO;		// 位置
 	m_rot	= VEC3_ZERO;		// 向き
 	m_fMove	= 0.0f;				// 位置移動量
@@ -109,6 +111,7 @@ HRESULT CEditStageManager::Init(void)
 	m_pBuilding = NULL;			// エディットビルの情報
 	m_pObstacle = NULL;			// エディット障害物の情報
 	m_pSavePoint = NULL;		// エディットセーブポイントの情報
+	m_pGoalPoint = NULL;		// エディットゴールポイントの情報
 	m_pos	= VEC3_ZERO;		// 位置
 	m_rot	= VEC3_ZERO;		// 向き
 	m_fMove	= INIT_MOVE;		// 位置移動量
@@ -139,6 +142,16 @@ HRESULT CEditStageManager::Init(void)
 	// エディットセーブポイントの生成
 	m_pSavePoint = CEditSavePoint::Create(this);
 	if (m_pSavePoint == NULL)
+	{ // 生成に失敗した場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
+
+	// エディットゴールポイントの生成
+	m_pGoalPoint = CEditGoalPoint::Create(this);
+	if (m_pGoalPoint == NULL)
 	{ // 生成に失敗した場合
 
 		// 失敗を返す
@@ -185,6 +198,14 @@ void CEditStageManager::Uninit(void)
 
 		// エディットセーブポイントの破棄
 		CEditSavePoint::Release(m_pSavePoint);
+	}
+	else { assert(false); }	// 非使用中
+
+	if (m_pGoalPoint != NULL)
+	{ // エディットゴールポイントが使用されている場合
+
+		// エディットゴールポイントの破棄
+		CEditGoalPoint::Release(m_pGoalPoint);
 	}
 	else { assert(false); }	// 非使用中
 
@@ -259,6 +280,15 @@ void CEditStageManager::Update(void)
 		break;
 
 	case THING_GOALPOINT:	// ゴールポイント
+
+		if (m_pGoalPoint != NULL)
+		{ // エディットゴールポイントが使用されている場合
+
+			// エディットゴールポイントの更新
+			m_pGoalPoint->Update();
+		}
+		else { assert(false); }	// 非使用中
+
 		break;
 
 	default:	// 例外処理
@@ -340,6 +370,15 @@ void CEditStageManager::SetEnableEdit(const bool bEdit)
 		break;
 
 	case THING_GOALPOINT:	// ゴールポイント
+
+		if (m_pGoalPoint != NULL)
+		{ // エディットゴールポイントが使用されている場合
+
+			// エディットゴールポイントの表示の設定
+			m_pGoalPoint->SetDisp(m_bEdit);
+		}
+		else { assert(false); }	// 非使用中
+
 		break;
 
 	default:	// 例外処理
@@ -504,6 +543,15 @@ void CEditStageManager::UpdateChangeThing(void)
 			break;
 
 		case THING_GOALPOINT:	// ゴールポイント
+
+			if (m_pGoalPoint != NULL)
+			{ // エディットゴールポイントが使用されている場合
+
+				// エディットゴールポイントの表示の設定
+				m_pGoalPoint->SetDisp(false);
+			}
+			else { assert(false); }	// 非使用中
+
 			break;
 
 		default:	// 例外処理
@@ -556,6 +604,15 @@ void CEditStageManager::UpdateChangeThing(void)
 			break;
 
 		case THING_GOALPOINT:	// ゴールポイント
+
+			if (m_pGoalPoint != NULL)
+			{ // エディットゴールポイントが使用されている場合
+
+				// エディットゴールポイントの表示の設定
+				m_pGoalPoint->SetDisp(true);
+			}
+			else { assert(false); }	// 非使用中
+
 			break;
 
 		default:	// 例外処理
@@ -734,6 +791,15 @@ void CEditStageManager::DrawDebugControl(void)
 		break;
 
 	case THING_GOALPOINT:	// ゴールポイント
+
+		if (m_pGoalPoint != NULL)
+		{ // エディットゴールポイントが使用されている場合
+
+			// エディットゴールポイントの操作表示
+			m_pGoalPoint->DrawDebugControl();
+		}
+		else { assert(false); }	// 非使用中
+
 		break;
 
 	default:	// 例外処理
@@ -805,6 +871,15 @@ void CEditStageManager::DrawDebugInfo(void)
 		break;
 
 	case THING_GOALPOINT:	// ゴールポイント
+
+		if (m_pGoalPoint != NULL)
+		{ // エディットゴールポイントが使用されている場合
+
+			// エディットゴールポイントの情報表示
+			m_pGoalPoint->DrawDebugInfo();
+		}
+		else { assert(false); }	// 非使用中
+
 		break;
 
 	default:	// 例外処理
@@ -884,6 +959,9 @@ void CEditStageManager::Save(void)
 
 		// セーブポイントの保存
 		m_pSavePoint->Save(pFile);
+
+		// ゴールポイントの保存
+		m_pGoalPoint->Save(pFile);
 
 		// ファイルを閉じる
 		fclose(pFile);

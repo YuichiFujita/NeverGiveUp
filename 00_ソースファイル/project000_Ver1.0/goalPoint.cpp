@@ -23,7 +23,7 @@
 namespace
 {
 	const int PRIORITY = 1;	// ゴールポイントの優先順位
-	const D3DXVECTOR3 COLL_SIZE = D3DXVECTOR3(280.0f, 0.0f, 280.0f);	// ゴール判定の大きさ
+	const D3DXVECTOR3 INIT_COLL_SIZE = D3DXVECTOR3(60.0f, 60.0f, 60.0f);	// ゴール判定の大きさ
 }
 
 //************************************************************
@@ -34,7 +34,9 @@ namespace
 //============================================================
 CGoalPoint::CGoalPoint() : CObject(CObject::LABEL_GOALPOINT, PRIORITY)
 {
-
+	// メンバ変数をクリア
+	m_pos = VEC3_ZERO;	// 位置
+	m_size = VEC3_ZERO;	// 大きさ
 }
 
 //============================================================
@@ -42,8 +44,7 @@ CGoalPoint::CGoalPoint() : CObject(CObject::LABEL_GOALPOINT, PRIORITY)
 //============================================================
 CGoalPoint::~CGoalPoint()
 {
-	// メンバ変数をクリア
-	m_pos = VEC3_ZERO;	// 位置
+
 }
 
 //============================================================
@@ -53,6 +54,7 @@ HRESULT CGoalPoint::Init(void)
 {
 	// メンバ変数を初期化
 	m_pos = VEC3_ZERO;	// 位置
+	m_size = INIT_COLL_SIZE;	// 大きさ
 
 	// 成功を返す
 	return S_OK;
@@ -100,6 +102,24 @@ D3DXVECTOR3 CGoalPoint::GetVec3Position(void) const
 {
 	// 位置を返す
 	return m_pos;
+}
+
+//============================================================
+//	判定大きさ設定の設定処理
+//============================================================
+void CGoalPoint::SetVec3Sizing(const D3DXVECTOR3& rSize)
+{
+	// 引数の大きさを設定
+	m_size = rSize;
+}
+
+//============================================================
+//	判定大きさ取得処理
+//============================================================
+D3DXVECTOR3 CGoalPoint::GetVec3Sizing(void) const
+{
+	// 大きさを返す
+	return m_size;
 }
 
 //============================================================
@@ -175,8 +195,8 @@ void CGoalPoint::CollisionPlayer(void)
 			posGoal,	// 判定目標位置
 			sizePlayer,	// 判定サイズ(右・上・後)
 			sizePlayer,	// 判定サイズ(左・下・前)
-			COLL_SIZE,	// 判定目標サイズ(右・上・後)
-			COLL_SIZE	// 判定目標サイズ(左・下・前)
+			m_size,		// 判定目標サイズ(右・上・後)
+			m_size		// 判定目標サイズ(左・下・前)
 		);
 		if (bHit)
 		{ // プレイヤーが判定内の場合

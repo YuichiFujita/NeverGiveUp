@@ -36,6 +36,8 @@ public:
 	void Draw(void) override;		// 描画
 	void SetVec3Position(const D3DXVECTOR3& rPos) override;	// 位置設定
 	D3DXVECTOR3 GetVec3Position(void) const override;		// 位置取得
+	void SetVec3Sizing(const D3DXVECTOR3& rSize) override;	// 判定大きさ設定
+	D3DXVECTOR3 GetVec3Sizing(void) const override;			// 判定大きさ取得
 
 	// 静的メンバ関数
 	static CGoalPoint *Create(const D3DXVECTOR3& rPos);	// 生成
@@ -46,6 +48,7 @@ private:
 
 	// メンバ変数
 	D3DXVECTOR3 m_pos;	// 位置
+	D3DXVECTOR3 m_size;	// 大きさ
 };
 
 #endif	// _GOALPOINT_H_

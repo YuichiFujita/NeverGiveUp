@@ -161,6 +161,7 @@
     <ClCompile Include="debug.cpp" />
     <ClCompile Include="debugproc.cpp" />
     <ClCompile Include="editBuilding.cpp" />
+    <ClCompile Include="editGoalPoint.cpp" />
     <ClCompile Include="editObstacle.cpp" />
     <ClCompile Include="editSavePoint.cpp" />
     <ClCompile Include="editStageManager.cpp" />
@@ -238,6 +239,7 @@
     <ClInclude Include="debug.h" />
     <ClInclude Include="debugproc.h" />
     <ClInclude Include="editBuilding.h" />
+    <ClInclude Include="editGoalPoint.h" />
     <ClInclude Include="editObstacle.h" />
     <ClInclude Include="editSavePoint.h" />
     <ClInclude Include="editStageManager.h" />

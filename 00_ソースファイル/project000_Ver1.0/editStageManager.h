@@ -21,6 +21,7 @@
 class CEditBuilding;	// エディットビルクラス
 class CEditObstacle;	// エディット障害物クラス
 class CEditSavePoint;	// エディットセーブポイントクラス
+class CEditGoalPoint;	// エディットゴールポイントクラス
 
 //************************************************************
 //	クラス定義
@@ -76,6 +77,7 @@ private:
 	CEditBuilding *m_pBuilding;		// エディットビルの情報
 	CEditObstacle *m_pObstacle;		// エディット障害物の情報
 	CEditSavePoint *m_pSavePoint;	// エディットセーブポイントの情報
+	CEditGoalPoint *m_pGoalPoint;	// エディットゴールポイントの情報
 
 	D3DXVECTOR3 m_pos;	// 位置
 	D3DXVECTOR3 m_rot;	// 向き

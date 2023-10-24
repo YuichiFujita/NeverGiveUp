@@ -349,15 +349,15 @@ void CEditObstacle::Save(FILE *pFile)
 					}
 
 					// 障害物の情報を取得
-					D3DXVECTOR3 posBuild = pObjCheck->GetVec3Position();	// 位置
-					D3DXVECTOR3 rotBuild = pObjCheck->GetVec3Rotation();	// 向き
+					D3DXVECTOR3 posObs = pObjCheck->GetVec3Position();	// 位置
+					D3DXVECTOR3 rotObs = pObjCheck->GetVec3Rotation();	// 向き
 					int nType = pObjCheck->GetType();	// 種類
 	
 					// 情報を書き出し
 					fprintf(pFile, "	OBSTACLESET\n");
 					fprintf(pFile, "		TYPE = %d\n", nType);
-					fprintf(pFile, "		POS = %.2f %.2f %.2f\n", posBuild.x, posBuild.y, posBuild.z);
-					fprintf(pFile, "		ROT = %.2f %.2f %.2f\n", rotBuild.x, rotBuild.y, rotBuild.z);
+					fprintf(pFile, "		POS = %.2f %.2f %.2f\n", posObs.x, posObs.y, posObs.z);
+					fprintf(pFile, "		ROT = %.2f %.2f %.2f\n", rotObs.x, rotObs.y, rotObs.z);
 					fprintf(pFile, "	END_OBSTACLESE\n\n");
 
 					// 次のオブジェクトへのポインタを代入
@@ -652,8 +652,8 @@ void CEditObstacle::DeleteCollisionObstacle(const bool bRelase)
 			{ // オブジェクトが使用されている場合繰り返す
 
 				// 変数を宣言
-				D3DXVECTOR3 posBuild = VEC3_ZERO;	// 障害物位置
-				D3DXVECTOR3 sizeBuild = VEC3_ZERO;	// 障害物大きさ
+				D3DXVECTOR3 posObs = VEC3_ZERO;	// 障害物位置
+				D3DXVECTOR3 sizeObs = VEC3_ZERO;	// 障害物大きさ
 
 				// ポインタを宣言
 				CObject *pObjectNext = pObjCheck->GetNext();	// 次オブジェクト
@@ -679,17 +679,17 @@ void CEditObstacle::DeleteCollisionObstacle(const bool bRelase)
 				}
 
 				// 障害物の位置を取得
-				posBuild = pObjCheck->GetVec3Position();
+				posObs = pObjCheck->GetVec3Position();
 
 				// 障害物の大きさを取得
-				sizeBuild = pObjCheck->GetVec3Sizing();
+				sizeObs = pObjCheck->GetVec3Sizing();
 
 				// 球体の当たり判定
 				if (collision::Circle3D
 				( // 引数
 					posEdit,	// 判定位置
-					posBuild,	// 判定目標位置
-					((sizeBuild.x + sizeBuild.z) * 0.5f) * 0.5f,	// 判定半径
+					posObs,	// 判定目標位置
+					((sizeObs.x + sizeObs.z) * 0.5f) * 0.5f,	// 判定半径
 					((sizeEdit.x + sizeEdit.z) * 0.5f) * 0.5f		// 判定目標半径
 				))
 				{ // 判定内だった場合
