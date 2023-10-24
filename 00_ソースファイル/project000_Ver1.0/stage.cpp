@@ -17,6 +17,7 @@
 #include "scenery.h"
 #include "sky.h"
 #include "building.h"
+#include "window.h"
 #include "signboard.h"
 #include "obstacle.h"
 #include "savePoint.h"
@@ -476,6 +477,15 @@ HRESULT CStage::LoadSetup(CStage *pStage)
 
 			// ビルの読込
 			else if (FAILED(LoadBuilding(&aString[0], pFile, pStage)))
+			{ // 読み込みに失敗した場合
+
+				// 失敗を返す
+				assert(false);
+				return E_FAIL;
+			}
+
+			// 窓の読込
+			else if (FAILED(LoadWindow(&aString[0], pFile, pStage)))
 			{ // 読み込みに失敗した場合
 
 				// 失敗を返す
@@ -1396,6 +1406,94 @@ HRESULT CStage::LoadBuilding(const char* pString, FILE *pFile, CStage *pStage)
 				}
 			}
 		} while (strcmp(&aString[0], "END_STAGE_BUILDINGSET") != 0);	// 読み込んだ文字列が END_STAGE_BUILDINGSET ではない場合ループ
+	}
+
+	// 成功を返す
+	return S_OK;
+}
+
+//============================================================
+//	窓情報の読込処理
+//============================================================
+HRESULT CStage::LoadWindow(const char* pString, FILE *pFile, CStage *pStage)
+{
+	// 変数を宣言
+	D3DXVECTOR3 pos = VEC3_ZERO;	// 位置の代入用
+	D3DXVECTOR3 rot = VEC3_ZERO;	// 向きの代入用
+	float fScale = 0.0f;			// 拡大率の代入用
+	int nTypeID = 0;				// 種類インデックスの代入用
+
+	// 変数配列を宣言
+	char aString[MAX_STRING];	// テキストの文字列の代入用
+
+	if (pString == NULL || pFile == NULL || pStage == NULL)
+	{ // 文字列・ファイル・ステージが存在しない場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
+
+	// 窓の設定
+	if (strcmp(pString, "STAGE_WINDOWSET") == 0)
+	{ // 読み込んだ文字列が STAGE_WINDOWSET の場合
+
+		do
+		{ // 読み込んだ文字列が END_STAGE_WINDOWSET ではない場合ループ
+
+			// ファイルから文字列を読み込む
+			fscanf(pFile, "%s", &aString[0]);
+
+			if (strcmp(&aString[0], "WINDOWSET") == 0)
+			{ // 読み込んだ文字列が WINDOWSET の場合
+
+				do
+				{ // 読み込んだ文字列が END_WINDOWSET ではない場合ループ
+
+					// ファイルから文字列を読み込む
+					fscanf(pFile, "%s", &aString[0]);
+
+					if (strcmp(&aString[0], "TYPE") == 0)
+					{ // 読み込んだ文字列が TYPE の場合
+
+						fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
+						fscanf(pFile, "%d", &nTypeID);		// 種類を読み込む
+					}
+					else if (strcmp(&aString[0], "POS") == 0)
+					{ // 読み込んだ文字列が POS の場合
+
+						fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
+						fscanf(pFile, "%f", &pos.x);		// 位置Xを読み込む
+						fscanf(pFile, "%f", &pos.y);		// 位置Yを読み込む
+						fscanf(pFile, "%f", &pos.z);		// 位置Zを読み込む
+					}
+					else if (strcmp(&aString[0], "ROT") == 0)
+					{ // 読み込んだ文字列が ROT の場合
+
+						fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
+						fscanf(pFile, "%f", &rot.x);		// 向きXを読み込む
+						fscanf(pFile, "%f", &rot.y);		// 向きYを読み込む
+						fscanf(pFile, "%f", &rot.z);		// 向きZを読み込む
+					}
+
+					else if (strcmp(&aString[0], "SCALE") == 0)
+					{ // 読み込んだ文字列が SCALE の場合
+
+						fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
+						fscanf(pFile, "%f", &fScale);		// 拡大率を読み込む
+					}
+				} while (strcmp(&aString[0], "END_WINDOWSET") != 0);	// 読み込んだ文字列が END_WINDOWSET ではない場合ループ
+
+				// 窓オブジェクトの生成
+				if (CWindow::Create((CWindow::EType)nTypeID, pos, rot, fScale) == NULL)
+				{ // 確保に失敗した場合
+
+					// 失敗を返す
+					assert(false);
+					return E_FAIL;
+				}
+			}
+		} while (strcmp(&aString[0], "END_STAGE_WINDOWSET") != 0);	// 読み込んだ文字列が END_STAGE_WINDOWSET ではない場合ループ
 	}
 
 	// 成功を返す

@@ -114,6 +114,7 @@ private:
 	static HRESULT LoadSky(const char* pString, FILE *pFile, CStage *pStage);		// 空情報の読込
 
 	static HRESULT LoadBuilding(const char* pString, FILE *pFile, CStage *pStage);	// ビル情報の読込
+	static HRESULT LoadWindow(const char* pString, FILE *pFile, CStage *pStage);	// 窓情報の読込
 	static HRESULT LoadSignboard(const char* pString, FILE *pFile, CStage *pStage);	// 看板情報の読込
 	static HRESULT LoadObstacle(const char* pString, FILE *pFile, CStage *pStage);	// 障害物情報の読込
 	static HRESULT LoadSavePoint(const char* pString, FILE *pFile, CStage *pStage);	// セーブポイント情報の読込
