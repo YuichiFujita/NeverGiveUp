@@ -16,6 +16,15 @@
 #include "field.h"
 #include "collision.h"
 
+#include "wall.h"
+#include "scenery.h"
+#include "sky.h"
+#include "building.h"
+#include "signboard.h"
+#include "obstacle.h"
+#include "savePoint.h"
+#include "goalPoint.h"
+
 //************************************************************
 //	マクロ定義
 //************************************************************
@@ -213,7 +222,14 @@ HRESULT CStage::Release(CStage *&prStage)
 void CStage::LoadSetup(CStage *pStage)
 {
 	// 変数を宣言
-	SStageLimit stageLimit;	// ステージ範囲の代入用
+	SStageLimit stageLimit;			// ステージ範囲の代入用
+	D3DXVECTOR3 pos = VEC3_ZERO;	// 位置の代入用
+	D3DXVECTOR3 rot = VEC3_ZERO;	// 向きの代入用
+	D3DXCOLOR col = XCOL_WHITE;		// 色の代入用
+	POSGRID2 part = GRID2_ZERO;		// 分割数の代入用
+
+	float fRadius = 0.0f;	// 半径の代入用
+	int nTextureID = 0;		// テクスチャインデックスの代入用
 	int nEnd = 0;			// テキスト読み込み終了の確認用
 
 	// 変数配列を宣言
@@ -307,6 +323,82 @@ void CStage::LoadSetup(CStage *pStage)
 
 				// ステージ範囲の設定
 				pStage->SetStageLimit(stageLimit);
+			}
+
+			// 空の設定
+			if (strcmp(&aString[0], "STAGE_SKYSET") == 0)
+			{ // 読み込んだ文字列が STAGE_SKYSET の場合
+
+				do
+				{ // 読み込んだ文字列が END_STAGE_SKYSET ではない場合ループ
+
+					// ファイルから文字列を読み込む
+					fscanf(pFile, "%s", &aString[0]);
+
+					if (strcmp(&aString[0], "SKYSET") == 0)
+					{ // 読み込んだ文字列が SKYSET の場合
+		
+						do
+						{ // 読み込んだ文字列が END_SKYSET ではない場合ループ
+		
+							// ファイルから文字列を読み込む
+							fscanf(pFile, "%s", &aString[0]);
+		
+							if (strcmp(&aString[0], "TEXTURE_ID") == 0)
+							{ // 読み込んだ文字列が TEXTURE_ID の場合
+		
+								fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
+								fscanf(pFile, "%d", &nTextureID);	// テクスチャインデックスを読み込む
+							}
+							else if (strcmp(&aString[0], "POS") == 0)
+							{ // 読み込んだ文字列が POS の場合
+
+								fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
+								fscanf(pFile, "%f", &pos.x);		// 位置Xを読み込む
+								fscanf(pFile, "%f", &pos.y);		// 位置Yを読み込む
+								fscanf(pFile, "%f", &pos.z);		// 位置Zを読み込む
+							}
+							else if (strcmp(&aString[0], "ROT") == 0)
+							{ // 読み込んだ文字列が ROT の場合
+
+								fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
+								fscanf(pFile, "%f", &rot.x);		// 向きXを読み込む
+								fscanf(pFile, "%f", &rot.y);		// 向きYを読み込む
+								fscanf(pFile, "%f", &rot.z);		// 向きZを読み込む
+							}
+							else if (strcmp(&aString[0], "COL") == 0)
+							{ // 読み込んだ文字列が COL の場合
+
+								fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
+								fscanf(pFile, "%f", &col.r);		// 色Rを読み込む
+								fscanf(pFile, "%f", &col.g);		// 色Gを読み込む
+								fscanf(pFile, "%f", &col.b);		// 色Bを読み込む
+								fscanf(pFile, "%f", &col.a);		// 色Aを読み込む
+							}
+							else if (strcmp(&aString[0], "PARTWIDTH") == 0)
+							{ // 読み込んだ文字列が PARTWIDTH の場合
+
+								fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
+								fscanf(pFile, "%d", &part.x);		// 横分割数を読み込む
+							}
+							else if (strcmp(&aString[0], "PARTHEIGHT") == 0)
+							{ // 読み込んだ文字列が PARTHEIGHT の場合
+
+								fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
+								fscanf(pFile, "%d", &part.y);		// 縦分割数を読み込む
+							}
+							else if (strcmp(&aString[0], "RADIUS") == 0)
+							{ // 読み込んだ文字列が RADIUS の場合
+
+								fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
+								fscanf(pFile, "%f", &fRadius);		// 半径を読み込む
+							}
+						} while (strcmp(&aString[0], "END_SKYSET") != 0);	// 読み込んだ文字列が END_SKYSET ではない場合ループ
+
+						// 空オブジェクトの生成
+						CSky::Create((CSky::ETexture)nTextureID, pos, D3DXToRadian(rot), col, part, fRadius);
+					}
+				} while (strcmp(&aString[0], "END_STAGE_SKYSET") != 0);	// 読み込んだ文字列が END_STAGE_SKYSET ではない場合ループ
 			}
 		} while (nEnd != EOF);	// 読み込んだ文字列が EOF ではない場合ループ
 		

@@ -109,9 +109,7 @@ CSky *CSky::Create
 	const D3DXVECTOR3& rRot,	// 向き
 	const D3DXCOLOR& rCol,		// 色
 	const POSGRID2& rPart,		// 分割数
-	const float fRadius,		// 半径
-	const D3DCULL cull,			// カリング状況
-	const bool bLight			// ライティング状況
+	const float fRadius			// 半径
 )
 {
 	// 変数を宣言
@@ -163,10 +161,10 @@ CSky *CSky::Create
 		pSky->SetRadius(fRadius);
 
 		// カリングを設定
-		pSky->SetCulling(cull);
+		pSky->SetCulling(D3DCULL_CW);
 
 		// ライティングを設定
-		pSky->SetLighting(bLight);
+		pSky->SetLighting(false);
 
 		// 分割数を設定
 		if (FAILED(pSky->SetPattern(rPart)))

@@ -50,9 +50,7 @@ public:
 		const D3DXVECTOR3& rRot,	// 向き
 		const D3DXCOLOR& rCol,		// 色
 		const POSGRID2& rPart,		// 分割数
-		const float fRadius,		// 半径
-		const D3DCULL cull = D3DCULL_CCW,	// カリング状況
-		const bool bLight = true			// ライティング状況
+		const float fRadius			// 半径
 	);
 
 private:
