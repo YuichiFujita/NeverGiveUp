@@ -89,6 +89,7 @@ public:
 	HRESULT Init(void);	// 初期化
 	void Uninit(void);	// 終了
 	void Update(void);	// 更新
+
 	void SetStageLimit(const SStageLimit& rLimit);	// ステージ範囲設定
 	SStageLimit GetStageLimit(void) const;			// ステージ範囲取得
 
@@ -106,6 +107,11 @@ public:
 private:
 	// 静的メンバ関数
 	static HRESULT LoadSetup(CStage *pStage);	// セットアップ
+	static HRESULT LoadLimit(const char* pString, FILE *pFile, CStage *pStage);		// 範囲情報の読込
+	static HRESULT LoadField(const char* pString, FILE *pFile, CStage *pStage);		// 地面情報の読込
+	static HRESULT LoadWall(const char* pString, FILE *pFile, CStage *pStage);		// 壁情報の読込
+	static HRESULT LoadScenery(const char* pString, FILE *pFile, CStage *pStage);	// 景色情報の読込
+	static HRESULT LoadSky(const char* pString, FILE *pFile, CStage *pStage);		// 空情報の読込
 
 	// メンバ変数
 	SStageLimit	m_stageLimit;	// 範囲情報
