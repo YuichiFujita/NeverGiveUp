@@ -7,14 +7,14 @@
 #------------------------------------------------------------------------------
 #	ステージ範囲の情報
 #------------------------------------------------------------------------------
-#	MODE		# 制限モード
-#	CENTER		# 中心座標
-#	NEAR		# 制限位置 (前)
-#	FAR			# 制限位置 (後)
-#	RIGHT		# 制限位置 (右)
-#	LEFT		# 制限位置 (左)
-#	RADIUS		# 制限位置 (半径)
-#	FIELD		# 制限位置 (地面)
+#	MODE	：制限モード
+#	CENTER	：中心座標
+#	NEAR	：制限位置 (前)
+#	FAR		：制限位置 (後)
+#	RIGHT	：制限位置 (右)
+#	LEFT	：制限位置 (左)
+#	RADIUS	：制限位置 (半径)
+#	FIELD	：制限位置 (地面)
 #------------------------------------------------------------------------------
 LIMITSET
 	CENTER = 0.0 0.0 0.0
@@ -31,7 +31,7 @@ END_LIMITSET
 STAGE_SKYSET
 
 	SKYSET
-		TEXTURE_ID = 0.0
+		TEXTURE_ID = 0
 		POS = 0.0 0.0 0.0
 		ROT = 0.0 0.0 0.0
 		COL = 1.0 1.0 1.0 1.0
@@ -41,7 +41,7 @@ STAGE_SKYSET
 	END_SKYSET
 	
 	SKYSET
-		TEXTURE_ID = 0.0
+		TEXTURE_ID = 0
 		POS = 0.0 0.0 0.0
 		ROT = 0.0 0.0 180.0
 		COL = 1.0 1.0 1.0 1.0
@@ -58,12 +58,36 @@ END_STAGE_SKYSET
 STAGE_SCENERYSET
 
 	SCENERYSET
-		POS = 0 0 0
-		ROT = 0 0 0
-		RADIUS = 4000
-		HEIGHT = 800
-		PARTWIDTH = 16
+		TEXTURE_ID = 0
+		POS = 0.0 0.0 0.0
+		ROT = 0.0 0.0 0.0
+		COL = 1.0 1.0 1.0 1.0
+		PARTWIDTH = 14
 		PARTHEIGHT = 1
+		RADIUS = 12000.0
+		HEIGHT = 800.0
+	END_SCENERYSET
+	
+	SCENERYSET
+		TEXTURE_ID = 1
+		POS = 0.0 0.0 0.0
+		ROT = 0.0 85.0 0.0
+		COL = 1.0 1.0 1.0 1.0
+		PARTWIDTH = 14
+		PARTHEIGHT = 1
+		RADIUS = 14000.0
+		HEIGHT = 1400.0
+	END_SCENERYSET
+	
+	SCENERYSET
+		TEXTURE_ID = 2
+		POS = 0.0 0.0 0.0
+		ROT = 0.0 35.0 0.0
+		COL = 1.0 1.0 1.0 1.0
+		PARTWIDTH = 14
+		PARTHEIGHT = 1
+		RADIUS = 16000.0
+		HEIGHT = 2000.0
 	END_SCENERYSET
 
 END_STAGE_SCENERYSET

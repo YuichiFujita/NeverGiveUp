@@ -53,9 +53,7 @@ public:
 		const D3DXCOLOR& rCol,		// 色
 		const POSGRID2& rPart,		// 分割数
 		const float fRadius,		// 半径
-		const float fHeight,		// 縦幅
-		const D3DCULL cull = D3DCULL_CCW,	// カリング状況
-		const bool bLight = true			// ライティング状況
+		const float fHeight			// 縦幅
 	);
 
 private:

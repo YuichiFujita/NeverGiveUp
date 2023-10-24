@@ -115,9 +115,7 @@ CScenery *CScenery::Create
 	const D3DXCOLOR& rCol,		// 色
 	const POSGRID2& rPart,		// 分割数
 	const float fRadius,		// 半径
-	const float fHeight,		// 縦幅
-	const D3DCULL cull,			// カリング状況
-	const bool bLight			// ライティング状況
+	const float fHeight			// 縦幅
 )
 {
 	// 変数を宣言
@@ -172,10 +170,10 @@ CScenery *CScenery::Create
 		pScenery->SetHeight(fHeight);
 
 		// カリングを設定
-		pScenery->SetCulling(cull);
+		pScenery->SetCulling(D3DCULL_CW);
 
 		// ライティングを設定
-		pScenery->SetLighting(bLight);
+		pScenery->SetLighting(false);
 
 		// 分割数を設定
 		if (FAILED(pScenery->SetPattern(rPart)))
