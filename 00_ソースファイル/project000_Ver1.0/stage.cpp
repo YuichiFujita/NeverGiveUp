@@ -263,6 +263,80 @@ bool CStage::LandFieldPosition(D3DXVECTOR3& rPos, D3DXVECTOR3& rMove)
 }
 
 //============================================================
+//	地面の範囲内の取得処理 (回転考慮)
+//============================================================
+bool CStage::IsFieldPositionRange(const D3DXVECTOR3&rPos)
+{
+	for (int nCntField = 0; nCntField < m_field.nNum; nCntField++)
+	{ // 地面の総数分繰り返す
+
+		if (m_field.ppField[nCntField] != NULL)
+		{ // 地面が使用されている場合
+
+			if (m_field.ppField[nCntField]->IsPositionRange(rPos))
+			{ // 地面の範囲内の場合
+
+				// 範囲内にいる状態を返す
+				return true;
+			}
+		}
+		else { assert(false); }	// 非使用中
+	}
+
+	// 範囲内にいない状態を返す
+	return false;
+}
+
+//============================================================
+//	地面の着地位置の取得処理 (回転考慮)
+//============================================================
+float CStage::GetFieldPositionHeight(const D3DXVECTOR3&rPos)
+{
+	// 変数を宣言
+	CField *pCurrentField = NULL;	// 着地予定の地面
+	float fCurrentPos = m_stageLimit.fField;	// 着地予定のY座標
+
+	for (int nCntField = 0; nCntField < m_field.nNum; nCntField++)
+	{ // 地面の総数分繰り返す
+
+		if (m_field.ppField[nCntField] != NULL)
+		{ // 地面が使用されている場合
+
+			if (m_field.ppField[nCntField]->IsPositionRange(rPos))
+			{ // 地面の範囲内の場合
+
+				// 変数を宣言
+				float fPosHeight = m_field.ppField[nCntField]->GetPositionHeight(rPos);	// 着地Y座標
+
+				if (fCurrentPos <= fPosHeight)
+				{ // 現在の着地予定Y座標より高い位置にある場合
+
+					// 着地予定の地面を更新
+					pCurrentField = m_field.ppField[nCntField];
+
+					// 着地予定のY座標を更新
+					fCurrentPos = fPosHeight;
+				}
+			}
+		}
+		else { assert(false); }	// 非使用中
+	}
+
+	if (pCurrentField != NULL)
+	{ // 着地予定の地面が存在する場合
+
+		// 着地位置を返す
+		return fCurrentPos;
+	}
+	else
+	{ // 着地予定の地面が存在しない場合
+
+		// 引数位置を返す
+		return rPos.y;
+	}
+}
+
+//============================================================
 //	生成処理
 //============================================================
 CStage *CStage::Create(void)
