@@ -69,6 +69,9 @@ public:
 	D3DXVECTOR3 GetVec3Rotation(void) const override;		// Œü‚«æ“¾
 	void SetVec3Sizing(const D3DXVECTOR3& rSize) override;	// ‘å‚«‚³İ’è
 	D3DXVECTOR3 GetVec3Sizing(void) const override;			// ‘å‚«‚³æ“¾
+	void SetColor(const D3DXCOLOR& rCol) override;			// Fİ’è
+	void SetEnableUpdate(const bool bUpdate) override;		// XVó‹µİ’è
+	void SetEnableDraw(const bool bDraw) override;			// •`‰æó‹µİ’è
 
 	void SetType(const int nType) override;		// í—Şİ’è
 	int GetType(void) const override;			// í—Şæ“¾

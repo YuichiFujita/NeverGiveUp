@@ -258,6 +258,66 @@ D3DXVECTOR3 CWindow::GetVec3Sizing(void) const
 }
 
 //============================================================
+//	色の設定処理
+//============================================================
+void CWindow::SetColor(const D3DXCOLOR& rCol)
+{
+	for (int nCntWindow = 0; nCntWindow < WINDOW_MAX; nCntWindow++)
+	{ // 窓に使用する壁の総数分繰り返す
+
+		if (m_pWall[nCntWindow] != NULL)
+		{ // 使用中の場合
+
+			// 壁の色を設定
+			m_pWall[nCntWindow]->SetColor(rCol);
+		}
+		else { assert(false); }	// 非使用中
+	}
+}
+
+//============================================================
+//	更新状況の設定処理
+//============================================================
+void CWindow::SetEnableUpdate(const bool bUpdate)
+{
+	// 引数の更新状況を設定
+	CObject::SetEnableUpdate(bUpdate);	// 自身
+
+	for (int nCntWindow = 0; nCntWindow < WINDOW_MAX; nCntWindow++)
+	{ // 窓に使用する壁の総数分繰り返す
+
+		if (m_pWall[nCntWindow] != NULL)
+		{ // 使用中の場合
+
+			// 壁の更新状況を設定
+			m_pWall[nCntWindow]->SetEnableUpdate(bUpdate);
+		}
+		else { assert(false); }	// 非使用中
+	}
+}
+
+//============================================================
+//	描画状況の設定処理
+//============================================================
+void CWindow::SetEnableDraw(const bool bDraw)
+{
+	// 引数の描画状況を設定
+	CObject::SetEnableDraw(bDraw);	// 自身
+
+	for (int nCntWindow = 0; nCntWindow < WINDOW_MAX; nCntWindow++)
+	{ // 窓に使用する壁の総数分繰り返す
+
+		if (m_pWall[nCntWindow] != NULL)
+		{ // 使用中の場合
+
+			// 壁の描画状況を設定
+			m_pWall[nCntWindow]->SetEnableDraw(bDraw);
+		}
+		else { assert(false); }	// 非使用中
+	}
+}
+
+//============================================================
 //	種類の設定処理
 //============================================================
 void CWindow::SetType(const int nType)

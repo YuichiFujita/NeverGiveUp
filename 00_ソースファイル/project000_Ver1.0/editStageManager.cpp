@@ -11,6 +11,7 @@
 #include "manager.h"
 #include "input.h"
 #include "editBuilding.h"
+#include "editWindow.h"
 #include "editObstacle.h"
 #include "editSavePoint.h"
 #include "editGoalPoint.h"
@@ -76,6 +77,7 @@ CEditStageManager::CEditStageManager()
 
 	// メンバ変数をクリア
 	m_pBuilding = NULL;			// エディットビルの情報
+	m_pWindow = NULL;			// エディット窓の情報
 	m_pObstacle = NULL;			// エディット障害物の情報
 	m_pSavePoint = NULL;		// エディットセーブポイントの情報
 	m_pGoalPoint = NULL;		// エディットゴールポイントの情報
@@ -107,6 +109,7 @@ HRESULT CEditStageManager::Init(void)
 
 	// メンバ変数を初期化
 	m_pBuilding = NULL;			// エディットビルの情報
+	m_pWindow = NULL;			// エディット窓の情報
 	m_pObstacle = NULL;			// エディット障害物の情報
 	m_pSavePoint = NULL;		// エディットセーブポイントの情報
 	m_pGoalPoint = NULL;		// エディットゴールポイントの情報
@@ -120,6 +123,16 @@ HRESULT CEditStageManager::Init(void)
 	// エディットビルの生成
 	m_pBuilding = CEditBuilding::Create(this);
 	if (m_pBuilding == NULL)
+	{ // 生成に失敗した場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
+
+	// エディット窓の生成
+	m_pWindow = CEditWindow::Create(this);
+	if (m_pWindow == NULL)
 	{ // 生成に失敗した場合
 
 		// 失敗を返す
@@ -180,6 +193,14 @@ void CEditStageManager::Uninit(void)
 
 		// エディットビルの破棄
 		CEditBuilding::Release(m_pBuilding);
+	}
+	else { assert(false); }	// 非使用中
+
+	if (m_pWindow != NULL)
+	{ // エディット窓が使用されている場合
+
+		// エディット窓の破棄
+		CEditWindow::Release(m_pWindow);
 	}
 	else { assert(false); }	// 非使用中
 
@@ -245,6 +266,18 @@ void CEditStageManager::Update(void)
 
 			// エディットビルの更新
 			m_pBuilding->Update();
+		}
+		else { assert(false); }	// 非使用中
+
+		break;
+
+	case THING_WINDOW:		// 窓
+
+		if (m_pWindow != NULL)
+		{ // エディット窓が使用されている場合
+
+			// エディット窓の更新
+			m_pWindow->Update();
 		}
 		else { assert(false); }	// 非使用中
 
@@ -332,6 +365,18 @@ void CEditStageManager::SetEnableEdit(const bool bEdit)
 
 			// エディットビルの表示の設定
 			m_pBuilding->SetDisp(m_bEdit);
+		}
+		else { assert(false); }	// 非使用中
+
+		break;
+
+	case THING_WINDOW:		// 窓
+
+		if (m_pWindow != NULL)
+		{ // エディット窓が使用されている場合
+
+			// エディット窓の表示の設定
+			m_pWindow->SetDisp(m_bEdit);
 		}
 		else { assert(false); }	// 非使用中
 
@@ -510,6 +555,18 @@ void CEditStageManager::UpdateChangeThing(void)
 
 			break;
 
+		case THING_WINDOW:		// 窓
+
+			if (m_pWindow != NULL)
+			{ // エディット窓が使用されている場合
+
+				// エディット窓の表示の設定
+				m_pWindow->SetDisp(false);
+			}
+			else { assert(false); }	// 非使用中
+
+			break;
+
 		case THING_SIGNBOARD:	// 看板
 			break;
 
@@ -566,6 +623,18 @@ void CEditStageManager::UpdateChangeThing(void)
 
 				// エディットビルの表示の設定
 				m_pBuilding->SetDisp(true);
+			}
+			else { assert(false); }	// 非使用中
+
+			break;
+
+		case THING_WINDOW:		// 窓
+
+			if (m_pWindow != NULL)
+			{ // エディット窓が使用されている場合
+
+				// エディット窓の表示の設定
+				m_pWindow->SetDisp(true);
 			}
 			else { assert(false); }	// 非使用中
 
@@ -757,6 +826,18 @@ void CEditStageManager::DrawDebugControl(void)
 
 		break;
 
+	case THING_WINDOW:		// 窓
+
+		if (m_pWindow != NULL)
+		{ // エディット窓が使用されている場合
+
+			// エディット窓の操作表示
+			m_pWindow->DrawDebugControl();
+		}
+		else { assert(false); }	// 非使用中
+
+		break;
+
 	case THING_SIGNBOARD:	// 看板
 		break;
 
@@ -809,7 +890,7 @@ void CEditStageManager::DrawDebugInfo(void)
 {
 	// ポインタを宣言
 	CDebugProc *pDebug = CManager::GetInstance()->GetDebugProc();	// デバッグプロックの情報
-	static char* apThing[] = { "ビル", "看板", "障害物", "セーブポイント", "ゴールポイント" };	// 配置物
+	static char* apThing[] = { "ビル", "窓", "看板", "障害物", "セーブポイント", "ゴールポイント" };	// 配置物
 
 	// 配置物数の不一致
 	assert((sizeof(apThing) / sizeof(apThing[0])) == THING_MAX);
@@ -832,6 +913,18 @@ void CEditStageManager::DrawDebugInfo(void)
 
 			// エディットビルの情報表示
 			m_pBuilding->DrawDebugInfo();
+		}
+		else { assert(false); }	// 非使用中
+
+		break;
+
+	case THING_WINDOW:		// 窓
+
+		if (m_pWindow != NULL)
+		{ // エディット窓が使用されている場合
+
+			// エディット窓の情報表示
+			m_pWindow->DrawDebugInfo();
 		}
 		else { assert(false); }	// 非使用中
 
@@ -929,6 +1022,9 @@ void CEditStageManager::Save(void)
 
 		// ビルの保存
 		m_pBuilding->Save(pFile);
+
+		// 窓の保存
+		m_pWindow->Save(pFile);
 
 		// 障害物の保存
 		m_pObstacle->Save(pFile);

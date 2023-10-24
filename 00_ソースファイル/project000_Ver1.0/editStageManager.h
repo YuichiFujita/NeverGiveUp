@@ -19,6 +19,7 @@
 //	前方宣言
 //************************************************************
 class CEditBuilding;	// エディットビルクラス
+class CEditWindow;		// エディット窓クラス
 class CEditObstacle;	// エディット障害物クラス
 class CEditSavePoint;	// エディットセーブポイントクラス
 class CEditGoalPoint;	// エディットゴールポイントクラス
@@ -34,6 +35,7 @@ public:
 	enum EThing
 	{
 		THING_BUILDING = 0,	// ビル
+		THING_WINDOW,		// 窓
 		THING_SIGNBOARD,	// 看板
 		THING_OBSTACLE,		// 障害物
 		THING_SAVEPOINT,	// セーブポイント
@@ -73,10 +75,11 @@ private:
 	void Save(void);				// 保存
 
 	// メンバ変数
-	CEditBuilding *m_pBuilding;		// エディットビルの情報
-	CEditObstacle *m_pObstacle;		// エディット障害物の情報
-	CEditSavePoint *m_pSavePoint;	// エディットセーブポイントの情報
-	CEditGoalPoint *m_pGoalPoint;	// エディットゴールポイントの情報
+	CEditBuilding	*m_pBuilding;	// エディットビルの情報
+	CEditWindow		*m_pWindow;		// エディット窓の情報
+	CEditObstacle	*m_pObstacle;	// エディット障害物の情報
+	CEditSavePoint	*m_pSavePoint;	// エディットセーブポイントの情報
+	CEditGoalPoint	*m_pGoalPoint;	// エディットゴールポイントの情報
 
 	D3DXVECTOR3 m_pos;	// 位置
 	D3DXVECTOR3 m_rot;	// 向き

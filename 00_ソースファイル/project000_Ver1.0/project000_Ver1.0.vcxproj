@@ -165,6 +165,7 @@
     <ClCompile Include="editObstacle.cpp" />
     <ClCompile Include="editSavePoint.cpp" />
     <ClCompile Include="editStageManager.cpp" />
+    <ClCompile Include="editWindow.cpp" />
     <ClCompile Include="effect2D.cpp" />
     <ClCompile Include="effect3D.cpp" />
     <ClCompile Include="fade.cpp" />
@@ -244,6 +245,7 @@
     <ClInclude Include="editObstacle.h" />
     <ClInclude Include="editSavePoint.h" />
     <ClInclude Include="editStageManager.h" />
+    <ClInclude Include="editWindow.h" />
     <ClInclude Include="effect2D.h" />
     <ClInclude Include="effect3D.h" />
     <ClInclude Include="fade.h" />
