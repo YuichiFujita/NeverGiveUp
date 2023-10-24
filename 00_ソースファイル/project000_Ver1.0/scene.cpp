@@ -78,6 +78,7 @@ HRESULT CScene::Init(void)
 		assert(false);
 		return E_FAIL;
 	}
+	m_pField->SetEnableDraw(false);
 
 	// プレイヤーオブジェクトの生成
 	m_pPlayer = CPlayer::Create();

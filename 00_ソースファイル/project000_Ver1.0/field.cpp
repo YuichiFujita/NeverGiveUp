@@ -76,7 +76,7 @@ void CField::Uninit(void)
 	// オブジェクトメッシュフィールドの終了
 	CObjectMeshField::Uninit();
 
-	// 地形情報の終了
+	// 地形情報の破棄
 	for (int nCntField = 0; nCntField < TERRAIN_MAX; nCntField++)
 	{ // 地形情報の最大数分繰り返す
 
@@ -87,7 +87,6 @@ void CField::Uninit(void)
 			delete[] m_aTerrainInfo[nCntField].pPosGap;
 			m_aTerrainInfo[nCntField].pPosGap = NULL;
 		}
-		else { assert(false); }	// 非使用中
 	}
 }
 
@@ -225,6 +224,19 @@ void CField::LoadSetup(void)
 
 	// ポインタを宣言
 	FILE *pFile;	// ファイルポインタ
+
+	// 地形情報の破棄
+	for (int nCntField = 0; nCntField < TERRAIN_MAX; nCntField++)
+	{ // 地形情報の最大数分繰り返す
+
+		if (m_aTerrainInfo[nCntField].pPosGap != NULL)
+		{ // 頂点座標のずれ量情報が使用中の場合
+
+			// メモリ開放
+			delete[] m_aTerrainInfo[nCntField].pPosGap;
+			m_aTerrainInfo[nCntField].pPosGap = NULL;
+		}
+	}
 
 	// 静的メンバ変数の情報をクリア
 	memset(&m_aTerrainInfo[0], 0, sizeof(m_aTerrainInfo));	// 地形情報

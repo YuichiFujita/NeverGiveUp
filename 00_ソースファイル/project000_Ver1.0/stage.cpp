@@ -222,15 +222,19 @@ HRESULT CStage::Release(CStage *&prStage)
 void CStage::LoadSetup(CStage *pStage)
 {
 	// 変数を宣言
-	SStageLimit stageLimit;			// ステージ範囲の代入用
-	D3DXVECTOR3 pos = VEC3_ZERO;	// 位置の代入用
-	D3DXVECTOR3 rot = VEC3_ZERO;	// 向きの代入用
-	D3DXCOLOR col = XCOL_WHITE;		// 色の代入用
-	POSGRID2 part = GRID2_ZERO;		// 分割数の代入用
+	SStageLimit stageLimit;				// ステージ範囲の代入用
+	D3DXVECTOR3 pos = VEC3_ZERO;		// 位置の代入用
+	D3DXVECTOR3 rot = VEC3_ZERO;		// 向きの代入用
+	D3DXVECTOR2 sizeVec2 = VEC3_ZERO;	// 二軸大きさの代入用
+	D3DXCOLOR col = XCOL_WHITE;			// 色の代入用
+	POSGRID2 part = GRID2_ZERO;			// 分割数の代入用
+	D3DCULL cull = D3DCULL_CCW;			// カリング状況の代入用
 
+	bool bLight = false;	// ライティング状況の代入用
 	float fRadius = 0.0f;	// 半径の代入用
 	float fHeight = 0.0f;	// 縦幅の代入用
 	int nTextureID = 0;		// テクスチャインデックスの代入用
+	int nLight = 0;			// ライティング状況の変換用
 	int nEnd = 0;			// テキスト読み込み終了の確認用
 
 	// 変数配列を宣言
@@ -376,16 +380,11 @@ void CStage::LoadSetup(CStage *pStage)
 								fscanf(pFile, "%f", &col.b);		// 色Bを読み込む
 								fscanf(pFile, "%f", &col.a);		// 色Aを読み込む
 							}
-							else if (strcmp(&aString[0], "PARTWIDTH") == 0)
-							{ // 読み込んだ文字列が PARTWIDTH の場合
+							else if (strcmp(&aString[0], "PART") == 0)
+							{ // 読み込んだ文字列が PART の場合
 
 								fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
 								fscanf(pFile, "%d", &part.x);		// 横分割数を読み込む
-							}
-							else if (strcmp(&aString[0], "PARTHEIGHT") == 0)
-							{ // 読み込んだ文字列が PARTHEIGHT の場合
-
-								fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
 								fscanf(pFile, "%d", &part.y);		// 縦分割数を読み込む
 							}
 							else if (strcmp(&aString[0], "RADIUS") == 0)
@@ -452,16 +451,11 @@ void CStage::LoadSetup(CStage *pStage)
 								fscanf(pFile, "%f", &col.b);		// 色Bを読み込む
 								fscanf(pFile, "%f", &col.a);		// 色Aを読み込む
 							}
-							else if (strcmp(&aString[0], "PARTWIDTH") == 0)
-							{ // 読み込んだ文字列が PARTWIDTH の場合
+							else if (strcmp(&aString[0], "PART") == 0)
+							{ // 読み込んだ文字列が PART の場合
 
 								fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
 								fscanf(pFile, "%d", &part.x);		// 横分割数を読み込む
-							}
-							else if (strcmp(&aString[0], "PARTHEIGHT") == 0)
-							{ // 読み込んだ文字列が PARTHEIGHT の場合
-
-								fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
 								fscanf(pFile, "%d", &part.y);		// 縦分割数を読み込む
 							}
 							else if (strcmp(&aString[0], "RADIUS") == 0)
@@ -482,6 +476,180 @@ void CStage::LoadSetup(CStage *pStage)
 						CScenery::Create((CScenery::ETexture)nTextureID, pos, D3DXToRadian(rot), col, part, fRadius, fHeight);
 					}
 				} while (strcmp(&aString[0], "END_STAGE_SCENERYSET") != 0);	// 読み込んだ文字列が END_STAGE_SCENERYSET ではない場合ループ
+			}
+
+			// 壁の設定
+			else if (strcmp(&aString[0], "STAGE_WALLSET") == 0)
+			{ // 読み込んだ文字列が STAGE_WALLSET の場合
+
+				do
+				{ // 読み込んだ文字列が END_STAGE_SCENERYSET ではない場合ループ
+
+					// ファイルから文字列を読み込む
+					fscanf(pFile, "%s", &aString[0]);
+
+					if (strcmp(&aString[0], "WALLSET") == 0)
+					{ // 読み込んだ文字列が WALLSET の場合
+		
+						do
+						{ // 読み込んだ文字列が END_WALLSET ではない場合ループ
+		
+							// ファイルから文字列を読み込む
+							fscanf(pFile, "%s", &aString[0]);
+		
+							if (strcmp(&aString[0], "TEXTURE_ID") == 0)
+							{ // 読み込んだ文字列が TEXTURE_ID の場合
+		
+								fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
+								fscanf(pFile, "%d", &nTextureID);	// テクスチャインデックスを読み込む
+							}
+							else if (strcmp(&aString[0], "POS") == 0)
+							{ // 読み込んだ文字列が POS の場合
+
+								fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
+								fscanf(pFile, "%f", &pos.x);		// 位置Xを読み込む
+								fscanf(pFile, "%f", &pos.y);		// 位置Yを読み込む
+								fscanf(pFile, "%f", &pos.z);		// 位置Zを読み込む
+							}
+							else if (strcmp(&aString[0], "ROT") == 0)
+							{ // 読み込んだ文字列が ROT の場合
+
+								fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
+								fscanf(pFile, "%f", &rot.x);		// 向きXを読み込む
+								fscanf(pFile, "%f", &rot.y);		// 向きYを読み込む
+								fscanf(pFile, "%f", &rot.z);		// 向きZを読み込む
+							}
+							else if (strcmp(&aString[0], "SIZE") == 0)
+							{ // 読み込んだ文字列が SIZE の場合
+
+								fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
+								fscanf(pFile, "%f", &sizeVec2.x);	// 大きさXを読み込む
+								fscanf(pFile, "%f", &sizeVec2.y);	// 大きさYを読み込む
+							}
+							else if (strcmp(&aString[0], "COL") == 0)
+							{ // 読み込んだ文字列が COL の場合
+
+								fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
+								fscanf(pFile, "%f", &col.r);		// 色Rを読み込む
+								fscanf(pFile, "%f", &col.g);		// 色Gを読み込む
+								fscanf(pFile, "%f", &col.b);		// 色Bを読み込む
+								fscanf(pFile, "%f", &col.a);		// 色Aを読み込む
+							}
+							else if (strcmp(&aString[0], "PART") == 0)
+							{ // 読み込んだ文字列が PART の場合
+
+								fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
+								fscanf(pFile, "%d", &part.x);		// 横分割数を読み込む
+								fscanf(pFile, "%d", &part.y);		// 縦分割数を読み込む
+							}
+							else if (strcmp(&aString[0], "CULL") == 0)
+							{ // 読み込んだ文字列が CULL の場合
+
+								fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
+								fscanf(pFile, "%d", &cull);			// カリングを読み込む
+							}
+							else if (strcmp(&aString[0], "LIGHT") == 0)
+							{ // 読み込んだ文字列が LIGHT の場合
+
+								fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
+								fscanf(pFile, "%d", &nLight);		// ライティングのON/OFFを読み込む
+
+								// 読み込んだ値をbool型に変換
+								bLight = (nLight == 0) ? false : true;
+							}
+						} while (strcmp(&aString[0], "END_WALLSET") != 0);	// 読み込んだ文字列が END_WALLSET ではない場合ループ
+
+						// 壁オブジェクトの生成
+						CWall::Create((CWall::ETexture)nTextureID, pos, D3DXToRadian(rot), sizeVec2, col, part, cull, bLight);
+					}
+				} while (strcmp(&aString[0], "END_STAGE_WALLSET") != 0);	// 読み込んだ文字列が END_STAGE_WALLSET ではない場合ループ
+			}
+
+			// 地面の設定
+			else if (strcmp(&aString[0], "STAGE_FIELDSET") == 0)
+			{ // 読み込んだ文字列が STAGE_FIELDSET の場合
+
+				do
+				{ // 読み込んだ文字列が END_STAGE_FIELDSET ではない場合ループ
+
+					// ファイルから文字列を読み込む
+					fscanf(pFile, "%s", &aString[0]);
+
+					if (strcmp(&aString[0], "FIELDSET") == 0)
+					{ // 読み込んだ文字列が FIELDSET の場合
+		
+						do
+						{ // 読み込んだ文字列が END_FIELDSET ではない場合ループ
+		
+							// ファイルから文字列を読み込む
+							fscanf(pFile, "%s", &aString[0]);
+		
+							if (strcmp(&aString[0], "TEXTURE_ID") == 0)
+							{ // 読み込んだ文字列が TEXTURE_ID の場合
+		
+								fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
+								fscanf(pFile, "%d", &nTextureID);	// テクスチャインデックスを読み込む
+							}
+							else if (strcmp(&aString[0], "POS") == 0)
+							{ // 読み込んだ文字列が POS の場合
+
+								fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
+								fscanf(pFile, "%f", &pos.x);		// 位置Xを読み込む
+								fscanf(pFile, "%f", &pos.y);		// 位置Yを読み込む
+								fscanf(pFile, "%f", &pos.z);		// 位置Zを読み込む
+							}
+							else if (strcmp(&aString[0], "ROT") == 0)
+							{ // 読み込んだ文字列が ROT の場合
+
+								fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
+								fscanf(pFile, "%f", &rot.x);		// 向きXを読み込む
+								fscanf(pFile, "%f", &rot.y);		// 向きYを読み込む
+								fscanf(pFile, "%f", &rot.z);		// 向きZを読み込む
+							}
+							else if (strcmp(&aString[0], "SIZE") == 0)
+							{ // 読み込んだ文字列が SIZE の場合
+
+								fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
+								fscanf(pFile, "%f", &sizeVec2.x);	// 大きさXを読み込む
+								fscanf(pFile, "%f", &sizeVec2.y);	// 大きさYを読み込む
+							}
+							else if (strcmp(&aString[0], "COL") == 0)
+							{ // 読み込んだ文字列が COL の場合
+
+								fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
+								fscanf(pFile, "%f", &col.r);		// 色Rを読み込む
+								fscanf(pFile, "%f", &col.g);		// 色Gを読み込む
+								fscanf(pFile, "%f", &col.b);		// 色Bを読み込む
+								fscanf(pFile, "%f", &col.a);		// 色Aを読み込む
+							}
+							else if (strcmp(&aString[0], "PART") == 0)
+							{ // 読み込んだ文字列が PART の場合
+
+								fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
+								fscanf(pFile, "%d", &part.x);		// 横分割数を読み込む
+								fscanf(pFile, "%d", &part.y);		// 縦分割数を読み込む
+							}
+							else if (strcmp(&aString[0], "CULL") == 0)
+							{ // 読み込んだ文字列が CULL の場合
+
+								fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
+								fscanf(pFile, "%d", &cull);			// カリングを読み込む
+							}
+							else if (strcmp(&aString[0], "LIGHT") == 0)
+							{ // 読み込んだ文字列が LIGHT の場合
+
+								fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
+								fscanf(pFile, "%d", &nLight);		// ライティングのON/OFFを読み込む
+
+								// 読み込んだ値をbool型に変換
+								bLight = (nLight == 0) ? false : true;
+							}
+						} while (strcmp(&aString[0], "END_FIELDSET") != 0);	// 読み込んだ文字列が END_FIELDSET ではない場合ループ
+
+						// 地面オブジェクトの生成
+						CField::Create((CField::ETexture)nTextureID, pos, D3DXToRadian(rot), sizeVec2, col, part, cull, bLight);
+					}
+				} while (strcmp(&aString[0], "END_STAGE_FIELDSET") != 0);	// 読み込んだ文字列が END_STAGE_FIELDSET ではない場合ループ
 			}
 		} while (nEnd != EOF);	// 読み込んだ文字列が EOF ではない場合ループ
 		
