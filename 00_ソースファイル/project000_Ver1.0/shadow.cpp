@@ -322,6 +322,13 @@ void CShadow::DeleteObjectParent(void)
 //============================================================
 bool CShadow::CollisionBuilding(D3DXVECTOR3& rPos, float& rDrawPos)
 {
+	// 変数を宣言
+	float fDisPosY = 0.0f;	// プレイヤーとビルのY距離
+	bool bInitDis = false;	// Y距離の初期化状況
+
+	// ポインタを宣言
+	CObject *pCurrentObj = NULL;	// 現在の影乗っかりオブジェクト
+
 	for (int nCntPri = 0; nCntPri < MAX_PRIO; nCntPri++)
 	{ // 優先順位の総数分繰り返す
 
@@ -375,11 +382,38 @@ bool CShadow::CollisionBuilding(D3DXVECTOR3& rPos, float& rDrawPos)
 				if (bHit)
 				{ // 当たっていた場合
 
-					// 描画位置を設定
-					rDrawPos = posBuild.y + (sizeBuild.y * 2.0f);
+					// 変数を宣言
+					float fDis = rPos.y - (posBuild.y + (sizeBuild.y * 2.0f));	// 影とビルのY距離
 
-					// 処理を抜ける
-					return true;
+					if (fDis >= 0.0f)
+					{ // プレイヤーとビルのY距離がプラスの場合
+
+						if (!bInitDis)
+						{ // 初期化していない場合
+
+							// 現在の距離を代入
+							fDisPosY = fDis;
+
+							// 現在の影乗っかりオブジェクトを代入
+							pCurrentObj = pObjCheck;
+
+							// 初期化済みにする
+							bInitDis = true;
+						}
+						else
+						{ // 初期化している場合
+
+							if (fDis < fDisPosY)
+							{ // より近いビルの場合
+
+								// 現在の距離を代入
+								fDisPosY = fDis;
+
+								// 現在の影乗っかりオブジェクトを代入
+								pCurrentObj = pObjCheck;
+							}
+						}
+					}
 				}
 
 				// 次のオブジェクトへのポインタを代入
@@ -388,6 +422,28 @@ bool CShadow::CollisionBuilding(D3DXVECTOR3& rPos, float& rDrawPos)
 		}
 	}
 
-	// 当たっていない判定を返す
-	return false;
+	if (pCurrentObj != NULL)
+	{ // ビルがあった場合
+
+		// 変数を宣言
+		D3DXVECTOR3 posBuild = VEC3_ZERO;	// ビル位置
+		D3DXVECTOR3 sizeBuild = VEC3_ZERO;	// ビル大きさ
+		
+		// ビルの位置を取得
+		posBuild = pCurrentObj->GetVec3Position();
+
+		// ビルの大きさを取得
+		sizeBuild = pCurrentObj->GetVec3Sizing();
+
+		// 描画位置を設定
+		rDrawPos = posBuild.y + (sizeBuild.y * 2.0f);
+
+		// 当たっている判定を返す
+		return true;
+	}
+	else
+	{
+		// 当たっていない判定を返す
+		return false;
+	}
 }
