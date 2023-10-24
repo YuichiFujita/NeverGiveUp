@@ -291,6 +291,7 @@ void CEditBuilding::Save(FILE *pFile)
 					D3DXVECTOR3 rotBuild = pObjCheck->GetVec3Rotation();	// 向き
 					int nType = pObjCheck->GetType();		// 種類
 					int nCollision = pObjCheck->GetState();	// 当たり判定
+					float fScale = pObjCheck->GetScale();	// 拡大率
 	
 					// 情報を書き出し
 					fprintf(pFile, "	BUILDINGSET\n");
@@ -298,6 +299,7 @@ void CEditBuilding::Save(FILE *pFile)
 					fprintf(pFile, "		POS = %.2f %.2f %.2f\n", posBuild.x, posBuild.y, posBuild.z);
 					fprintf(pFile, "		ROT = %.2f %.2f %.2f\n", rotBuild.x, rotBuild.y, rotBuild.z);
 					fprintf(pFile, "		COLL = %d\n", nCollision);
+					fprintf(pFile, "		SCALE = %.2f\n", fScale);
 					fprintf(pFile, "	END_BUILDINGSET\n\n");
 
 					// 次のオブジェクトへのポインタを代入

@@ -108,6 +108,8 @@ public:
 	virtual float GetRadius(void) const;				// ”¼Œaæ“¾
 	virtual void SetHeight(const float fHeight);		// c•İ’è
 	virtual float GetHeight(void) const;				// c•æ“¾
+	virtual void SetScale(const float fScale);			// Šg‘å—¦İ’è
+	virtual float GetScale(void) const;					// Šg‘å—¦æ“¾
 
 	virtual void SetVec2Position(const D3DXVECTOR2& rPos);	// “ñ²‚ÌˆÊ’uİ’è
 	virtual D3DXVECTOR2 GetVec2Position(void) const;		// “ñ²‚ÌˆÊ’uæ“¾

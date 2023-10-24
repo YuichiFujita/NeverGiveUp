@@ -48,6 +48,33 @@ const char *CBuilding::mc_apTextureFile[][6] =	// テクスチャ定数
 		"data\\TEXTURE\\buildingSide002.png",	// 前テクスチャ
 		"data\\TEXTURE\\buildingSide002.png",	// 後テクスチャ
 	},
+
+	{ // ビル下テクスチャ
+		"data\\TEXTURE\\buildingSide003.png",	// 左テクスチャ
+		"data\\TEXTURE\\buildingSide003.png",	// 右テクスチャ
+		"data\\TEXTURE\\buildingRoof003.png",	// 下テクスチャ
+		"data\\TEXTURE\\buildingRoof003.png",	// 上テクスチャ
+		"data\\TEXTURE\\buildingSide003.png",	// 前テクスチャ
+		"data\\TEXTURE\\buildingSide003.png",	// 後テクスチャ
+	},
+
+	{ // ビル中テクスチャ
+		"data\\TEXTURE\\buildingSide004.png",	// 左テクスチャ
+		"data\\TEXTURE\\buildingSide004.png",	// 右テクスチャ
+		"data\\TEXTURE\\buildingRoof003.png",	// 下テクスチャ
+		"data\\TEXTURE\\buildingRoof003.png",	// 上テクスチャ
+		"data\\TEXTURE\\buildingSide004.png",	// 前テクスチャ
+		"data\\TEXTURE\\buildingSide004.png",	// 後テクスチャ
+	},
+
+	{ // ビル上テクスチャ
+		"data\\TEXTURE\\buildingSide005.png",	// 左テクスチャ
+		"data\\TEXTURE\\buildingSide005.png",	// 右テクスチャ
+		"data\\TEXTURE\\buildingRoof003.png",	// 下テクスチャ
+		"data\\TEXTURE\\buildingRoof003.png",	// 上テクスチャ
+		"data\\TEXTURE\\buildingSide005.png",	// 前テクスチャ
+		"data\\TEXTURE\\buildingSide005.png",	// 後テクスチャ
+	},
 };
 
 CBuilding::SStatusInfo CBuilding::m_aStatusInfo[] =	// ステータス情報
@@ -63,6 +90,18 @@ CBuilding::SStatusInfo CBuilding::m_aStatusInfo[] =	// ステータス情報
 	{ // ビル02ステータス
 		D3DXVECTOR3(280.0f, 560.0f, 280.0f),	// 大きさ
 	},
+
+	{ // ビル下ステータス
+		D3DXVECTOR3(280.0f, 280.0f, 280.0f),	// 大きさ
+	},
+
+	{ // ビル中間ステータス
+		D3DXVECTOR3(280.0f, 280.0f, 280.0f),	// 大きさ
+	},
+
+	{ // ビル上ステータス
+		D3DXVECTOR3(280.0f, 280.0f, 280.0f),	// 大きさ
+	},
 };
 
 //************************************************************
@@ -71,11 +110,13 @@ CBuilding::SStatusInfo CBuilding::m_aStatusInfo[] =	// ステータス情報
 //============================================================
 //	コンストラクタ
 //============================================================
-CBuilding::CBuilding(const EType type) : CObjectMeshCube(CObject::LABEL_BUILDING, BUILDING_PRIO), m_status(m_aStatusInfo[type]), m_type(type)
+CBuilding::CBuilding() : CObjectMeshCube(CObject::LABEL_BUILDING, BUILDING_PRIO)
 {
 	// メンバ変数をクリア
-	m_fScale = 0.0f;	// 拡大率
+	memset(&m_status, 0, sizeof(m_status));	// ステータス定数
 	m_collision = COLLISION_NONE;	// 当たり判定
+	m_type = TYPE_00;	// 種類定数
+	m_fScale = 0.0f;	// 拡大率
 }
 
 //============================================================
@@ -92,8 +133,10 @@ CBuilding::~CBuilding()
 HRESULT CBuilding::Init(void)
 {
 	// メンバ変数を初期化
-	m_fScale = 1.0f;	// 拡大率
+	memset(&m_status, 0, sizeof(m_status));	// ステータス定数
 	m_collision = COLLISION_NONE;	// 当たり判定
+	m_type = TYPE_00;	// 種類定数
+	m_fScale = 1.0f;	// 拡大率
 
 	// オブジェクトメッシュキューブの初期化
 	if (FAILED(CObjectMeshCube::Init()))
@@ -195,6 +238,12 @@ void CBuilding::SetType(const int nType)
 	if (nType > NONE_IDX && nType < TYPE_MAX)
 	{ // 種類が範囲内の場合
 
+		// 引数の種類を設定
+		m_type = (EType)nType;
+
+		// 引数の種類のステータスを設定
+		m_status = m_aStatusInfo[m_type];
+
 		// 引数の種類のテクスチャを登録
 		faceTex = SFaceTex
 		( // 引数
@@ -248,6 +297,27 @@ int CBuilding::GetState(void) const
 }
 
 //============================================================
+//	拡大率の設定処理
+//============================================================
+void CBuilding::SetScale(const float fScale)
+{
+	// 引数の拡大率を設定
+	m_fScale = fScale;
+
+	// 大きさを設定
+	SetVec3Sizing(m_status.size * m_fScale);
+}
+
+//============================================================
+//	拡大率取得処理
+//============================================================
+float CBuilding::GetScale(void) const
+{
+	// 拡大率を返す
+	return m_fScale;
+}
+
+//============================================================
 //	生成処理
 //============================================================
 CBuilding *CBuilding::Create
@@ -266,7 +336,7 @@ CBuilding *CBuilding::Create
 	{ // 使用されていない場合
 
 		// メモリ確保
-		pBuilding = new CBuilding(type);	// ビル
+		pBuilding = new CBuilding;	// ビル
 	}
 	else { assert(false); return NULL; }	// 使用中
 
@@ -304,25 +374,4 @@ CBuilding *CBuilding::Create
 		return pBuilding;
 	}
 	else { assert(false); return NULL; }	// 確保失敗
-}
-
-//============================================================
-//	拡大率の設定処理
-//============================================================
-void CBuilding::SetScale(const float fScale)
-{
-	// 引数の拡大率を設定
-	m_fScale = fScale;
-
-	// 大きさを設定
-	SetVec3Sizing(m_status.size * m_fScale);
-}
-
-//============================================================
-//	拡大率取得処理
-//============================================================
-float CBuilding::GetScale(void) const
-{
-	// 拡大率を返す
-	return m_fScale;
 }

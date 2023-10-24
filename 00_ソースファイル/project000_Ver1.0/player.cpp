@@ -1034,6 +1034,11 @@ void CPlayer::CollisionRotationBuilding(D3DXVECTOR3& rPos)
 	// 変数を宣言
 	D3DXVECTOR3 sizeMinPlayer = D3DXVECTOR3(basic::RADIUS, 0.0f, basic::RADIUS);			// プレイヤー最小大きさ
 	D3DXVECTOR3 sizeMaxPlayer = D3DXVECTOR3(basic::RADIUS, basic::HEIGHT, basic::RADIUS);	// プレイヤー最大大きさ
+	float fDisPosY = 0.0f;	// プレイヤーとビルのY距離
+	bool bInitDis = false;	// Y距離の初期化状況
+
+	// ポインタを宣言
+	CObject *pCurrentRotObj = NULL;	// 現在の向き設定オブジェクト
 
 	for (int nCntPri = 0; nCntPri < MAX_PRIO; nCntPri++)
 	{ // 優先順位の総数分繰り返す
@@ -1106,53 +1111,100 @@ void CPlayer::CollisionRotationBuilding(D3DXVECTOR3& rPos)
 				{ // 判定内だった場合
 
 					// 変数を宣言
-					D3DXVECTOR3 posLeft = VEC3_ZERO;	// プレイヤーから見たビルの左位置
-					D3DXVECTOR3 posRight = VEC3_ZERO;	// プレイヤーから見たビルの右位置
+					float fDis = rPos.y - (posBuild.y + sizeMaxBuild.y);	// プレイヤーとビルのY距離
 
-					float fRotLeft = m_destRot.y - HALF_PI;		// プレイヤーの90度左向き
-					useful::NormalizeRot(fRotLeft);				// 左向き正規化
-					float fRotRight = m_destRot.y + HALF_PI;	// プレイヤーの90度右向き
-					useful::NormalizeRot(fRotRight);			// 右向き正規化
+					if (fDis >= 0.0f)
+					{ // プレイヤーとビルのY距離がプラスの場合
 
-					if (FourDirection(m_destRot.y, QRTR_PI * 0.5f) == FourDirection(rotBuild.y, QRTR_PI * 0.5f))
-					{ // 向きが違う場合
+						if (!bInitDis)
+						{ // 初期化していない場合
 
-						// 次のオブジェクトへのポインタを代入
-						pObjCheck = pObjectNext;
+							// 現在の距離を代入
+							fDisPosY = fDis;
 
-						// 次の繰り返しに移行
-						continue;
-					}
+							// 現在の向き設定オブジェクトを代入
+							pCurrentRotObj = pObjCheck;
 
-					// ビルの左位置を計算
-					posLeft.x = posBuild.x - sinf(fRotLeft) * sizeMaxBuild.x;
-					posLeft.y = posBuild.y + sizeMaxBuild.y;
-					posLeft.z = posBuild.z - cosf(fRotLeft) * sizeMaxBuild.z;
+							// 初期化済みにする
+							bInitDis = true;
+						}
+						else
+						{ // 初期化している場合
 
-					// ビルの右位置を計算
-					posRight.x = posBuild.x - sinf(fRotRight) * sizeMaxBuild.x;
-					posRight.y = posBuild.y + sizeMaxBuild.y;
-					posRight.z = posBuild.z - cosf(fRotRight) * sizeMaxBuild.z;
+							if (fDis < fDisPosY)
+							{ // より近いビルの場合
 
-					if (collision::LineOuterProduct(posLeft, posRight, rPos) <= 0.0f)
-					{ // プレイヤーの進行方向から見てビルの中心より奥側の場合
+								// 現在の距離を代入
+								fDisPosY = fDis;
 
-						// プレイヤーの位置にビルの中心位置を設定
- 						rPos.x = posBuild.x;
-						rPos.z = posBuild.z;
-
-						// プレイヤーの移動量を初期化
-						m_move.x = 0.0f;
-						m_move.z = 0.0f;
-
-						// プレイヤーの目標向きにビルの向きを設定
-						m_destRot.y = rotBuild.y;
+								// 現在の向き設定オブジェクトを代入
+								pCurrentRotObj = pObjCheck;
+							}
+						}
 					}
 				}
 
 				// 次のオブジェクトへのポインタを代入
 				pObjCheck = pObjectNext;
 			}
+		}
+	}
+
+	if (pCurrentRotObj != NULL)
+	{ // ビルがあった場合
+
+		// 変数を宣言
+		D3DXVECTOR3 posBuild = VEC3_ZERO;	// ビル位置
+		D3DXVECTOR3 rotBuild = VEC3_ZERO;	// ビル向き
+		D3DXVECTOR3 sizeBuild = VEC3_ZERO;	// ビル大きさ
+		D3DXVECTOR3 posLeft = VEC3_ZERO;	// プレイヤーから見たビルの左位置
+		D3DXVECTOR3 posRight = VEC3_ZERO;	// プレイヤーから見たビルの右位置
+		
+		// ビルの位置を設定
+		posBuild = pCurrentRotObj->GetVec3Position();
+
+		// ビルの向きを設定
+		rotBuild = pCurrentRotObj->GetVec3Rotation();
+
+		// ビルの大きさを設定
+		sizeBuild = pCurrentRotObj->GetVec3Sizing();
+		sizeBuild.y *= 2.0f;	// 縦の大きさを倍にする
+
+		float fRotLeft = m_destRot.y - HALF_PI;		// プレイヤーの90度左向き
+		useful::NormalizeRot(fRotLeft);				// 左向き正規化
+		float fRotRight = m_destRot.y + HALF_PI;	// プレイヤーの90度右向き
+		useful::NormalizeRot(fRotRight);			// 右向き正規化
+
+		if (FourDirection(m_destRot.y, QRTR_PI * 0.5f) == FourDirection(rotBuild.y, QRTR_PI * 0.5f))
+		{ // 向きが違う場合
+
+			// 関数を抜ける
+			return;
+		}
+
+		// ビルの左位置を計算
+		posLeft.x = posBuild.x - sinf(fRotLeft) * sizeBuild.x;
+		posLeft.y = posBuild.y + sizeBuild.y;
+		posLeft.z = posBuild.z - cosf(fRotLeft) * sizeBuild.z;
+
+		// ビルの右位置を計算
+		posRight.x = posBuild.x - sinf(fRotRight) * sizeBuild.x;
+		posRight.y = posBuild.y + sizeBuild.y;
+		posRight.z = posBuild.z - cosf(fRotRight) * sizeBuild.z;
+
+		if (collision::LineOuterProduct(posLeft, posRight, rPos) <= 0.0f)
+		{ // プレイヤーの進行方向から見てビルの中心より奥側の場合
+
+			// プレイヤーの位置にビルの中心位置を設定
+			rPos.x = posBuild.x;
+			rPos.z = posBuild.z;
+
+			// プレイヤーの移動量を初期化
+			m_move.x = 0.0f;
+			m_move.z = 0.0f;
+
+			// プレイヤーの目標向きにビルの向きを設定
+			m_destRot.y = rotBuild.y;
 		}
 	}
 }

@@ -29,6 +29,9 @@ public:
 		TYPE_00 = 0,	// ビル00テクスチャ
 		TYPE_01,		// ビル01テクスチャ
 		TYPE_02,		// ビル02テクスチャ
+		TYPE_DOWN,		// ビル下テクスチャ
+		TYPE_CENTER,	// ビル中間テクスチャ
+		TYPE_UP,		// ビル上テクスチャ
 		TYPE_MAX		// この列挙型の総数
 	};
 
@@ -42,7 +45,7 @@ public:
 	};
 
 	// コンストラクタ
-	CBuilding(const EType type);
+	CBuilding();
 
 	// デストラクタ
 	~CBuilding();
@@ -62,6 +65,8 @@ public:
 	int GetType(void) const override;			// 種類取得
 	void SetState(const int nState) override;	// 当たり判定設定
 	int GetState(void) const override;			// 当たり判定取得
+	void SetScale(const float fScale) override;	// 拡大率設定
+	float GetScale(void) const override;		// 拡大率取得
 
 	// 静的メンバ関数
 	static CBuilding *Create	// 生成
@@ -73,20 +78,16 @@ public:
 		const float fScale = 1.0f	// 拡大率
 	);
 
-	// メンバ関数
-	void SetScale(const float fScale);	// 拡大率設定
-	float GetScale(void) const;			// 拡大率取得
-
 private:
 	// 静的メンバ変数
 	static const char *mc_apTextureFile[][6];	// テクスチャ定数
 	static SStatusInfo m_aStatusInfo[];			// ステータス情報
 
 	// メンバ変数
-	float m_fScale;				// 拡大率
-	ECollision m_collision;		// 当たり判定
-	const SStatusInfo m_status;	// ステータス定数
-	const EType m_type;			// 種類定数
+	ECollision m_collision;	// 当たり判定
+	SStatusInfo m_status;	// ステータス定数
+	EType m_type;			// 種類定数
+	float m_fScale;			// 拡大率
 };
 
 #endif	// _BUILDING_H_

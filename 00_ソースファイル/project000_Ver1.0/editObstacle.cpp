@@ -267,7 +267,7 @@ void CEditObstacle::DrawDebugControl(void)
 	// ポインタを宣言
 	CDebugProc *pDebug = CManager::GetInstance()->GetDebugProc();	// デバッグプロックの情報
 
-	pDebug->Print(CDebugProc::POINT_RIGHT, "障害物保存：[%s+%s]\n", NAME_SAVE, NAME_DOUBLE);
+	pDebug->Print(CDebugProc::POINT_RIGHT, "障害物保存：[%s+%s]\n", NAME_DOUBLE, NAME_SAVE);
 	pDebug->Print(CDebugProc::POINT_RIGHT, "判定拡大：[%s/%s/%s+%s]\n", NAME_XSIZE_UP, NAME_YSIZE_UP, NAME_ZSIZE_UP, NAME_TRIGGER);
 	pDebug->Print(CDebugProc::POINT_RIGHT, "判定縮小：[%s/%s/%s+%s]\n", NAME_XSIZE_DOWN, NAME_YSIZE_DOWN, NAME_ZSIZE_DOWN, NAME_TRIGGER);
 	pDebug->Print(CDebugProc::POINT_RIGHT, "種類変更：[%s]\n", NAME_TYPE);
