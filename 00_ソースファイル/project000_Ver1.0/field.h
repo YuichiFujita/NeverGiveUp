@@ -26,8 +26,13 @@ public:
 	// テクスチャ列挙
 	enum ETexture
 	{
-		TEXTURE_FIELD = 0,	// 地面テクスチャ
-		TEXTURE_MAX			// この列挙型の総数
+		TEXTURE_ROAD_00 = 0,	// 直線テクスチャ
+		TEXTURE_ROAD_01,		// 曲がり角テクスチャ
+		TEXTURE_ROAD_02,		// 交差点テクスチャ
+		TEXTURE_ROAD_03,		// 丁字路テクスチャ
+		TEXTURE_SIDEWALK_00,	// 薄い歩道テクスチャ
+		TEXTURE_SIDEWALK_01,	// 濃い歩道テクスチャ
+		TEXTURE_MAX				// この列挙型の総数
 	};
 
 	// 地形列挙

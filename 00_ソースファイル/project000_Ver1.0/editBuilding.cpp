@@ -18,6 +18,9 @@
 //************************************************************
 //	マクロ定義
 //************************************************************
+#define KEY_TRIGGER		(DIK_LSHIFT)	// トリガー化キー
+#define NAME_TRIGGER	("LSHIFT")		// トリガー化表示
+
 #define KEY_CREATE		(DIK_0)	// 生成キー
 #define NAME_CREATE		("0")	// 生成表示
 #define KEY_RELEASE		(DIK_9)	// 破棄キー
@@ -26,6 +29,10 @@
 #define NAME_TYPE		("2")	// 種類変更表示
 #define KEY_COLL		(DIK_3)	// 判定変更キー
 #define NAME_COLL		("3")	// 判定変更表示
+#define KEY_SCALE_UP	(DIK_4)	// 拡大率上昇キー
+#define NAME_SCALE_UP	("4")	// 拡大率上昇表示
+#define KEY_SCALE_DOWN	(DIK_5)	// 拡大率下降キー
+#define NAME_SCALE_DOWN	("5")	// 拡大率下降表示
 
 //************************************************************
 //	定数宣言
@@ -33,6 +40,7 @@
 namespace
 {
 	const float	INIT_ALPHA		= 0.5f;		// 配置前のα値
+	const float CHANGE_SCALE	= 0.05f;	// 拡大率変更量
 	const float	EFFECT_RADIUS	= 30.0f;	// 方向表示エフェクトの半径
 	const int	EFFECT_LIFE		= 10;		// 方向表示エフェクトの寿命
 }
@@ -135,6 +143,9 @@ void CEditBuilding::Update(void)
 	// 判定変更の更新
 	UpdateChangeColl();
 
+	// 拡大率変更の更新
+	UpdateChangeScale();
+
 	// 方向表示エフェクトの生成
 	CreateRotaEffect();
 
@@ -196,6 +207,8 @@ void CEditBuilding::DrawDebugControl(void)
 
 	pDebug->Print(CDebugProc::POINT_RIGHT, "種類変更：[%s]\n", NAME_TYPE);
 	pDebug->Print(CDebugProc::POINT_RIGHT, "判定変更：[%s]\n", NAME_COLL);
+	pDebug->Print(CDebugProc::POINT_RIGHT, "拡大率上昇：[%s]\n", NAME_SCALE_UP);
+	pDebug->Print(CDebugProc::POINT_RIGHT, "拡大率下降：[%s]\n", NAME_SCALE_DOWN);
 	pDebug->Print(CDebugProc::POINT_RIGHT, "削除：[%s]\n", NAME_RELEASE);
 	pDebug->Print(CDebugProc::POINT_RIGHT, "設置：[%s]\n", NAME_CREATE);
 }
@@ -214,6 +227,7 @@ void CEditBuilding::DrawDebugInfo(void)
 
 	pDebug->Print(CDebugProc::POINT_RIGHT, "%d：[種類]\n", m_building.type);
 	pDebug->Print(CDebugProc::POINT_RIGHT, "%s：[判定]\n", apColl[m_building.coll]);
+	pDebug->Print(CDebugProc::POINT_RIGHT, "%f：[拡大率]\n", m_building.pBuilding->GetScale());
 }
 
 //============================================================
@@ -409,6 +423,45 @@ void CEditBuilding::UpdateChangeColl(void)
 }
 
 //============================================================
+//	拡大率変更の更新処理
+//============================================================
+void CEditBuilding::UpdateChangeScale(void)
+{
+	// 変数を宣言
+	float fScale = m_building.pBuilding->GetScale();	// ビル拡大率
+
+	// ポインタを宣言
+	CInputKeyboard *m_pKeyboard = CManager::GetInstance()->GetKeyboard();	// キーボード情報
+
+	// 拡大率を変更
+	if (!m_pKeyboard->IsPress(KEY_TRIGGER))
+	{
+		if (m_pKeyboard->IsPress(KEY_SCALE_UP))
+		{
+			fScale += CHANGE_SCALE;
+		}
+		if (m_pKeyboard->IsPress(KEY_SCALE_DOWN))
+		{
+			fScale -= CHANGE_SCALE;
+		}
+	}
+	else
+	{
+		if (m_pKeyboard->IsTrigger(KEY_SCALE_UP))
+		{
+			fScale += CHANGE_SCALE;
+		}
+		if (m_pKeyboard->IsTrigger(KEY_SCALE_DOWN))
+		{
+			fScale -= CHANGE_SCALE;
+		}
+	}
+
+	// ビル拡大率を反映
+	m_building.pBuilding->SetScale(fScale);
+}
+
+//============================================================
 //	ビルの生成処理
 //============================================================
 void CEditBuilding::CreateBuilding(void)
@@ -417,6 +470,7 @@ void CEditBuilding::CreateBuilding(void)
 	D3DXVECTOR3 posEdit = m_pEdit->GetVec3Position();	// エディットの位置
 	D3DXVECTOR3 rotEdit = m_pEdit->GetVec3Rotation();	// エディットの向き
 	D3DXCOLOR colBuild = XCOL_WHITE;	// 色保存用
+	float fScale = 0.0f;	// 拡大率
 
 	// ポインタを宣言
 	CInputKeyboard *m_pKeyboard = CManager::GetInstance()->GetKeyboard();	// キーボード情報
@@ -435,6 +489,9 @@ void CEditBuilding::CreateBuilding(void)
 		colBuild = m_building.pBuilding->GetColor();	// 元の色を取得
 		m_building.pBuilding->SetColor(D3DXCOLOR(colBuild.r, colBuild.g, colBuild.b, 1.0f));
 
+		// 拡大率を保存
+		fScale = m_building.pBuilding->GetScale();
+
 		// 未保存を設定
 		m_pEdit->UnSave();
 
@@ -448,6 +505,9 @@ void CEditBuilding::CreateBuilding(void)
 		// 色を設定
 		colBuild = m_building.pBuilding->GetColor();	// 元の色を取得
 		m_building.pBuilding->SetColor(D3DXCOLOR(colBuild.r, colBuild.g, colBuild.b, INIT_ALPHA));
+
+		// 拡大率を設定
+		m_building.pBuilding->SetScale(fScale);
 	}
 }
 

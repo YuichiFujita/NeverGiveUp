@@ -69,8 +69,13 @@ public:
 		const EType type,			// 種類
 		const D3DXVECTOR3& rPos,	// 位置
 		const D3DXVECTOR3& rRot,	// 向き
-		const ECollision collision	// 当たり判定
+		const ECollision collision,	// 当たり判定
+		const float fScale = 1.0f	// 拡大率
 	);
+
+	// メンバ関数
+	void SetScale(const float fScale);	// 拡大率設定
+	float GetScale(void) const;			// 拡大率取得
 
 private:
 	// 静的メンバ変数
@@ -78,6 +83,7 @@ private:
 	static SStatusInfo m_aStatusInfo[];			// ステータス情報
 
 	// メンバ変数
+	float m_fScale;				// 拡大率
 	ECollision m_collision;		// 当たり判定
 	const SStatusInfo m_status;	// ステータス定数
 	const EType m_type;			// 種類定数

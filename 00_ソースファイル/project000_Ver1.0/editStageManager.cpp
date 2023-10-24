@@ -23,10 +23,8 @@
 #define KEY_TRIGGER		(DIK_LSHIFT)	// トリガー化キー
 #define NAME_TRIGGER	("LSHIFT")		// トリガー化表示
 
-#define KEY_SAVE	(DIK_F9)	// 保存キー
-#define NAME_SAVE	("F9")		// 保存表示
-#define KEY_LOAD	(DIK_F10)	// 読込キー
-#define NAME_LOAD	("F10")		// 読込表示
+#define KEY_SAVE	(DIK_F10)	// 保存キー
+#define NAME_SAVE	("F10")		// 保存表示
 
 #define KEY_CHANGE_THING	(DIK_1)	// 配置物変更キー
 #define NAME_CHANGE_THING	("1")	// 配置物変更表示
@@ -298,9 +296,6 @@ void CEditStageManager::Update(void)
 
 	// ステージ保存
 	SaveStage();
-
-	// ステージ読込
-	LoadStage();
 
 	// 操作表示の描画
 	DrawDebugControl();
@@ -742,8 +737,7 @@ void CEditStageManager::DrawDebugControl(void)
 	pDebug->Print(CDebugProc::POINT_RIGHT, "======================================\n");
 	pDebug->Print(CDebugProc::POINT_RIGHT, "[エディット操作]　\n");
 	pDebug->Print(CDebugProc::POINT_RIGHT, "======================================\n");
-	pDebug->Print(CDebugProc::POINT_RIGHT, "ステージ保存：[%s+%s]\n", NAME_SAVE, NAME_DOUBLE);
-	pDebug->Print(CDebugProc::POINT_RIGHT, "ステージ読込：[%s+%s]\n", NAME_LOAD, NAME_DOUBLE);
+	pDebug->Print(CDebugProc::POINT_RIGHT, "ステージ保存：[%s+%s]\n", NAME_DOUBLE, NAME_SAVE);
 	pDebug->Print(CDebugProc::POINT_RIGHT, "移動：[%s/%s/%s/%s/%s/%s+%s]\n", NAME_FAR, NAME_LEFT, NAME_NEAR, NAME_RIGHT, NAME_UP, NAME_DOWN, NAME_TRIGGER);
 	pDebug->Print(CDebugProc::POINT_RIGHT, "移動量変更：[%s/%s]\n", NAME_MOVE_UP, NAME_MOVE_DOWN);
 	pDebug->Print(CDebugProc::POINT_RIGHT, "回転：[%s/%s]\n", NAME_ROTA_RIGHT, NAME_ROTA_LEFT);
@@ -906,24 +900,6 @@ void CEditStageManager::SaveStage(void)
 
 			// 保存した状態にする
 			m_bSave = true;
-		}
-	}
-}
-
-//============================================================
-//	ステージ読込処理
-//============================================================
-void CEditStageManager::LoadStage(void)
-{
-	// ポインタを宣言
-	CInputKeyboard *m_pKeyboard = CManager::GetInstance()->GetKeyboard();	// キーボード情報
-
-	// ステージを読込
-	if (m_pKeyboard->IsPress(KEY_DOUBLE))
-	{
-		if (m_pKeyboard->IsTrigger(KEY_LOAD))
-		{
-
 		}
 	}
 }

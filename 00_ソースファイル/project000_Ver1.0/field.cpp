@@ -24,7 +24,12 @@
 //************************************************************
 const char *CField::mc_apTextureFile[] =	// テクスチャ定数
 {
-	"data\\TEXTURE\\field000.jpg",	// 地面テクスチャ
+	"data\\TEXTURE\\road000.png",		// 直線テクスチャ
+	"data\\TEXTURE\\road001.png",		// 曲がり角テクスチャ
+	"data\\TEXTURE\\road002.png",		// 交差点テクスチャ
+	"data\\TEXTURE\\road003.png",		// 丁字路テクスチャ
+	"data\\TEXTURE\\sidewalk000.png",	// 薄い歩道テクスチャ
+	"data\\TEXTURE\\sidewalk001.png",	// 濃い歩道テクスチャ
 };
 CField::STerrainInfo CField::m_aTerrainInfo[TERRAIN_MAX] = {};	// 地形情報
 

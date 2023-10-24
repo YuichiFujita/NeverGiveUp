@@ -74,6 +74,7 @@ CBuilding::SStatusInfo CBuilding::m_aStatusInfo[] =	// ステータス情報
 CBuilding::CBuilding(const EType type) : CObjectMeshCube(CObject::LABEL_BUILDING, BUILDING_PRIO), m_status(m_aStatusInfo[type]), m_type(type)
 {
 	// メンバ変数をクリア
+	m_fScale = 0.0f;	// 拡大率
 	m_collision = COLLISION_NONE;	// 当たり判定
 }
 
@@ -91,6 +92,7 @@ CBuilding::~CBuilding()
 HRESULT CBuilding::Init(void)
 {
 	// メンバ変数を初期化
+	m_fScale = 1.0f;	// 拡大率
 	m_collision = COLLISION_NONE;	// 当たり判定
 
 	// オブジェクトメッシュキューブの初期化
@@ -208,7 +210,7 @@ void CBuilding::SetType(const int nType)
 		BindTexture(faceTex);
 
 		// 引数の種類のステータスを設定
-		SetVec3Sizing(m_status.size);	// 大きさ
+		SetVec3Sizing(m_status.size * m_fScale);	// 大きさ
 	}
 	else { assert(false); }	// 種類オーバー
 }
@@ -253,7 +255,8 @@ CBuilding *CBuilding::Create
 	const EType type,			// 種類
 	const D3DXVECTOR3& rPos,	// 位置
 	const D3DXVECTOR3& rRot,	// 向き
-	const ECollision collision	// 当たり判定
+	const ECollision collision,	// 当たり判定
+	const float fScale			// 拡大率
 )
 {
 	// ポインタを宣言
@@ -294,8 +297,32 @@ CBuilding *CBuilding::Create
 		// 当たり判定を設定
 		pBuilding->SetState(collision);
 
+		// 拡大率を設定
+		pBuilding->SetScale(fScale);
+
 		// 確保したアドレスを返す
 		return pBuilding;
 	}
 	else { assert(false); return NULL; }	// 確保失敗
+}
+
+//============================================================
+//	拡大率の設定処理
+//============================================================
+void CBuilding::SetScale(const float fScale)
+{
+	// 引数の拡大率を設定
+	m_fScale = fScale;
+
+	// 大きさを設定
+	SetVec3Sizing(m_status.size * m_fScale);
+}
+
+//============================================================
+//	拡大率取得処理
+//============================================================
+float CBuilding::GetScale(void) const
+{
+	// 拡大率を返す
+	return m_fScale;
 }

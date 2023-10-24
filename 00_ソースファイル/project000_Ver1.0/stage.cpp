@@ -1316,6 +1316,7 @@ HRESULT CStage::LoadBuilding(const char* pString, FILE *pFile, CStage *pStage)
 	// 変数を宣言
 	D3DXVECTOR3 pos = VEC3_ZERO;	// 位置の代入用
 	D3DXVECTOR3 rot = VEC3_ZERO;	// 向きの代入用
+	float fScale = 0.0f;			// 拡大率の代入用
 	int nTypeID = 0;				// 種類インデックスの代入用
 	int nCollisionID = 0;			// テクスチャインデックスの代入用
 
@@ -1377,10 +1378,16 @@ HRESULT CStage::LoadBuilding(const char* pString, FILE *pFile, CStage *pStage)
 						fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
 						fscanf(pFile, "%d", &nCollisionID);	// 当たり判定を読み込む
 					}
+					else if (strcmp(&aString[0], "SCALE") == 0)
+					{ // 読み込んだ文字列が SCALE の場合
+
+						fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
+						fscanf(pFile, "%f", &fScale);		// 拡大率を読み込む
+					}
 				} while (strcmp(&aString[0], "END_BUILDINGSET") != 0);	// 読み込んだ文字列が END_BUILDINGSET ではない場合ループ
 
 				// ビルオブジェクトの生成
-				if (CBuilding::Create((CBuilding::EType)nTypeID, pos, rot, (CBuilding::ECollision)nCollisionID) == NULL)
+				if (CBuilding::Create((CBuilding::EType)nTypeID, pos, rot, (CBuilding::ECollision)nCollisionID, fScale) == NULL)
 				{ // 確保に失敗した場合
 
 					// 失敗を返す
