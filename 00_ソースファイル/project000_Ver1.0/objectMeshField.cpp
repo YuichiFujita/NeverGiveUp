@@ -904,7 +904,7 @@ void CObjectMeshField::NormalizeNormal(void)
 }
 
 //============================================================
-//	範囲外の着地処理
+//	メッシュの着地処理
 //============================================================
 bool CObjectMeshField::LandPosition(D3DXVECTOR3& rPos, D3DXVECTOR3& rMove)
 {
