@@ -247,7 +247,7 @@ void CEditSavePoint::Save(FILE *pFile)
 					fprintf(pFile, "	SAVEPOINTSET\n");
 					fprintf(pFile, "		POS = %.2f %.2f %.2f\n", posSave.x, posSave.y, posSave.z);
 					fprintf(pFile, "		ROT = %.2f %.2f %.2f\n", rotSave.x, rotSave.y, rotSave.z);
-					fprintf(pFile, "	END_SAVEPOINTSE\n\n");
+					fprintf(pFile, "	END_SAVEPOINTSET\n\n");
 
 					// 次のオブジェクトへのポインタを代入
 					pObjCheck = pObjectNext;

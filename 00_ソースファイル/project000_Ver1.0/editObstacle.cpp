@@ -358,7 +358,7 @@ void CEditObstacle::Save(FILE *pFile)
 					fprintf(pFile, "		TYPE = %d\n", nType);
 					fprintf(pFile, "		POS = %.2f %.2f %.2f\n", posObs.x, posObs.y, posObs.z);
 					fprintf(pFile, "		ROT = %.2f %.2f %.2f\n", rotObs.x, rotObs.y, rotObs.z);
-					fprintf(pFile, "	END_OBSTACLESE\n\n");
+					fprintf(pFile, "	END_OBSTACLESET\n\n");
 
 					// 次のオブジェクトへのポインタを代入
 					pObjCheck = pObjectNext;

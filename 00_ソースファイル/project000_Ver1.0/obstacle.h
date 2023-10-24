@@ -59,6 +59,7 @@ public:
 	void Update(void) override;		// 更新
 	void Draw(void) override;		// 描画
 	int GetType(void) const override;		// 種類取得
+	int GetState(void) const override;		// 回避法取得
 	float GetAngle(void) const override;	// 角度取得
 	float GetLength(void) const override;	// 長さ取得
 	D3DXVECTOR3 GetVec3Sizing(void) const override;	// 大きさ取得

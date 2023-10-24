@@ -284,7 +284,7 @@ void CEditBuilding::Save(FILE *pFile)
 					fprintf(pFile, "		POS = %.2f %.2f %.2f\n", posBuild.x, posBuild.y, posBuild.z);
 					fprintf(pFile, "		ROT = %.2f %.2f %.2f\n", rotBuild.x, rotBuild.y, rotBuild.z);
 					fprintf(pFile, "		COLL = %d\n", nCollision);
-					fprintf(pFile, "	END_BUILDINGSE\n\n");
+					fprintf(pFile, "	END_BUILDINGSET\n\n");
 
 					// 次のオブジェクトへのポインタを代入
 					pObjCheck = pObjectNext;

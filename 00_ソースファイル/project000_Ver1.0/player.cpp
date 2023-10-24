@@ -1462,7 +1462,7 @@ bool CPlayer::CollisionObstacle(D3DXVECTOR3& rPos)
 				pos2.y = 0.0f;
 				pos2.z = posBuild.z + cosf(rotBuild.y + fAngle) * fLength;
 
-				switch (pObjCheck->GetType())
+				switch (pObjCheck->GetState())
 				{ // ‰ñ”ğ–@‚²‚Æ‚Ìˆ—
 				case CObstacle::DODGE_JUMP:		// ƒWƒƒƒ“ƒv‰ñ”ğ
 

@@ -325,16 +325,6 @@ void CEditGoalPoint::Save(FILE *pFile)
 						// 次の繰り返しに移行
 						continue;
 					}
-	
-					if (pObjCheck == (CObject*)m_goalPoint.pGoalPoint)
-					{ // 同じアドレスだった場合
-	
-						// 次のオブジェクトへのポインタを代入
-						pObjCheck = pObjectNext;
-	
-						// 次の繰り返しに移行
-						continue;
-					}
 
 					// ゴールポイントの情報を取得
 					D3DXVECTOR3 posGoal = pObjCheck->GetVec3Position();	// 位置
@@ -344,7 +334,7 @@ void CEditGoalPoint::Save(FILE *pFile)
 					fprintf(pFile, "	GOALPOINTSET\n");
 					fprintf(pFile, "		POS = %.2f %.2f %.2f\n", posGoal.x, posGoal.y, posGoal.z);
 					fprintf(pFile, "		SIZE = %.2f %.2f %.2f\n", sizeGoal.x, sizeGoal.y, sizeGoal.z);
-					fprintf(pFile, "	END_GOALPOINTSE\n\n");
+					fprintf(pFile, "	END_GOALPOINTSET\n\n");
 
 					// 次のオブジェクトへのポインタを代入
 					pObjCheck = pObjectNext;
