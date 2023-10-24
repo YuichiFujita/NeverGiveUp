@@ -230,6 +230,7 @@
     <ClCompile Include="value.cpp" />
     <ClCompile Include="valueUI.cpp" />
     <ClCompile Include="wall.cpp" />
+    <ClCompile Include="window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="anim2D.h" />
@@ -306,6 +307,7 @@
     <ClInclude Include="value.h" />
     <ClInclude Include="valueUI.h" />
     <ClInclude Include="wall.h" />
+    <ClInclude Include="window.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />

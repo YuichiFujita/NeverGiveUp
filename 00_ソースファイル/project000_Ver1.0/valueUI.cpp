@@ -146,7 +146,7 @@ void CValueUI::SetVec3Position(const D3DXVECTOR3& rPos)
 	m_pos = rPos;
 
 	// 相対位置の設定
-	SetVec3PositionRelative();
+	SetPositionRelative();
 }
 
 //============================================================
@@ -254,7 +254,7 @@ void CValueUI::SetSpace(const D3DXVECTOR3& rSpace)
 	m_space = rSpace;
 
 	// 相対位置の設定
-	SetVec3PositionRelative();
+	SetPositionRelative();
 }
 
 //============================================================
@@ -344,7 +344,7 @@ CMultiValue *CValueUI::GetMultiValue(void) const
 //============================================================
 //	相対位置の設定処理
 //============================================================
-void CValueUI::SetVec3PositionRelative(void)
+void CValueUI::SetPositionRelative(void)
 {
 	// タイトルの位置を設定
 	m_pTitle->SetVec3Position(m_pos);

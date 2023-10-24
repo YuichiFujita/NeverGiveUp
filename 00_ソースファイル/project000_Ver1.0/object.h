@@ -60,6 +60,7 @@ public:
 		LABEL_NUMBER,		// 数字
 		LABEL_PLAYER,		// プレイヤー
 		LABEL_BUILDING,		// ビル
+		LABEL_WINDOW,		// 窓
 		LABEL_SIGNBOARD,	// 看板
 		LABEL_OBSTACLE,		// 障害物
 		LABEL_SAVEPOINT,	// セーブポイント

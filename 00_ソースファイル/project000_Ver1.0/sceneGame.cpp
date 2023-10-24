@@ -19,14 +19,7 @@
 #include "pause.h"
 #include "score.h"
 #include "player.h"
-
-#include "scenery.h"
-#include "sky.h"
-#include "building.h"
-#include "signboard.h"
 #include "obstacle.h"
-#include "savePoint.h"
-#include "goalPoint.h"
 
 //************************************************************
 //	É}ÉNÉçíËã`

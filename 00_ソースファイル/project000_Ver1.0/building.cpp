@@ -242,7 +242,8 @@ void CBuilding::SetType(const int nType)
 		m_type = (EType)nType;
 
 		// 引数の種類のステータスを設定
-		m_status = m_aStatusInfo[m_type];
+		m_status = m_aStatusInfo[m_type];	// ステータス情報
+		SetVec3Sizing(m_status.size * m_fScale);	// 大きさ
 
 		// 引数の種類のテクスチャを登録
 		faceTex = SFaceTex
@@ -254,12 +255,7 @@ void CBuilding::SetType(const int nType)
 			pTexture->Regist(mc_apTextureFile[nType][4]),	// 前
 			pTexture->Regist(mc_apTextureFile[nType][5])	// 後
 		);
-
-		// テクスチャを割当
-		BindTexture(faceTex);
-
-		// 引数の種類のステータスを設定
-		SetVec3Sizing(m_status.size * m_fScale);	// 大きさ
+		BindTexture(faceTex);	// テクスチャを割当
 	}
 	else { assert(false); }	// 種類オーバー
 }

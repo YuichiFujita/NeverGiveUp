@@ -77,7 +77,7 @@ public:
 
 private:
 	// メンバ関数
-	void SetVec3PositionRelative(void);	// 相対位置設定
+	void SetPositionRelative(void);	// 相対位置設定
 
 	// メンバ変数
 	CObject2D *m_pTitle;	// タイトル情報
