@@ -40,7 +40,11 @@ public:
 	D3DXVECTOR3 GetVec3Sizing(void) const override;			// 判定大きさ取得
 
 	// 静的メンバ関数
-	static CGoalPoint *Create(const D3DXVECTOR3& rPos);	// 生成
+	static CGoalPoint *Create	// 生成
+	( // 引数
+		const D3DXVECTOR3& rPos,	// 位置
+		const D3DXVECTOR3& rSize	// 大きさ
+	);
 
 private:
 	// メンバ関数

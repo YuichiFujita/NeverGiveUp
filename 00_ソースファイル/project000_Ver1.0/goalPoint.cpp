@@ -23,7 +23,6 @@
 namespace
 {
 	const int PRIORITY = 1;	// ゴールポイントの優先順位
-	const D3DXVECTOR3 INIT_COLL_SIZE = D3DXVECTOR3(60.0f, 60.0f, 60.0f);	// ゴール判定の大きさ
 }
 
 //************************************************************
@@ -54,7 +53,7 @@ HRESULT CGoalPoint::Init(void)
 {
 	// メンバ変数を初期化
 	m_pos = VEC3_ZERO;	// 位置
-	m_size = INIT_COLL_SIZE;	// 大きさ
+	m_size = VEC3_ZERO;	// 大きさ
 
 	// 成功を返す
 	return S_OK;
@@ -125,7 +124,11 @@ D3DXVECTOR3 CGoalPoint::GetVec3Sizing(void) const
 //============================================================
 //	生成処理
 //============================================================
-CGoalPoint *CGoalPoint::Create(const D3DXVECTOR3& rPos)
+CGoalPoint *CGoalPoint::Create	// 生成
+(
+	const D3DXVECTOR3& rPos,	// 位置
+	const D3DXVECTOR3& rSize	// 大きさ
+)
 {
 	// ポインタを宣言
 	CGoalPoint *pGoalPoint = NULL;	// ゴールポイント生成用
@@ -155,6 +158,9 @@ CGoalPoint *CGoalPoint::Create(const D3DXVECTOR3& rPos)
 
 		// 位置を設定
 		pGoalPoint->SetVec3Position(rPos);
+
+		// 大きさを設定
+		pGoalPoint->SetVec3Sizing(rSize);
 
 		// 確保したアドレスを返す
 		return pGoalPoint;

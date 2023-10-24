@@ -45,6 +45,8 @@
 //************************************************************
 namespace
 {
+	const D3DXVECTOR3 INIT_COLL_SIZE = D3DXVECTOR3(60.0f, 60.0f, 60.0f);	// ゴール判定の大きさ
+
 	namespace coll
 	{
 		const int	PRIORITY	= 2;	// 当たり判定の優先順位
@@ -100,7 +102,7 @@ HRESULT CEditGoalPoint::Init(void)
 	//	ゴールポイントの生成・設定
 	//--------------------------------------------------------
 	// ゴールポイントの生成
-	m_goalPoint.pGoalPoint = CGoalPoint::Create(VEC3_ZERO);
+	m_goalPoint.pGoalPoint = CGoalPoint::Create(VEC3_ZERO, INIT_COLL_SIZE);
 	if (m_goalPoint.pGoalPoint == NULL)
 	{ // 生成に失敗した場合
 
