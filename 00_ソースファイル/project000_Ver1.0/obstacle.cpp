@@ -29,6 +29,7 @@ const char *CObstacle::mc_apModelFile[] =	// モデル定数
 {
 	"data\\MODEL\\OBSTACLE\\obstacle000.x",	// 箱
 	"data\\MODEL\\OBSTACLE\\obstacle001.x",	// ベンチ
+	"data\\MODEL\\OBSTACLE\\obstacle002.x",	// ジャンプパッド
 };
 CObstacle::SStatusInfo CObstacle::m_aStatusInfo[TYPE_MAX] = {};	// ステータス情報
 

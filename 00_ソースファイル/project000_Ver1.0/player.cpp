@@ -50,6 +50,7 @@ namespace
 		const float	BLOW_SIDE	= 40.0f;	// 吹っ飛び時の横移動量
 		const float	BLOW_UP		= 30.0f;	// 吹っ飛び時の縦移動量
 
+		const float	JUMPPAD_MOVE	= 60.0f;	// ジャンプパッドの上移動量
 		const float	NOR_JUMP_REV	= 0.22f;	// 通常状態時の空中の移動量の減衰係数
 		const float	NOR_LAND_REV	= 0.2f;		// 通常状態時の地上の移動量の減衰係数
 		const float	DMG_JUMP_REV	= 0.01f;	// ダメージ状態時の空中の移動量の減衰係数
@@ -313,6 +314,15 @@ float CPlayer::GetRadius(void) const
 {
 	// 半径を返す
 	return basic::RADIUS;
+}
+
+//============================================================
+//	縦幅取得処理
+//============================================================
+float CPlayer::GetHeight(void) const
+{
+	// 縦幅を返す
+	return basic::HEIGHT;
 }
 
 //============================================================
@@ -1473,9 +1483,9 @@ bool CPlayer::CollisionObstacle(D3DXVECTOR3& rPos)
 
 				// 変数を宣言
 				D3DXVECTOR3 pos0, pos1, pos2, pos3;	// 頂点座標代入用
-				D3DXVECTOR3 posBuild  = VEC3_ZERO;	// ビル位置
-				D3DXVECTOR3 rotBuild  = VEC3_ZERO;	// ビル向き
-				D3DXVECTOR3 sizeBuild = VEC3_ZERO;	// ビル大きさ
+				D3DXVECTOR3 posObs  = VEC3_ZERO;	// 障害物位置
+				D3DXVECTOR3 rotObs  = VEC3_ZERO;	// 障害物向き
+				D3DXVECTOR3 sizeObs = VEC3_ZERO;	// 障害物大きさ
 				float fAngle  = 0.0f;	// 対角線の角度
 				float fLength = 0.0f;	// 対角線の長さ
 				bool  bHit = false;		// 判定情報
@@ -1494,25 +1504,25 @@ bool CPlayer::CollisionObstacle(D3DXVECTOR3& rPos)
 				}
 
 				// 障害物の情報を取得
-				posBuild  = pObjCheck->GetVec3Position();	// 位置
-				rotBuild  = pObjCheck->GetVec3Rotation();	// 向き
-				sizeBuild = pObjCheck->GetVec3Sizing();		// 大きさ
-				fAngle  = pObjCheck->GetAngle();			// 対角線角度
-				fLength = pObjCheck->GetLength();			// 対角線長さ
+				posObs  = pObjCheck->GetVec3Position();	// 位置
+				rotObs  = pObjCheck->GetVec3Rotation();	// 向き
+				sizeObs = pObjCheck->GetVec3Sizing();	// 大きさ
+				fAngle  = pObjCheck->GetAngle();		// 対角線角度
+				fLength = pObjCheck->GetLength();		// 対角線長さ
 
 				// 頂点座標を計算
-				pos0.x = posBuild.x + sinf(rotBuild.y + (D3DX_PI + fAngle)) * fLength;
+				pos0.x = posObs.x + sinf(rotObs.y + (D3DX_PI + fAngle)) * fLength;
 				pos0.y = 0.0f;
-				pos0.z = posBuild.z + cosf(rotBuild.y + (D3DX_PI + fAngle)) * fLength;
-				pos1.x = posBuild.x + sinf(rotBuild.y + (D3DX_PI - fAngle)) * fLength;
+				pos0.z = posObs.z + cosf(rotObs.y + (D3DX_PI + fAngle)) * fLength;
+				pos1.x = posObs.x + sinf(rotObs.y + (D3DX_PI - fAngle)) * fLength;
 				pos1.y = 0.0f;
-				pos1.z = posBuild.z + cosf(rotBuild.y + (D3DX_PI - fAngle)) * fLength;
-				pos3.x = posBuild.x + sinf(rotBuild.y - fAngle) * fLength;
+				pos1.z = posObs.z + cosf(rotObs.y + (D3DX_PI - fAngle)) * fLength;
+				pos3.x = posObs.x + sinf(rotObs.y - fAngle) * fLength;
 				pos3.y = 0.0f;
-				pos3.z = posBuild.z + cosf(rotBuild.y - fAngle) * fLength;
-				pos2.x = posBuild.x + sinf(rotBuild.y + fAngle) * fLength;
+				pos3.z = posObs.z + cosf(rotObs.y - fAngle) * fLength;
+				pos2.x = posObs.x + sinf(rotObs.y + fAngle) * fLength;
 				pos2.y = 0.0f;
-				pos2.z = posBuild.z + cosf(rotBuild.y + fAngle) * fLength;
+				pos2.z = posObs.z + cosf(rotObs.y + fAngle) * fLength;
 
 				switch (pObjCheck->GetState())
 				{ // 回避法ごとの処理
@@ -1521,15 +1531,20 @@ bool CPlayer::CollisionObstacle(D3DXVECTOR3& rPos)
 					if (!m_bJump)
 					{ // ジャンプ中ではない場合
 
-						// 二軸の矩形の衝突判定
-						bHit = collision::BoxOuterPillar
-						( // 引数
-							pos0,	// 四角の各頂点
-							pos1,	// 四角の各頂点
-							pos2,	// 四角の各頂点
-							pos3,	// 四角の各頂点
-							rPos	// 判定位置
-						);
+						if (rPos.y + basic::HEIGHT >= posObs.y
+						&&  rPos.y <= posObs.y + sizeObs.y)
+						{ // Y座標が範囲内の場合
+
+							// 二軸の矩形の衝突判定
+							bHit = collision::BoxOuterPillar
+							( // 引数
+								pos0,	// 四角の各頂点
+								pos1,	// 四角の各頂点
+								pos2,	// 四角の各頂点
+								pos3,	// 四角の各頂点
+								rPos	// 判定位置
+							);
+						}
 					}
 
 					break;
@@ -1539,15 +1554,20 @@ bool CPlayer::CollisionObstacle(D3DXVECTOR3& rPos)
 					if (!m_bSlide)
 					{ // スライディング中ではない場合
 
-						// 二軸の矩形の衝突判定
-						bHit = collision::BoxOuterPillar
-						( // 引数
-							pos0,	// 四角の各頂点
-							pos1,	// 四角の各頂点
-							pos2,	// 四角の各頂点
-							pos3,	// 四角の各頂点
-							rPos	// 判定位置
-						);
+						if (rPos.y + basic::HEIGHT >= posObs.y
+						&&  rPos.y <= posObs.y + sizeObs.y)
+						{ // Y座標が範囲内の場合
+
+							// 二軸の矩形の衝突判定
+							bHit = collision::BoxOuterPillar
+							( // 引数
+								pos0,	// 四角の各頂点
+								pos1,	// 四角の各頂点
+								pos2,	// 四角の各頂点
+								pos3,	// 四角の各頂点
+								rPos	// 判定位置
+							);
+						}
 					}
 
 					break;
@@ -1560,8 +1580,23 @@ bool CPlayer::CollisionObstacle(D3DXVECTOR3& rPos)
 				if (bHit)
 				{ // 当たっていた場合
 
-					// 当たっている情報を返す
-					return true;
+					switch (pObjCheck->GetType())
+					{ // 種類ごとの処理
+					case CObstacle::TYPE_JUMPPAD:	// ジャンプパッド
+
+						// 移動量を追加
+						m_move.y += basic::JUMPPAD_MOVE;
+
+						// ジャンプモーションを設定
+						SetMotion(MOTION_JUMP);
+
+						break;
+
+					default:	// 上記以外
+
+						// 当たっている情報を返す
+						return true;
+					}
 				}
 
 				// 次のオブジェクトへのポインタを代入

@@ -833,7 +833,7 @@ void CEditObstacle::Save(void)
 			fprintf(pFile, "		TYPE = %d\n", nCntObs);
 			fprintf(pFile, "		SIZE = %.2f %.2f %.2f\n", info.size.x, info.size.y, info.size.z);
 			fprintf(pFile, "		DODGE = %d\n", info.dodge);
-			fprintf(pFile, "	END_OBSTACLESE\n\n");
+			fprintf(pFile, "	END_OBSTACLESET\n\n");
 		}
 
 		// 情報終了地点を書き出し

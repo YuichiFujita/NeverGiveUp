@@ -28,6 +28,7 @@ public:
 	{
 		TYPE_BOX = 0,	// 箱モデル
 		TYPE_BENCH,		// ベンチモデル
+		TYPE_JUMPPAD,	// ジャンプパッドモデル
 		TYPE_MAX		// この列挙型の総数
 	};
 

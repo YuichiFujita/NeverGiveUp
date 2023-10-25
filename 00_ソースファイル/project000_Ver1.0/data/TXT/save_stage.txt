@@ -282,13 +282,6 @@ END_STAGE_BUILDINGSET
 #------------------------------------------------------------------------------
 STAGE_WINDOWSET
 
-	WINDOWSET
-		TYPE = 0
-		POS = -280.00 0.00 320.00
-		ROT = 0.00 0.00 0.00
-		SCALE = 1.00
-	END_WINDOWSET
-
 END_STAGE_WINDOWSET
 
 #------------------------------------------------------------------------------
@@ -406,20 +399,14 @@ STAGE_OBSTACLESET
 
 	OBSTACLESET
 		TYPE = 0
-		POS = 600.00 1120.00 -1800.00
-		ROT = 0.00 -3.14 0.00
-	END_OBSTACLESET
-
-	OBSTACLESET
-		TYPE = 1
-		POS = 600.00 1120.00 -960.00
-		ROT = 0.00 -3.14 0.00
-	END_OBSTACLESET
-
-	OBSTACLESET
-		TYPE = 0
 		POS = 600.00 1120.00 -200.00
 		ROT = 0.00 -3.14 0.00
+	END_OBSTACLESET
+
+	OBSTACLESET
+		TYPE = 2
+		POS = 600.00 1120.00 -1600.00
+		ROT = 0.00 0.00 0.00
 	END_OBSTACLESET
 
 END_STAGE_OBSTACLESET
