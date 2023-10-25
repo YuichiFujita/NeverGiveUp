@@ -39,10 +39,11 @@ CObstacle::SStatusInfo CObstacle::m_aStatusInfo[TYPE_MAX] = {};	// ƒXƒe[ƒ^ƒXî•
 //============================================================
 //	ƒRƒ“ƒXƒgƒ‰ƒNƒ^
 //============================================================
-CObstacle::CObstacle(const EType type) : CObjectModel(CObject::LABEL_OBSTACLE, PRIORITY), m_type(type)
+CObstacle::CObstacle() : CObjectModel(CObject::LABEL_OBSTACLE, PRIORITY)
 {
 	// ƒƒ“ƒo•Ï”‚ğƒNƒŠƒA
 	memset(&m_status, 0, sizeof(m_status));	// ƒXƒe[ƒ^ƒX
+	m_type = TYPE_BOX;	// í—Ş
 	m_fAngle = 0.0f;	// ‘ÎŠpü‚ÌŠp“x
 	m_fLength = 0.0f;	// ‘ÎŠpü‚Ì’·‚³
 }
@@ -62,6 +63,7 @@ HRESULT CObstacle::Init(void)
 {
 	// ƒƒ“ƒo•Ï”‚ğ‰Šú‰»
 	memset(&m_status, 0, sizeof(m_status));	// ƒXƒe[ƒ^ƒX
+	m_type = TYPE_BOX;	// í—Ş
 	m_fAngle = 0.0f;	// ‘ÎŠpü‚ÌŠp“x
 	m_fLength = 0.0f;	// ‘ÎŠpü‚Ì’·‚³
 
@@ -167,7 +169,7 @@ CObstacle *CObstacle::Create
 	{ // g—p‚³‚ê‚Ä‚¢‚È‚¢ê‡
 
 		// ƒƒ‚ƒŠŠm•Û
-		pObstacle = new CObstacle(type);	// áŠQ•¨
+		pObstacle = new CObstacle;	// áŠQ•¨
 	}
 	else { assert(false); return NULL; }	// g—p’†
 
@@ -243,6 +245,9 @@ void CObstacle::SetType(const EType type)
 
 		// ƒXƒe[ƒ^ƒX‚ğİ’è
 		m_status = m_aStatusInfo[type];
+
+		// í—Ş‚ğİ’è
+		m_type = type;
 
 		// ‘ÎŠpü‚ÌŠp“x‚ğİ’è
 		m_fAngle = atan2f(m_aStatusInfo[m_type].size.x, m_aStatusInfo[m_type].size.z);

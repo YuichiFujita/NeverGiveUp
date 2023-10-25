@@ -51,8 +51,8 @@ namespace
 		const float	BLOW_UP		= 30.0f;	// 吹っ飛び時の縦移動量
 
 		const float	JUMPPAD_MOVE	= 60.0f;	// ジャンプパッドの上移動量
-		const float	NOR_JUMP_REV	= 0.22f;	// 通常状態時の空中の移動量の減衰係数
-		const float	NOR_LAND_REV	= 0.2f;		// 通常状態時の地上の移動量の減衰係数
+		const float	NOR_JUMP_REV	= 0.16f;	// 通常状態時の空中の移動量の減衰係数
+		const float	NOR_LAND_REV	= 0.16f;	// 通常状態時の地上の移動量の減衰係数
 		const float	DMG_JUMP_REV	= 0.01f;	// ダメージ状態時の空中の移動量の減衰係数
 		const float	DMG_LAND_REV	= 0.5f;		// ダメージ状態時の地上の移動量の減衰係数
 		const float DMG_SUB_ALPHA	= 0.025f;	// ダメージ状態時の透明度の減算量

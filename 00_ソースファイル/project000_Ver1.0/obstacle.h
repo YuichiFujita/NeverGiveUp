@@ -42,7 +42,7 @@ public:
 	};
 
 	// コンストラクタ
-	CObstacle(const EType type);
+	CObstacle();
 
 	// デストラクタ
 	~CObstacle();
@@ -59,10 +59,12 @@ public:
 	void Uninit(void) override;		// 終了
 	void Update(void) override;		// 更新
 	void Draw(void) override;		// 描画
+
 	int GetType(void) const override;		// 種類取得
 	int GetState(void) const override;		// 回避法取得
 	float GetAngle(void) const override;	// 角度取得
 	float GetLength(void) const override;	// 長さ取得
+
 	D3DXVECTOR3 GetVec3Sizing(void) const override;	// 大きさ取得
 
 	// 静的メンバ関数
@@ -85,8 +87,8 @@ private:
 	static SStatusInfo m_aStatusInfo[TYPE_MAX];	// ステータス情報
 
 	// メンバ変数
-	const EType m_type;		// 種類定数
 	SStatusInfo m_status;	// ステータス
+	EType m_type;			// 種類
 	float m_fAngle;			// 対角線の角度
 	float m_fLength;		// 対角線の長さ
 };

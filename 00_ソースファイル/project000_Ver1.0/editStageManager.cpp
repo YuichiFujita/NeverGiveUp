@@ -24,8 +24,8 @@
 #define KEY_TRIGGER		(DIK_LSHIFT)	// トリガー化キー
 #define NAME_TRIGGER	("LSHIFT")		// トリガー化表示
 
-#define KEY_SAVE	(DIK_F10)	// 保存キー
-#define NAME_SAVE	("F10")		// 保存表示
+#define KEY_SAVE	(DIK_F9)	// 保存キー
+#define NAME_SAVE	("F9")		// 保存表示
 
 #define KEY_CHANGE_THING	(DIK_1)	// 配置物変更キー
 #define NAME_CHANGE_THING	("1")	// 配置物変更表示
