@@ -50,7 +50,7 @@ namespace
 		const float	BLOW_SIDE	= 40.0f;	// 吹っ飛び時の横移動量
 		const float	BLOW_UP		= 30.0f;	// 吹っ飛び時の縦移動量
 
-		const float	JUMPPAD_MOVE	= 60.0f;	// ジャンプパッドの上移動量
+		const float	JUMPPAD_MOVE	= 50.0f;	// ジャンプパッドの上移動量
 		const float	NOR_JUMP_REV	= 0.16f;	// 通常状態時の空中の移動量の減衰係数
 		const float	NOR_LAND_REV	= 0.16f;	// 通常状態時の地上の移動量の減衰係数
 		const float	DMG_JUMP_REV	= 0.01f;	// ダメージ状態時の空中の移動量の減衰係数
@@ -422,9 +422,10 @@ void CPlayer::SetSpawn(void)
 	CSavePoint::SInfo SavePointInfo = CSavePoint::GetSavePointInfo();	// セーブポイントの情報
 
 	// 情報を初期化
-	SetState(STATE_SPAWN);	// スポーン状態の設定
-	SetMotion(MOTION_IDOL);	// 待機モーションを設定
-	m_nCounterState = 0;	// カウンターを初期化
+	SetState(STATE_SPAWN);		// スポーン状態の設定
+	SetMotion(MOTION_IDOL);		// 待機モーションを設定
+	m_nCounterState = 0;		// カウンターを初期化
+	m_bSlideControl = false;	// スライディング操作を初期化
 
 	// 位置を設定
 	SetVec3Position(SavePointInfo.pos);

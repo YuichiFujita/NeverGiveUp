@@ -18,7 +18,8 @@
 //************************************************************
 //	マクロ定義
 //************************************************************
-#define WINDOW_PRIO	(5)	// 窓の優先順位
+#define WINDOW_FAR_PRIO		(4)	// 奥窓の優先順位
+#define WINDOW_NEAR_PRIO	(5)	// 手前窓の優先順位
 
 //************************************************************
 //	静的メンバ変数宣言
@@ -26,10 +27,10 @@
 const char *CWindow::mc_apTextureFile[][WINDOW_MAX] =	// テクスチャ定数
 {
 	{ // 通常ビル窓テクスチャ
-		"data\\TEXTURE\\buildingSide004.png",	// 手前・表テクスチャ
-		"data\\TEXTURE\\wall000.png",			// 手前・裏テクスチャ
-		"data\\TEXTURE\\wall000.png",			// 奥・表テクスチャ
-		"data\\TEXTURE\\window000.png",			// 奥・裏テクスチャ
+		"data\\TEXTURE\\wall000.png",			// 奥・裏テクスチャ
+		"data\\TEXTURE\\buildingSide004.png",	// 奥・表テクスチャ
+		"data\\TEXTURE\\window000.png",			// 手前・裏テクスチャ
+		"data\\TEXTURE\\wall000.png",			// 手前・表テクスチャ
 	},
 };
 
@@ -46,7 +47,7 @@ CWindow::SStatusInfo CWindow::m_aStatusInfo[] =	// ステータス情報
 //============================================================
 //	コンストラクタ
 //============================================================
-CWindow::CWindow() : CObject(CObject::LABEL_WINDOW, WINDOW_PRIO)
+CWindow::CWindow() : CObject(CObject::LABEL_WINDOW)
 {
 	// メンバ変数をクリア
 	memset(&m_pWall[0], 0, sizeof(m_pWall));	// 窓の情報
@@ -72,13 +73,7 @@ CWindow::~CWindow()
 HRESULT CWindow::Init(void)
 {
 	// 変数配列を宣言
-	static D3DCULL aCull[] =	// カリング状況
-	{
-		D3DCULL_CW,		// 表カリング
-		D3DCULL_CCW,	// 裏カリング
-		D3DCULL_CW,		// 表カリング
-		D3DCULL_CCW,	// 裏カリング
-	};
+	static int aPrio[] = { WINDOW_FAR_PRIO, WINDOW_FAR_PRIO, WINDOW_NEAR_PRIO, WINDOW_NEAR_PRIO, };	// 優先順位
 
 	// メンバ変数を初期化
 	memset(&m_pWall[0], 0, sizeof(m_pWall));	// 窓の情報
@@ -96,12 +91,11 @@ HRESULT CWindow::Init(void)
 		// 壁の生成
 		m_pWall[nCntWindow] = CObject3D::Create
 		( // 引数
-			VEC3_ZERO,					// 位置
-			VEC3_ZERO,					// 大きさ
-			VEC3_ZERO,					// 向き
-			XCOL_WHITE,					// 色
-			CObject3D::ORIGIN_CENTER,	// 原点
-			aCull[nCntWindow]			// カリング状況
+			VEC3_ZERO,	// 位置
+			VEC3_ZERO,	// 大きさ
+			VEC3_ZERO,	// 向き
+			XCOL_WHITE,	// 色
+			CObject3D::ORIGIN_CENTER	// 原点
 		);
 		if (m_pWall[nCntWindow] == NULL)
 		{ // 生成に失敗した場合
@@ -110,6 +104,9 @@ HRESULT CWindow::Init(void)
 			assert(false);
 			return E_FAIL;
 		}
+
+		// 優先順位を設定
+		m_pWall[nCntWindow]->SetPriority(aPrio[nCntWindow]);
 	}
 
 	// 成功を返す
@@ -165,18 +162,7 @@ void CWindow::Update(void)
 //============================================================
 void CWindow::Draw(void)
 {
-	// 窓の描画
-	for (int nCntWindow = 0; nCntWindow < WINDOW_MAX; nCntWindow++)
-	{ // 窓に使用する壁の総数分繰り返す
 
-		if (m_pWall[nCntWindow] != NULL)
-		{ // 使用中の場合
-
-			// 壁の描画
-			m_pWall[nCntWindow]->Draw();
-		}
-		else { assert(false); }	// 非使用中
-	}
 }
 
 //============================================================
@@ -452,27 +438,31 @@ void CWindow::SetPositionRelative(void)
 	D3DXVECTOR3 posNear = VEC3_ZERO;	// 手前の位置
 	D3DXVECTOR3 posFar = VEC3_ZERO;		// 奥の位置
 
-	// 手前の位置を求める
-	posNear.x = m_pos.x + sinf(m_rot.y) * m_size.x;
-	posNear.y = m_pos.y + m_size.y;
-	posNear.z = m_pos.z + cosf(m_rot.y) * m_size.z;
-
 	// 奥の位置を求める
-	posFar.x = m_pos.x + sinf(m_rot.y + D3DX_PI) * m_size.x;
+	posFar.x = m_pos.x + sinf(m_rot.y) * m_size.x;
 	posFar.y = m_pos.y + m_size.y;
-	posFar.z = m_pos.z + cosf(m_rot.y + D3DX_PI) * m_size.z;
+	posFar.z = m_pos.z + cosf(m_rot.y) * m_size.z;
+
+	// 手前の位置を求める
+	posNear.x = m_pos.x + sinf(m_rot.y + D3DX_PI) * m_size.x;
+	posNear.y = m_pos.y + m_size.y;
+	posNear.z = m_pos.z + cosf(m_rot.y + D3DX_PI) * m_size.z;
 
 	// 変数配列を宣言
 	D3DXVECTOR3 aPos[] =	// 位置
 	{
-		posNear,	// 手前
-		posNear,	// 手前
-		posFar,		// 奥
-		posFar		// 奥
+		posFar,		// 手前
+		posFar,		// 手前
+		posNear,	// 奥
+		posNear		// 奥
 	};
 
 	for (int nCntWindow = 0; nCntWindow < WINDOW_MAX; nCntWindow++)
 	{ // 窓に使用する壁の総数分繰り返す
+
+		// 変数を宣言
+		D3DXVECTOR3 rot = D3DXVECTOR3(0.0f, m_rot.y + (D3DX_PI * (float)(nCntWindow % 2)), 0.0f);	// 向き
+		useful::Vec3NormalizeRot(rot);	// 向き正規化
 
 		if (m_pWall[nCntWindow] != NULL)
 		{ // 使用中の場合
@@ -481,7 +471,7 @@ void CWindow::SetPositionRelative(void)
 			m_pWall[nCntWindow]->SetVec3Position(aPos[nCntWindow]);
 
 			// 壁の向きを設定
-			m_pWall[nCntWindow]->SetVec3Rotation(m_rot);
+			m_pWall[nCntWindow]->SetVec3Rotation(rot);
 		}
 		else { assert(false); }	// 非使用中
 	}
