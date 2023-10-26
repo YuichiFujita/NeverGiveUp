@@ -42,13 +42,14 @@ namespace
 	namespace basic
 	{
 		const float	MOVE		= 2.8f;		// 移動量
-		const float	JUMP		= 20.0f;	// ジャンプ上昇量
+		const float	JUMP		= 21.0f;	// ジャンプ上昇量
 		const float	GRAVITY		= 1.0f;		// 重力
 		const float	RADIUS		= 20.0f;	// 半径
 		const float	HEIGHT		= 100.0f;	// 縦幅
 		const float	REV_ROTA	= 0.15f;	// 向き変更の補正係数
 		const float	BLOW_SIDE	= 40.0f;	// 吹っ飛び時の横移動量
 		const float	BLOW_UP		= 30.0f;	// 吹っ飛び時の縦移動量
+		const float	ADD_MOVE	= 0.08f;	// 非アクション時の速度加算量
 
 		const float	JUMPPAD_MOVE	= 50.0f;	// ジャンプパッドの上移動量
 		const float	NOR_JUMP_REV	= 0.16f;	// 通常状態時の空中の移動量の減衰係数
@@ -71,13 +72,22 @@ namespace
 		const int	MAX_END_CNT	= 80;		// スライディングが強制終了するカウント
 		const float	MIN_MOVE	= 1.25f;	// 移動量の最低速度
 		const float	SUB_MOVE	= 0.01f;	// スライディング時の速度減算量
-		const float	ADD_MOVE	= 0.08f;	// 非スライディング時の速度加算量
 	}
 
 	// 壁走り情報
 	namespace walldash
 	{
-		const float	COLL_SIZE = 100.0f;	// 壁走りの判定大きさ
+		const float	CONTROL_MIN		= 2.0f;		// 壁走りが可能になる移動量
+		const float	PLUS_SUB_MOVE	= 0.0f;		// 移動量の最大追加減算量
+		const float	PLUS_COLL_SIZE	= 60.0f;	// 判定の拡張量
+		const float	MAX_GRAVITY		= -8.2f;	// 重力の最大値
+		const float	GRAVITY_LOW		= 0.4f;		// 上昇量がない場合の重力
+		const float	GRAVITY_HIGH	= 1.3f;		// 上昇量がある場合の重力
+
+		const int	MIN_END_CNT	= 16;		// 壁走りの解除操作ができるようになるカウント
+		const float	MIN_MOVE	= 1.5f;		// 移動量の最低速度
+		const float	SUB_MOVE	= 0.004f;	// 壁走り時の速度減算量
+		const float	COLL_SIZE	= 100.0f;	// 壁走りの判定大きさ
 	}
 
 	// プレイヤー他クラス情報
@@ -118,17 +128,20 @@ const char *CPlayer::mc_apModelFile[] =	// モデル定数
 CPlayer::CPlayer() : CObjectChara(CObject::LABEL_PLAYER, PRIORITY)
 {
 	// メンバ変数をクリア
-	m_pShadow		= NULL;			// 影の情報
-	m_oldPos		= VEC3_ZERO;	// 過去位置
-	m_move			= VEC3_ZERO;	// 移動量
-	m_destRot		= VEC3_ZERO;	// 目標向き
-	m_state			= STATE_NONE;	// 状態
-	m_nCounterState	= 0;			// 状態管理カウンター
-	m_nCounterSlide	= 0;			// スライディング管理カウンター
-	m_fMove			= 0.0f;			// 移動量
-	m_bJump			= false;		// ジャンプ状況
-	m_bSlide		= false;		// スライディング状況
-	m_bSlideControl	= false;		// スライディング操作状況
+	m_pShadow			= NULL;			// 影の情報
+	m_oldPos			= VEC3_ZERO;	// 過去位置
+	m_move				= VEC3_ZERO;	// 移動量
+	m_destRot			= VEC3_ZERO;	// 目標向き
+	m_state				= STATE_NONE;	// 状態
+	m_nCounterState		= 0;			// 状態管理カウンター
+	m_nCounterSlide		= 0;			// スライディング管理カウンター
+	m_nCounterWallDash	= 0;			// 壁走り管理カウンター
+	m_fMove				= 0.0f;			// 移動量
+	m_bJump				= false;		// ジャンプ状況
+	m_bSlide			= false;		// スライディング状況
+	m_bSlideControl		= false;		// スライディング操作状況
+	m_bWallDash			= false;		// 壁走り状況
+	m_bWallDashControl	= false;		// 壁走り操作状況
 }
 
 //============================================================
@@ -145,17 +158,20 @@ CPlayer::~CPlayer()
 HRESULT CPlayer::Init(void)
 {
 	// メンバ変数を初期化
-	m_pShadow		= NULL;			// 影の情報
-	m_oldPos		= VEC3_ZERO;	// 過去位置
-	m_move			= VEC3_ZERO;	// 移動量
-	m_destRot		= VEC3_ZERO;	// 目標向き
-	m_state			= STATE_NONE;	// 状態
-	m_nCounterState	= 0;			// 状態管理カウンター
-	m_nCounterSlide = 0;			// スライディング管理カウンター
-	m_fMove			= basic::MOVE;	// 移動量
-	m_bJump			= true;			// ジャンプ状況
-	m_bSlide		= false;		// スライディング状況
-	m_bSlideControl	= false;		// スライディング操作状況
+	m_pShadow			= NULL;			// 影の情報
+	m_oldPos			= VEC3_ZERO;	// 過去位置
+	m_move				= VEC3_ZERO;	// 移動量
+	m_destRot			= VEC3_ZERO;	// 目標向き
+	m_state				= STATE_NONE;	// 状態
+	m_nCounterState		= 0;			// 状態管理カウンター
+	m_nCounterSlide		= 0;			// スライディング管理カウンター
+	m_nCounterWallDash	= 0;			// 壁走り管理カウンター
+	m_fMove				= basic::MOVE;	// 移動量
+	m_bJump				= true;			// ジャンプ状況
+	m_bSlide			= false;		// スライディング状況
+	m_bSlideControl		= false;		// スライディング操作状況
+	m_bWallDash			= false;		// 壁走り状況
+	m_bWallDashControl	= false;		// 壁走り操作状況
 
 	// オブジェクトキャラクターの初期化
 	if (FAILED(CObjectChara::Init()))
@@ -432,6 +448,7 @@ void CPlayer::SetSpawn(void)
 	SetMotion(MOTION_IDOL);		// 待機モーションを設定
 	m_nCounterState = 0;		// カウンターを初期化
 	m_bSlideControl = false;	// スライディング操作を初期化
+	m_bWallDashControl = false;	// 壁走り操作を初期化
 
 	// 位置を設定
 	SetVec3Position(SavePointInfo.pos);
@@ -497,7 +514,7 @@ CPlayer::EMotion CPlayer::UpdateNormal(void)
 	}
 
 	// 移動操作
-	currentMotion = UpdateMove();
+	currentMotion = UpdateMove(posPlayer);
 
 	// ジャンプ操作
 	UpdateJump();
@@ -517,13 +534,6 @@ CPlayer::EMotion CPlayer::UpdateNormal(void)
 	// ステージ範囲外の補正
 	pStage->LimitPosition(posPlayer, basic::RADIUS);
 
-	// 看板との当たり判定
-	if (CollisionSignboard(posPlayer))
-	{ // 当たった場合
-
-
-	}
-
 	// 障害物との当たり判定
 	if (CollisionObstacle(posPlayer))
 	{ // 当たった場合
@@ -542,6 +552,7 @@ CPlayer::EMotion CPlayer::UpdateNormal(void)
 	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "[プレイヤー移動速度]：%f\n", m_fMove);
 	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, (m_bJump) ? "[ジャンプ]：ON\n" : "[ジャンプ]：OFF\n");
 	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, (m_bSlide) ? "[スライディング]：ON\n" : "[スライディング]：OFF\n");
+	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, (m_bWallDash) ? "[壁走り]：ON\n" : "[壁走り]：OFF\n");
 
 	// 現在のモーションを返す
 	return currentMotion;
@@ -609,7 +620,7 @@ void CPlayer::UpdateOldPosition(void)
 //============================================================
 //	移動量・目標向きの更新処理
 //============================================================
-CPlayer::EMotion CPlayer::UpdateMove(void)
+CPlayer::EMotion CPlayer::UpdateMove(D3DXVECTOR3& rPos)
 {
 #if 0
 	// ポインタを宣言
@@ -661,18 +672,21 @@ CPlayer::EMotion CPlayer::UpdateMove(void)
 	// 目標向きを更新
 	//m_destRot.y = atan2f(-m_move.x, -m_move.z);
 #else
+	// 壁走りの更新
+	UpdateWallDash(rPos);
+
 	// 移動量を更新
 	m_move.x += sinf(m_destRot.y + D3DX_PI) * m_fMove;
 	m_move.z += cosf(m_destRot.y + D3DX_PI) * m_fMove;
 
-	if (!m_bSlide)
+	if (!m_bSlide && !m_bWallDash)
 	{ // スライディング中ではない場合
 
 		if (m_fMove < basic::MOVE)
 		{ // 移動量が最高速度ではない場合
 
 			// 移動量を加算
-			m_fMove += slide::ADD_MOVE;
+			m_fMove += basic::ADD_MOVE;
 
 			if (m_fMove > basic::MOVE)
 			{ // 移動量が最高速度を超えた場合
@@ -689,6 +703,110 @@ CPlayer::EMotion CPlayer::UpdateMove(void)
 }
 
 //============================================================
+//	壁走りの更新処理
+//============================================================
+void CPlayer::UpdateWallDash(D3DXVECTOR3& rPos)
+{
+	// 変数を宣言
+	bool bHit = false;	// 壁走り可能状況
+
+	// ポインタを宣言
+	CInputKeyboard	*pKeyboard	= CManager::GetInstance()->GetKeyboard();	// キーボード
+	CInputPad		*pPad		= CManager::GetInstance()->GetPad();		// パッド
+
+	// 看板との当たり判定
+	bHit = CollisionSignboard(rPos);	// 壁走り可能状況を設定
+
+	if (!m_bWallDash)
+	{ // 壁走りしていない場合
+
+		if (bHit)
+		{ // 壁走り可能な場合
+
+			if (pKeyboard->IsTrigger(DIK_S) || pPad->IsTrigger(CInputPad::KEY_A))
+			{ // 壁走りの操作が行われた場合
+
+				// 壁走り操作が行われた情報を保存
+				m_bWallDashControl = true;
+			}
+		}
+
+		if (m_fMove >= walldash::CONTROL_MIN)
+		{ // 壁走りが可能な移動速度の場合
+
+			if (bHit && m_bWallDashControl)
+			{ // 壁走り可能且つ、壁走りの操作が行われた場合
+
+				// 壁走り操作が行われた情報を初期化
+				m_bWallDashControl = false;
+
+				// 壁走りしている状態にする
+				m_bWallDash = true;
+
+				// 壁走りモーションを設定
+				SetMotion(MOTION_IDOL);
+			}
+		}
+	}
+	else
+	{ // 壁走りしている場合
+
+		// 変数を宣言
+		float fPlusSubMove = walldash::PLUS_SUB_MOVE * m_nCounterWallDash;	// 移動量の追加減算量
+
+		// カウンターを加算
+		m_nCounterWallDash++;
+
+		if (m_fMove > walldash::MIN_MOVE)
+		{ // 移動量が最低速度ではない場合
+
+			// 移動量を減算
+			m_fMove -= walldash::SUB_MOVE + fPlusSubMove;
+
+			if (m_fMove < walldash::MIN_MOVE)
+			{ // 移動量が最低速度を超えた場合
+
+				// 移動量を補正
+				m_fMove = walldash::MIN_MOVE;
+			}
+		}
+
+		if (bHit)
+		{ // 壁走り可能な場合
+
+			if (m_nCounterWallDash > walldash::MIN_END_CNT)
+			{ // スライディングの解除操作ができるカウントに到達した場合
+
+				if (!(pKeyboard->IsPress(DIK_S) || pPad->IsPress(CInputPad::KEY_A)))
+				{ // スライディング解除の操作が行われた場合
+
+					// カウンターを初期化
+					m_nCounterWallDash = 0;
+
+					// 壁走りしていない状態にする
+					m_bWallDash = false;
+
+					// 壁走り操作が行われた情報を初期化
+					m_bWallDashControl = false;
+				}
+			}
+		}
+		else
+		{ // 壁走り不可能の場合
+
+			// カウンターを初期化
+			m_nCounterWallDash = 0;
+
+			// 壁走りしていない状態にする
+			m_bWallDash = false;
+
+			// 壁走り操作が行われた情報を初期化
+			m_bWallDashControl = false;
+		}
+	}
+}
+
+//============================================================
 //	ジャンプの更新処理
 //============================================================
 void CPlayer::UpdateJump(void)
@@ -697,10 +815,10 @@ void CPlayer::UpdateJump(void)
 	CInputKeyboard	*pKeyboard	= CManager::GetInstance()->GetKeyboard();	// キーボード
 	CInputPad		*pPad		= CManager::GetInstance()->GetPad();		// パッド
 
-	if (!m_bJump && !m_bSlide)
-	{ // ジャンプとスライディングをしていない場合
+	if (!m_bJump && !m_bSlide && !m_bWallDash)
+	{ // ジャンプとスライディングと壁走りをしていない場合
 
-		if (pKeyboard->IsTrigger(DIK_SPACE) || pPad->IsTrigger(CInputPad::KEY_B))
+		if (pKeyboard->IsTrigger(DIK_W) || pPad->IsTrigger(CInputPad::KEY_B))
 		{ // ジャンプの操作が行われた場合
 
 			// 上移動量
@@ -727,15 +845,19 @@ void CPlayer::UpdateSliding(void)
 	if (!m_bSlide)
 	{ // スライディングしていない場合
 
-		if (pKeyboard->IsTrigger(DIK_RETURN) || pPad->IsTrigger(CInputPad::KEY_A))
+		if (pKeyboard->IsTrigger(DIK_S) || pPad->IsTrigger(CInputPad::KEY_A))
 		{ // スライディングの操作が行われた場合
 
-			// スライディング操作が行われた情報を保存
-			m_bSlideControl = true;
+			if (!m_bWallDash)
+			{ // 壁走り中ではない場合
+
+				// スライディング操作が行われた情報を保存
+				m_bSlideControl = true;
+			}
 		}
 
-		if (!m_bJump)
-		{ // ジャンプしていない場合
+		if (!m_bJump && !m_bWallDash)
+		{ // ジャンプ・壁走りをしていない場合
 
 			if (m_fMove >= slide::CONTROL_MIN)
 			{ // スライディングが可能な移動速度の場合
@@ -781,7 +903,7 @@ void CPlayer::UpdateSliding(void)
 		if (m_nCounterSlide > slide::MIN_END_CNT)
 		{ // スライディングの解除操作ができるカウントに到達した場合
 
-			if (!(pKeyboard->IsPress(DIK_RETURN) || pPad->IsPress(CInputPad::KEY_A)))
+			if (!(pKeyboard->IsPress(DIK_S) || pPad->IsPress(CInputPad::KEY_A)))
 			{ // スライディング解除の操作が行われた場合
 
 				// カウンターを初期化
@@ -1374,8 +1496,42 @@ bool CPlayer::CollisionBuilding(D3DXVECTOR3& rPos)
 	// 変数を宣言
 	bool bLand = false;	// 着地状況
 
-	// 重力を加算
-	m_move.y -= basic::GRAVITY;
+	if (m_bWallDash)
+	{ // 壁走り中の場合
+
+		if (m_move.y > 0.0f)
+		{ // 上昇量がある場合
+
+			// 重力を加算
+			m_move.y -= walldash::GRAVITY_HIGH;
+
+			if (m_move.y < 0.0f)
+			{ // 移動量が下がり切った場合
+
+				// 移動量を初期化
+				m_move.y = 0.0f;
+			}
+		}
+		else
+		{ // 上昇量がない場合
+
+			// 重力を加算
+			m_move.y -= walldash::GRAVITY_LOW;
+
+			if (m_move.y < walldash::MAX_GRAVITY)
+			{ // 移動量が下がりすぎた場合
+
+				// 移動量を初期化
+				m_move.y = walldash::MAX_GRAVITY;
+			}
+		}
+	}
+	else
+	{ // 壁走り中ではない場合
+
+		// 重力を加算
+		m_move.y -= basic::GRAVITY;
+	}
 
 	// 移動量を加算
 	rPos.x += m_move.x;
@@ -1501,10 +1657,10 @@ bool CPlayer::CollisionSignboard(D3DXVECTOR3& rPos)
 				sizeSign = pObjCheck->GetVec3Sizing();	// 大きさ
 
 				// ずれ量を設定
-				aGap[0] = D3DXVECTOR3(-sizeSign.x, 0.0f, 0.0f);
-				aGap[1] = D3DXVECTOR3(-sizeSign.x, 0.0f, -walldash::COLL_SIZE);
-				aGap[2] = D3DXVECTOR3( sizeSign.x, 0.0f, -walldash::COLL_SIZE);
-				aGap[3] = D3DXVECTOR3( sizeSign.x, 0.0f, 0.0f);
+				aGap[0] = D3DXVECTOR3(-sizeSign.x - walldash::PLUS_COLL_SIZE, 0.0f, 0.0f);
+				aGap[1] = D3DXVECTOR3(-sizeSign.x - walldash::PLUS_COLL_SIZE, 0.0f, -walldash::COLL_SIZE);
+				aGap[2] = D3DXVECTOR3( sizeSign.x + walldash::PLUS_COLL_SIZE, 0.0f, -walldash::COLL_SIZE);
+				aGap[3] = D3DXVECTOR3( sizeSign.x + walldash::PLUS_COLL_SIZE, 0.0f, 0.0f);
 
 				for (int nCntSign = 0; nCntSign < 4; nCntSign++)
 				{ // 判定用の頂点数分繰り返す
@@ -1542,9 +1698,6 @@ bool CPlayer::CollisionSignboard(D3DXVECTOR3& rPos)
 					);
 					if (bHit)
 					{ // 範囲内の場合
-
-						// TODO：壁走り作成
-						CEffect3D::Create(posPlayer, 30.0f, CEffect3D::TYPE_LEAF, 10);
 
 						// 壁走り範囲内を返す
 						return true;
