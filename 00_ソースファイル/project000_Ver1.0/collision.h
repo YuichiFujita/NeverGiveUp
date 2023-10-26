@@ -160,6 +160,13 @@ namespace collision
 		D3DXVECTOR3 posRight,	// 境界線右座標
 		D3DXVECTOR3 pos			// 判定位置
 	);
+	float LineHeightOuterProduct	// 外積の上下判定
+	( // 引数
+		D3DXVECTOR3 posLeft,	// 境界線左座標
+		D3DXVECTOR3 posRight,	// 境界線右座標
+		D3DXVECTOR3 pos			// 判定位置
+	);
+
 	bool TriangleOuterPillar	// 三角柱の当たり判定
 	( // 引数
 		D3DXVECTOR3 pos0,	// 三角の各頂点

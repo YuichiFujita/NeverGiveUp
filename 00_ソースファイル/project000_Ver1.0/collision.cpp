@@ -864,6 +864,32 @@ float collision::LineOuterProduct
 }
 
 //============================================================
+//	外積の上下判定
+//============================================================
+//	境界線から見て上下どちらにいるかの判定に使用
+//============================================================
+float collision::LineHeightOuterProduct
+(
+	D3DXVECTOR3 posLeft,	// 境界線左座標
+	D3DXVECTOR3 posRight,	// 境界線右座標
+	D3DXVECTOR3 pos			// 判定位置
+)
+{
+	// 変数を宣言
+	D3DXVECTOR3 vecLine;	// 境界線ベクトル
+	D3DXVECTOR3 vecToPos;	// 左端と位置のベクトル
+
+	// 境界線ベクトルを求める
+	vecLine = posRight - posLeft;
+
+	// 左端と位置のベクトルを求める
+	vecToPos = pos - posLeft;
+
+	// 外積の計算結果を返す
+	return (vecLine.y * vecToPos.x) - (vecLine.x * vecToPos.y);
+}
+
+//============================================================
 //	三角柱の当たり判定
 //============================================================
 bool collision::TriangleOuterPillar

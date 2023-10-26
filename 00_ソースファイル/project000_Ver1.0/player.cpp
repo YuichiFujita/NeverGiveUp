@@ -64,14 +64,20 @@ namespace
 	// スライディング情報
 	namespace slide
 	{
-		const float	SLIDE_CONTROL_MIN	= 2.4f;		// スライディングが可能になる移動量
-		const float	PLUS_SUB_MOVE		= 0.0035f;	// 移動量の最大追加減算量
+		const float	CONTROL_MIN		= 2.4f;		// スライディングが可能になる移動量
+		const float	PLUS_SUB_MOVE	= 0.0035f;	// 移動量の最大追加減算量
 
 		const int	MIN_END_CNT	= 30;		// スライディングの解除操作ができるようになるカウント
 		const int	MAX_END_CNT	= 80;		// スライディングが強制終了するカウント
 		const float	MIN_MOVE	= 1.25f;	// 移動量の最低速度
 		const float	SUB_MOVE	= 0.01f;	// スライディング時の速度減算量
 		const float	ADD_MOVE	= 0.08f;	// 非スライディング時の速度加算量
+	}
+
+	// 壁走り情報
+	namespace walldash
+	{
+		const float	COLL_SIZE = 100.0f;	// 壁走りの判定大きさ
 	}
 
 	// プレイヤー他クラス情報
@@ -511,6 +517,13 @@ CPlayer::EMotion CPlayer::UpdateNormal(void)
 	// ステージ範囲外の補正
 	pStage->LimitPosition(posPlayer, basic::RADIUS);
 
+	// 看板との当たり判定
+	if (CollisionSignboard(posPlayer))
+	{ // 当たった場合
+
+
+	}
+
 	// 障害物との当たり判定
 	if (CollisionObstacle(posPlayer))
 	{ // 当たった場合
@@ -602,55 +615,21 @@ CPlayer::EMotion CPlayer::UpdateMove(void)
 	// ポインタを宣言
 	CInputKeyboard	*pKeyboard	= CManager::GetInstance()->GetKeyboard();	// キーボード
 
+	m_move.y = 0.0f;
+
 	if (pKeyboard->IsPress(DIK_W))
 	{ // 奥移動の操作が行われた場合
 
-		if (pKeyboard->IsPress(DIK_A))
-		{ // 左移動の操作も行われた場合 (左奥移動)
-
-			// 移動量を更新
-			m_move.x -= sinf((D3DX_PI * 0.25f)) * 2.0f;
-			m_move.z -= cosf((D3DX_PI * 0.25f)) * 2.0f;
-		}
-		else if (pKeyboard->IsPress(DIK_D))
-		{ // 右移動の操作も行われた場合 (右奥移動)
-
-			// 移動量を更新
-			m_move.x += sinf((D3DX_PI * 0.75f)) * 2.0f;
-			m_move.z += cosf((D3DX_PI * 0.75f)) * 2.0f;
-		}
-		else
-		{ // 奥移動の操作だけが行われた場合 (奥移動)
-
-			// 移動量を更新
-			m_move.x -= sinf(0.0f) * 2.0f;
-			m_move.z -= cosf(0.0f) * 2.0f;
-		}
+		// 移動量を更新
+		m_move.x -= sinf(0.0f) * 2.0f;
+		m_move.z -= cosf(0.0f) * 2.0f;
 	}
 	else if (pKeyboard->IsPress(DIK_S))
 	{ // 手前移動の操作が行われた場合
 
-		if (pKeyboard->IsPress(DIK_A))
-		{ // 左移動の操作も行われた場合 (左手前移動)
-
-			// 移動量を更新
-			m_move.x -= sinf((D3DX_PI * 0.75f)) * 2.0f;
-			m_move.z -= cosf((D3DX_PI * 0.75f)) * 2.0f;
-		}
-		else if (pKeyboard->IsPress(DIK_D))
-		{ // 右移動の操作も行われた場合 (右手前移動)
-
-			// 移動量を更新
-			m_move.x += sinf((D3DX_PI * 0.25f)) * 2.0f;
-			m_move.z += cosf((D3DX_PI * 0.25f)) * 2.0f;
-		}
-		else
-		{ // 手前移動の操作だけが行われた場合 (手前移動)
-
-			// 移動量を更新
-			m_move.x += sinf(0.0f) * 2.0f;
-			m_move.z += cosf(0.0f) * 2.0f;
-		}
+		// 移動量を更新
+		m_move.x += sinf(0.0f) * 2.0f;
+		m_move.z += cosf(0.0f) * 2.0f;
 	}
 	else if (pKeyboard->IsPress(DIK_A))
 	{ // 左移動の操作が行われた場合
@@ -665,6 +644,18 @@ CPlayer::EMotion CPlayer::UpdateMove(void)
 		// 移動量を更新
 		m_move.x += sinf((D3DX_PI * 0.5f)) * 2.0f;
 		m_move.z += cosf((D3DX_PI * 0.5f)) * 2.0f;
+	}
+	else if (pKeyboard->IsPress(DIK_E))
+	{ // 左移動の操作が行われた場合
+
+		// 移動量を更新
+		m_move.y -= 6.0f;
+	}
+	else if (pKeyboard->IsPress(DIK_Q))
+	{ // 右移動の操作が行われた場合
+
+		// 移動量を更新
+		m_move.y += 6.0f;
 	}
 
 	// 目標向きを更新
@@ -746,7 +737,7 @@ void CPlayer::UpdateSliding(void)
 		if (!m_bJump)
 		{ // ジャンプしていない場合
 
-			if (m_fMove >= slide::SLIDE_CONTROL_MIN)
+			if (m_fMove >= slide::CONTROL_MIN)
 			{ // スライディングが可能な移動速度の場合
 
 				if (m_bSlideControl)
@@ -1456,6 +1447,118 @@ bool CPlayer::CollisionBuilding(D3DXVECTOR3& rPos)
 
 	// 着地状況を返す
 	return bLand;
+}
+
+//============================================================
+//	看板との当たり判定
+//============================================================
+bool CPlayer::CollisionSignboard(D3DXVECTOR3& rPos)
+{
+	// 変数を宣言
+	D3DXVECTOR3 posPlayer = D3DXVECTOR3(rPos.x, rPos.y + basic::HEIGHT * 0.5f, rPos.z);	// プレイヤー判定位置
+
+	for (int nCntPri = 0; nCntPri < MAX_PRIO; nCntPri++)
+	{ // 優先順位の総数分繰り返す
+
+		// ポインタを宣言
+		CObject *pObjectTop = CObject::GetTop(nCntPri);	// 先頭オブジェクト
+
+		if (pObjectTop != NULL)
+		{ // 先頭が存在する場合
+
+			// ポインタを宣言
+			CObject *pObjCheck = pObjectTop;	// オブジェクト確認用
+
+			while (pObjCheck != NULL)
+			{ // オブジェクトが使用されている場合繰り返す
+
+				// ポインタを宣言
+				CObject *pObjectNext = pObjCheck->GetNext();	// 次オブジェクト
+
+				if (pObjCheck->GetLabel() != CObject::LABEL_SIGNBOARD)
+				{ // オブジェクトラベルが看板ではない場合
+
+					// 次のオブジェクトへのポインタを代入
+					pObjCheck = pObjectNext;
+
+					// 次の繰り返しに移行
+					continue;
+				}
+
+				// 変数を宣言
+				D3DXMATRIX mtxSign;		// 看板マトリックス
+				D3DXVECTOR3 posSign;	// 看板位置
+				D3DXVECTOR3 sizeSign;	// 看板大きさ
+				bool bHit = false;		// 判定情報
+
+				// 変数配列を宣言
+				D3DXVECTOR3 aGap[4];	// ずれ量
+				D3DXVECTOR3 aPos[4];	// 頂点位置
+
+				// 看板の情報を取得
+				mtxSign = *pObjCheck->GetPtrMtxWorld();	// マトリックス
+				posSign = pObjCheck->GetVec3Position();	// 位置
+				sizeSign = pObjCheck->GetVec3Sizing();	// 大きさ
+
+				// ずれ量を設定
+				aGap[0] = D3DXVECTOR3(-sizeSign.x, 0.0f, 0.0f);
+				aGap[1] = D3DXVECTOR3(-sizeSign.x, 0.0f, -walldash::COLL_SIZE);
+				aGap[2] = D3DXVECTOR3( sizeSign.x, 0.0f, -walldash::COLL_SIZE);
+				aGap[3] = D3DXVECTOR3( sizeSign.x, 0.0f, 0.0f);
+
+				for (int nCntSign = 0; nCntSign < 4; nCntSign++)
+				{ // 判定用の頂点数分繰り返す
+
+					// 変数を宣言
+					D3DXMATRIX mtxGap;		// 頂点のずれ量マトリックス
+					D3DXMATRIX mtxTrans;	// 計算用マトリックス
+
+					// ワールドマトリックスの初期化
+					D3DXMatrixIdentity(&mtxGap);
+
+					// 位置を反映
+					D3DXMatrixTranslation(&mtxTrans, aGap[nCntSign].x, aGap[nCntSign].y, aGap[nCntSign].z);
+					D3DXMatrixMultiply(&mtxGap, &mtxGap, &mtxTrans);
+
+					// マトリックスを掛け合わせる
+					D3DXMatrixMultiply(&mtxGap, &mtxGap, &mtxSign);
+
+					// 位置を設定
+					aPos[nCntSign] = D3DXVECTOR3(mtxGap._41, mtxGap._42, mtxGap._43);
+				}
+
+				if (posPlayer.y < posSign.y + sizeSign.y
+				&&  posPlayer.y > posSign.y - sizeSign.y)
+				{ // プレイヤーの縦座標が看板内の場合
+
+					// 壁走り範囲の判定
+					bHit = collision::BoxOuterPillar
+					( // 引数
+						aPos[0],	// 四角の各頂点
+						aPos[1],	// 四角の各頂点
+						aPos[2],	// 四角の各頂点
+						aPos[3],	// 四角の各頂点
+						posPlayer	// 判定位置
+					);
+					if (bHit)
+					{ // 範囲内の場合
+
+						// TODO：壁走り作成
+						CEffect3D::Create(posPlayer, 30.0f, CEffect3D::TYPE_LEAF, 10);
+
+						// 壁走り範囲内を返す
+						return true;
+					}
+				}
+
+				// 次のオブジェクトへのポインタを代入
+				pObjCheck = pObjectNext;
+			}
+		}
+	}
+
+	// 壁走り範囲外を返す
+	return false;
 }
 
 //============================================================
