@@ -47,6 +47,9 @@ namespace
 	{
 		const D3DXVECTOR3	SIZE	= D3DXVECTOR3(280.0f, 20.0f, 280.0f);	// 中心表示の大きさ
 		const D3DXCOLOR		COL		= D3DXCOLOR(0.0f, 1.0f, 0.0f, 0.5f);	// 中心表示の色
+
+		const float ADD_SIDE	= 50.0f;	// 中心位置までの横加算量
+		const float SUB_DOWN	= 240.0f;	// 中心位置までの縦減算量
 	}
 }
 
@@ -483,9 +486,9 @@ void CEditSignboard::UpdateCenter(void)
 	D3DXVECTOR3 rotEdit = m_pEdit->GetVec3Rotation();	// エディットの向き
 
 	// 中心位置を計算
-	posCenter.x = posEdit.x + sinf(rotEdit.y + D3DX_PI) * 50.0f;
-	posCenter.y = posEdit.y + -240.0f;
-	posCenter.z = posEdit.z + cosf(rotEdit.y + D3DX_PI) * 50.0f;
+	posCenter.x = posEdit.x + sinf(rotEdit.y + D3DX_PI) * center::ADD_SIDE;
+	posCenter.y = posEdit.y - center::SUB_DOWN;
+	posCenter.z = posEdit.z + cosf(rotEdit.y + D3DX_PI) * center::ADD_SIDE;
 
 	// 中心位置を指定
 	m_pCenter->SetVec3Position(posCenter);
