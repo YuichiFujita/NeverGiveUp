@@ -164,6 +164,7 @@
     <ClCompile Include="editGoalPoint.cpp" />
     <ClCompile Include="editObstacle.cpp" />
     <ClCompile Include="editSavePoint.cpp" />
+    <ClCompile Include="editSignboard.cpp" />
     <ClCompile Include="editStageManager.cpp" />
     <ClCompile Include="editWindow.cpp" />
     <ClCompile Include="effect2D.cpp" />
@@ -244,6 +245,7 @@
     <ClInclude Include="editGoalPoint.h" />
     <ClInclude Include="editObstacle.h" />
     <ClInclude Include="editSavePoint.h" />
+    <ClInclude Include="editSignboard.h" />
     <ClInclude Include="editStageManager.h" />
     <ClInclude Include="editWindow.h" />
     <ClInclude Include="effect2D.h" />

@@ -20,6 +20,7 @@
 //************************************************************
 class CEditBuilding;	// エディットビルクラス
 class CEditWindow;		// エディット窓クラス
+class CEditSignboard;	// エディット看板クラス
 class CEditObstacle;	// エディット障害物クラス
 class CEditSavePoint;	// エディットセーブポイントクラス
 class CEditGoalPoint;	// エディットゴールポイントクラス
@@ -77,6 +78,7 @@ private:
 	// メンバ変数
 	CEditBuilding	*m_pBuilding;	// エディットビルの情報
 	CEditWindow		*m_pWindow;		// エディット窓の情報
+	CEditSignboard	*m_pSignboard;	// エディット看板の情報
 	CEditObstacle	*m_pObstacle;	// エディット障害物の情報
 	CEditSavePoint	*m_pSavePoint;	// エディットセーブポイントの情報
 	CEditGoalPoint	*m_pGoalPoint;	// エディットゴールポイントの情報

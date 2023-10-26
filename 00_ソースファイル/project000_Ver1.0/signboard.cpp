@@ -74,6 +74,7 @@ CSignboard::CSignboard() : CObjectMeshCube(CObject::LABEL_SIGNBOARD, SIGNBOARD_P
 {
 	// メンバ変数をクリア
 	m_pStand = NULL;	// 看板スタンドの情報
+	m_fScale = 0.0f;	// 拡大率
 }
 
 //============================================================
@@ -91,6 +92,7 @@ HRESULT CSignboard::Init(void)
 {
 	// メンバ変数を初期化
 	m_pStand = NULL;	// 看板スタンドの情報
+	m_fScale = 1.0f;	// 拡大率
 
 	//--------------------------------------------------------
 	//	オブジェクトメッシュキューブの初期化
@@ -238,6 +240,30 @@ void CSignboard::SetType(const int nType)
 }
 
 //============================================================
+//	拡大率の設定処理
+//============================================================
+void CSignboard::SetScale(const float fScale)
+{
+	// 引数の拡大率を設定
+	m_fScale = fScale;
+
+	// メッシュキューブの大きさを設定
+	SetVec3Sizing(DEFAULT_SIZE * fScale);
+
+	// モデルの拡大率を設定
+	m_pStand->SetVec3Scaling(VEC3_ALL(fScale));
+}
+
+//============================================================
+//	拡大率取得処理
+//============================================================
+float CSignboard::GetScale(void) const
+{
+	// 拡大率を返す
+	return m_fScale;
+}
+
+//============================================================
 //	生成処理
 //============================================================
 CSignboard *CSignboard::Create
@@ -294,16 +320,4 @@ CSignboard *CSignboard::Create
 		return pSignboard;
 	}
 	else { assert(false); return NULL; }	// 確保失敗
-}
-
-//============================================================
-//	拡大率の設定処理
-//============================================================
-void CSignboard::SetScale(const float fScale)
-{
-	// メッシュキューブの大きさを設定
-	SetVec3Sizing(DEFAULT_SIZE * fScale);
-
-	// モデルの拡大率を設定
-	m_pStand->SetVec3Scaling(VEC3_ALL(fScale));
 }

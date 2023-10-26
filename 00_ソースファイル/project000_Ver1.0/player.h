@@ -140,8 +140,8 @@ private:
 	EDirection FourDirection(const float fRot, const float fTolerance);	// 四方向変換
 	void CollisionRotationBuilding(D3DXVECTOR3& rPos);					// 向き変更の当たり判定
 	bool ResponseSingleBuilding(const EAxis axis, D3DXVECTOR3& rPos);	// ビルとの一軸ごとの当たり判定
+	bool CollisionSignboard(D3DXVECTOR3& rPos, float *pRate = NULL);	// 看板との当たり判定
 	bool CollisionBuilding(D3DXVECTOR3& rPos);	// ビルとの当たり判定
-	bool CollisionSignboard(D3DXVECTOR3& rPos);	// 看板との当たり判定
 	bool CollisionObstacle(D3DXVECTOR3& rPos);	// 障害物との当たり判定
 
 	// 静的メンバ変数
@@ -157,6 +157,7 @@ private:
 	int		m_nCounterSlide;	// スライディング管理カウンター
 	int		m_nCounterWallDash;	// 壁走り管理カウンター
 	float	m_fMove;			// 移動量
+	float	m_fPlusMove;		// プラス移動量
 	bool	m_bJump;			// ジャンプ状況
 	bool	m_bSlide;			// スライディング状況
 	bool	m_bSlideControl;	// スライディング操作状況

@@ -12,6 +12,7 @@
 #include "input.h"
 #include "editBuilding.h"
 #include "editWindow.h"
+#include "editSignboard.h"
 #include "editObstacle.h"
 #include "editSavePoint.h"
 #include "editGoalPoint.h"
@@ -76,11 +77,12 @@ CEditStageManager::CEditStageManager()
 #if _DEBUG
 
 	// メンバ変数をクリア
-	m_pBuilding = NULL;			// エディットビルの情報
-	m_pWindow = NULL;			// エディット窓の情報
-	m_pObstacle = NULL;			// エディット障害物の情報
-	m_pSavePoint = NULL;		// エディットセーブポイントの情報
-	m_pGoalPoint = NULL;		// エディットゴールポイントの情報
+	m_pBuilding		= NULL;		// エディットビルの情報
+	m_pWindow		= NULL;		// エディット窓の情報
+	m_pSignboard	= NULL;		// エディット看板の情報
+	m_pObstacle		= NULL;		// エディット障害物の情報
+	m_pSavePoint	= NULL;		// エディットセーブポイントの情報
+	m_pGoalPoint	= NULL;		// エディットゴールポイントの情報
 	m_pos	= VEC3_ZERO;		// 位置
 	m_rot	= VEC3_ZERO;		// 向き
 	m_fMove	= 0.0f;				// 位置移動量
@@ -108,11 +110,12 @@ HRESULT CEditStageManager::Init(void)
 #if _DEBUG
 
 	// メンバ変数を初期化
-	m_pBuilding = NULL;			// エディットビルの情報
-	m_pWindow = NULL;			// エディット窓の情報
-	m_pObstacle = NULL;			// エディット障害物の情報
-	m_pSavePoint = NULL;		// エディットセーブポイントの情報
-	m_pGoalPoint = NULL;		// エディットゴールポイントの情報
+	m_pBuilding		= NULL;		// エディットビルの情報
+	m_pWindow		= NULL;		// エディット窓の情報
+	m_pSignboard	= NULL;		// エディット看板の情報
+	m_pObstacle		= NULL;		// エディット障害物の情報
+	m_pSavePoint	= NULL;		// エディットセーブポイントの情報
+	m_pGoalPoint	= NULL;		// エディットゴールポイントの情報
 	m_pos	= VEC3_ZERO;		// 位置
 	m_rot	= VEC3_ZERO;		// 向き
 	m_fMove	= INIT_MOVE;		// 位置移動量
@@ -140,6 +143,16 @@ HRESULT CEditStageManager::Init(void)
 	// エディット窓の生成
 	m_pWindow = CEditWindow::Create(this);
 	if (m_pWindow == NULL)
+	{ // 生成に失敗した場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
+
+	// エディット看板の生成
+	m_pSignboard = CEditSignboard::Create(this);
+	if (m_pSignboard == NULL)
 	{ // 生成に失敗した場合
 
 		// 失敗を返す
@@ -208,6 +221,14 @@ void CEditStageManager::Uninit(void)
 
 		// エディット窓の破棄
 		CEditWindow::Release(m_pWindow);
+	}
+	else { assert(false); }	// 非使用中
+
+	if (m_pSignboard != NULL)
+	{ // エディット看板が使用されている場合
+
+		// エディット看板の破棄
+		CEditSignboard::Release(m_pSignboard);
 	}
 	else { assert(false); }	// 非使用中
 
@@ -291,6 +312,15 @@ void CEditStageManager::Update(void)
 		break;
 
 	case THING_SIGNBOARD:	// 看板
+
+		if (m_pSignboard != NULL)
+		{ // エディット看板が使用されている場合
+
+			// エディット看板の更新
+			m_pSignboard->Update();
+		}
+		else { assert(false); }	// 非使用中
+
 		break;
 
 	case THING_OBSTACLE:	// 障害物
@@ -390,6 +420,15 @@ void CEditStageManager::SetEnableEdit(const bool bEdit)
 		break;
 
 	case THING_SIGNBOARD:	// 看板
+
+		if (m_pSignboard != NULL)
+		{ // エディット看板が使用されている場合
+
+			// エディット看板の表示の設定
+			m_pSignboard->SetDisp(m_bEdit);
+		}
+		else { assert(false); }	// 非使用中
+
 		break;
 
 	case THING_OBSTACLE:	// 障害物
@@ -575,6 +614,15 @@ void CEditStageManager::UpdateChangeThing(void)
 			break;
 
 		case THING_SIGNBOARD:	// 看板
+
+			if (m_pSignboard != NULL)
+			{ // エディット看板が使用されている場合
+
+				// エディット看板の表示の設定
+				m_pSignboard->SetDisp(false);
+			}
+			else { assert(false); }	// 非使用中
+
 			break;
 
 		case THING_OBSTACLE:	// 障害物
@@ -648,6 +696,15 @@ void CEditStageManager::UpdateChangeThing(void)
 			break;
 
 		case THING_SIGNBOARD:	// 看板
+
+			if (m_pSignboard != NULL)
+			{ // エディット看板が使用されている場合
+
+				// エディット看板の表示の設定
+				m_pSignboard->SetDisp(true);
+			}
+			else { assert(false); }	// 非使用中
+
 			break;
 
 		case THING_OBSTACLE:	// 障害物
@@ -846,6 +903,15 @@ void CEditStageManager::DrawDebugControl(void)
 		break;
 
 	case THING_SIGNBOARD:	// 看板
+
+		if (m_pSignboard != NULL)
+		{ // エディット看板が使用されている場合
+
+			// エディット看板の操作表示
+			m_pSignboard->DrawDebugControl();
+		}
+		else { assert(false); }	// 非使用中
+
 		break;
 
 	case THING_OBSTACLE:	// 障害物
@@ -938,6 +1004,15 @@ void CEditStageManager::DrawDebugInfo(void)
 		break;
 
 	case THING_SIGNBOARD:	// 看板
+
+		if (m_pSignboard != NULL)
+		{ // エディット看板が使用されている場合
+
+			// エディット看板の情報表示
+			m_pSignboard->DrawDebugInfo();
+		}
+		else { assert(false); }	// 非使用中
+
 		break;
 
 	case THING_OBSTACLE:	// 障害物
@@ -1032,6 +1107,9 @@ void CEditStageManager::Save(void)
 
 		// 窓の保存
 		m_pWindow->Save(pFile);
+
+		// 看板の保存
+		m_pSignboard->Save(pFile);
 
 		// 障害物の保存
 		m_pObstacle->Save(pFile);

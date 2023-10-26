@@ -1,13 +1,13 @@
 //============================================================
 //
-//	エディットビル処理 [editBuilding.cpp]
+//	エディット看板処理 [editSignboard.cpp]
 //	Author：藤田勇一
 //
 //============================================================
 //************************************************************
 //	インクルードファイル
 //************************************************************
-#include "editBuilding.h"
+#include "editSignboard.h"
 #include "manager.h"
 #include "input.h"
 #include "collision.h"
@@ -27,8 +27,6 @@
 #define NAME_RELEASE	("9")	// 破棄表示
 #define KEY_TYPE		(DIK_2)	// 種類変更キー
 #define NAME_TYPE		("2")	// 種類変更表示
-#define KEY_COLL		(DIK_3)	// 判定変更キー
-#define NAME_COLL		("3")	// 判定変更表示
 
 #define KEY_SCALE_UP	(DIK_RIGHT)	// 拡大率上昇キー
 #define NAME_SCALE_UP	("→")		// 拡大率上昇表示
@@ -47,18 +45,18 @@ namespace
 }
 
 //************************************************************
-//	親クラス [CEditBuilding] のメンバ関数
+//	親クラス [CEditSignboard] のメンバ関数
 //************************************************************
 //============================================================
 //	コンストラクタ
 //============================================================
-CEditBuilding::CEditBuilding()
+CEditSignboard::CEditSignboard()
 {
 #if _DEBUG
 
 	// メンバ変数をクリア
 	m_pEdit = NULL;	// エディットステージの情報
-	memset(&m_building, 0, sizeof(m_building));	// ビル配置情報
+	memset(&m_signboard, 0, sizeof(m_signboard));	// 看板配置情報
 
 #endif	// _DEBUG
 }
@@ -66,7 +64,7 @@ CEditBuilding::CEditBuilding()
 //============================================================
 //	デストラクタ
 //============================================================
-CEditBuilding::~CEditBuilding()
+CEditSignboard::~CEditSignboard()
 {
 #if _DEBUG
 #endif	// _DEBUG
@@ -75,20 +73,19 @@ CEditBuilding::~CEditBuilding()
 //============================================================
 //	初期化処理
 //============================================================
-HRESULT CEditBuilding::Init(void)
+HRESULT CEditSignboard::Init(void)
 {
 #if _DEBUG
 
 	// メンバ変数を初期化
 	m_pEdit = NULL;	// エディットステージの情報
 
-	m_building.pBuilding = NULL;					// ビル情報
-	m_building.type = CBuilding::TYPE_00;			// ビル種類
-	m_building.coll = CBuilding::COLLISION_GROUND;	// ビル判定
+	m_signboard.pSignboard = NULL;			// 看板情報
+	m_signboard.type = CSignboard::TYPE_00;	// 看板種類
 
-	// ビルの生成
-	m_building.pBuilding = CBuilding::Create(m_building.type, VEC3_ZERO, VEC3_ZERO, m_building.coll);
-	if (m_building.pBuilding == NULL)
+	// 看板の生成
+	m_signboard.pSignboard = CSignboard::Create(m_signboard.type, VEC3_ZERO, VEC3_ZERO);
+	if (m_signboard.pSignboard == NULL)
 	{ // 生成に失敗した場合
 
 		// 失敗を返す
@@ -97,8 +94,8 @@ HRESULT CEditBuilding::Init(void)
 	}
 
 	// 色を設定
-	D3DXCOLOR col = m_building.pBuilding->GetColor();	// 元の色を取得
-	m_building.pBuilding->SetColor(D3DXCOLOR(col.r, col.g, col.b, INIT_ALPHA));
+	D3DXCOLOR col = m_signboard.pSignboard->GetColor();	// 元の色を取得
+	m_signboard.pSignboard->SetColor(D3DXCOLOR(col.r, col.g, col.b, INIT_ALPHA));
 
 	// 表示をOFFにする
 	SetDisp(false);
@@ -117,7 +114,7 @@ HRESULT CEditBuilding::Init(void)
 //============================================================
 //	終了処理
 //============================================================
-void CEditBuilding::Uninit(void)
+void CEditSignboard::Uninit(void)
 {
 #if _DEBUG
 #endif	// _DEBUG
@@ -126,7 +123,7 @@ void CEditBuilding::Uninit(void)
 //============================================================
 //	更新処理
 //============================================================
-void CEditBuilding::Update(void)
+void CEditSignboard::Update(void)
 {
 #if _DEBUG
 
@@ -141,32 +138,26 @@ void CEditBuilding::Update(void)
 	// 種類変更の更新
 	UpdateChangeType();
 
-	// 判定変更の更新
-	UpdateChangeColl();
-
 	// 拡大率変更の更新
 	UpdateChangeScale();
 
-	// 方向表示エフェクトの生成
-	CreateRotaEffect();
+	// 中心表示エフェクト生成
+	CreateCenterEffect();
 
-	// ビルの生成
-	CreateBuilding();
+	// 看板の生成
+	CreateSignboard();
 
-	// ビルの破棄
-	ReleaseBuilding();
+	// 看板の破棄
+	ReleaseSignboard();
 
 	// 位置を反映
-	m_building.pBuilding->SetVec3Position(m_pEdit->GetVec3Position());
+	m_signboard.pSignboard->SetVec3Position(m_pEdit->GetVec3Position());
 
 	// 向きを反映
-	m_building.pBuilding->SetVec3Rotation(m_pEdit->GetVec3Rotation());
+	m_signboard.pSignboard->SetVec3Rotation(m_pEdit->GetVec3Rotation());
 
 	// 種類を反映
-	m_building.pBuilding->SetType(m_building.type);
-
-	// 判定を反映
-	m_building.pBuilding->SetState(m_building.coll);
+	m_signboard.pSignboard->SetType(m_signboard.type);
 
 #endif	// _DEBUG
 }
@@ -174,40 +165,39 @@ void CEditBuilding::Update(void)
 //============================================================
 //	表示の設定処理
 //============================================================
-void CEditBuilding::SetDisp(const bool bDisp)
+void CEditSignboard::SetDisp(const bool bDisp)
 {
 	// 自動更新・自動描画を表示状況に合わせる
-	m_building.pBuilding->SetEnableUpdate(bDisp);	// 更新
-	m_building.pBuilding->SetEnableDraw(bDisp);		// 描画
+	m_signboard.pSignboard->SetEnableUpdate(bDisp);	// 更新
+	m_signboard.pSignboard->SetEnableDraw(bDisp);	// 描画
 
 	if (bDisp)
 	{ // 表示ONの場合
 
 		// 位置を反映
-		m_building.pBuilding->SetVec3Position(m_pEdit->GetVec3Position());
+		m_signboard.pSignboard->SetVec3Position(m_pEdit->GetVec3Position());
 	}
 	else
 	{ // 表示OFFの場合
 
-		// ビルの色の全初期化
-		InitAllColorBuilding();
+		// 看板の色の全初期化
+		InitAllColorSignboard();
 
 		// 位置をステージの範囲外に設定
-		D3DXVECTOR3 outLimit = D3DXVECTOR3(0.0f, 0.0f, CScene::GetStage()->GetStageLimit().fNear - m_building.pBuilding->GetVec3Sizing().z);
-		m_building.pBuilding->SetVec3Position(outLimit);
+		D3DXVECTOR3 outLimit = D3DXVECTOR3(0.0f, 0.0f, CScene::GetStage()->GetStageLimit().fNear - m_signboard.pSignboard->GetVec3Sizing().z);
+		m_signboard.pSignboard->SetVec3Position(outLimit);
 	}
 }
 
 //============================================================
 //	操作表示の描画処理
 //============================================================
-void CEditBuilding::DrawDebugControl(void)
+void CEditSignboard::DrawDebugControl(void)
 {
 	// ポインタを宣言
 	CDebugProc *pDebug = CManager::GetInstance()->GetDebugProc();	// デバッグプロックの情報
 
 	pDebug->Print(CDebugProc::POINT_RIGHT, "種類変更：[%s]\n", NAME_TYPE);
-	pDebug->Print(CDebugProc::POINT_RIGHT, "判定変更：[%s]\n", NAME_COLL);
 	pDebug->Print(CDebugProc::POINT_RIGHT, "拡大率上昇：[%s]\n", NAME_SCALE_UP);
 	pDebug->Print(CDebugProc::POINT_RIGHT, "拡大率下降：[%s]\n", NAME_SCALE_DOWN);
 	pDebug->Print(CDebugProc::POINT_RIGHT, "削除：[%s]\n", NAME_RELEASE);
@@ -217,24 +207,19 @@ void CEditBuilding::DrawDebugControl(void)
 //============================================================
 //	情報表示の描画処理
 //============================================================
-void CEditBuilding::DrawDebugInfo(void)
+void CEditSignboard::DrawDebugInfo(void)
 {
 	// ポインタを宣言
 	CDebugProc *pDebug = CManager::GetInstance()->GetDebugProc();	// デバッグプロックの情報
-	static char* apColl[] = { "無し", "地面", "天井" };	// 判定
 
-	// 判定数の不一致
-	assert((sizeof(apColl) / sizeof(apColl[0])) == CBuilding::COLLISION_MAX);
-
-	pDebug->Print(CDebugProc::POINT_RIGHT, "%d：[種類]\n", m_building.type);
-	pDebug->Print(CDebugProc::POINT_RIGHT, "%s：[判定]\n", apColl[m_building.coll]);
-	pDebug->Print(CDebugProc::POINT_RIGHT, "%f：[拡大率]\n", m_building.pBuilding->GetScale());
+	pDebug->Print(CDebugProc::POINT_RIGHT, "%d：[種類]\n", m_signboard.type);
+	pDebug->Print(CDebugProc::POINT_RIGHT, "%f：[拡大率]\n", m_signboard.pSignboard->GetScale());
 }
 
 //============================================================
 //	保存処理
 //============================================================
-void CEditBuilding::Save(FILE *pFile)
+void CEditSignboard::Save(FILE *pFile)
 {
 #if _DEBUG
 
@@ -243,11 +228,11 @@ void CEditBuilding::Save(FILE *pFile)
 
 		// 見出しを書き出し
 		fprintf(pFile, "#------------------------------------------------------------------------------\n");
-		fprintf(pFile, "#	ビルの配置情報\n");
+		fprintf(pFile, "#	看板の配置情報\n");
 		fprintf(pFile, "#------------------------------------------------------------------------------\n");
 
 		// 情報開始地点を書き出し
-		fprintf(pFile, "STAGE_BUILDINGSET\n\n");
+		fprintf(pFile, "STAGE_SIGNBOARDSET\n\n");
 
 		for (int nCntPri = 0; nCntPri < MAX_PRIO; nCntPri++)
 		{ // 優先順位の総数分繰り返す
@@ -267,8 +252,8 @@ void CEditBuilding::Save(FILE *pFile)
 					// ポインタを宣言
 					CObject *pObjectNext = pObjCheck->GetNext();	// 次オブジェクト
 	
-					if (pObjCheck->GetLabel() != CObject::LABEL_BUILDING)
-					{ // オブジェクトラベルがビルではない場合
+					if (pObjCheck->GetLabel() != CObject::LABEL_SIGNBOARD)
+					{ // オブジェクトラベルが看板ではない場合
 	
 						// 次のオブジェクトへのポインタを代入
 						pObjCheck = pObjectNext;
@@ -277,7 +262,7 @@ void CEditBuilding::Save(FILE *pFile)
 						continue;
 					}
 	
-					if (pObjCheck == (CObject*)m_building.pBuilding)
+					if (pObjCheck == (CObject*)m_signboard.pSignboard)
 					{ // 同じアドレスだった場合
 	
 						// 次のオブジェクトへのポインタを代入
@@ -287,21 +272,21 @@ void CEditBuilding::Save(FILE *pFile)
 						continue;
 					}
 
-					// ビルの情報を取得
-					D3DXVECTOR3 posBuild = pObjCheck->GetVec3Position();	// 位置
-					D3DXVECTOR3 rotBuild = pObjCheck->GetVec3Rotation();	// 向き
-					int nType = pObjCheck->GetType();		// 種類
-					int nCollision = pObjCheck->GetState();	// 当たり判定
-					float fScale = pObjCheck->GetScale();	// 拡大率
+					// 看板の情報を取得
+					D3DXVECTOR3 posSign = pObjCheck->GetVec3Position();	// 位置
+					D3DXVECTOR3 rotSign = pObjCheck->GetVec3Rotation();	// 向き
+					D3DXCOLOR colSign = pObjCheck->GetColor();	// 色
+					int nType = pObjCheck->GetType();			// 種類
+					float fScale = pObjCheck->GetScale();		// 拡大率
 	
 					// 情報を書き出し
-					fprintf(pFile, "	BUILDINGSET\n");
+					fprintf(pFile, "	SIGNBOARDSET\n");
 					fprintf(pFile, "		TYPE = %d\n", nType);
-					fprintf(pFile, "		POS = %.2f %.2f %.2f\n", posBuild.x, posBuild.y, posBuild.z);
-					fprintf(pFile, "		ROT = %.2f %.2f %.2f\n", rotBuild.x, rotBuild.y, rotBuild.z);
-					fprintf(pFile, "		COLL = %d\n", nCollision);
+					fprintf(pFile, "		POS = %.2f %.2f %.2f\n", posSign.x, posSign.y, posSign.z);
+					fprintf(pFile, "		ROT = %.2f %.2f %.2f\n", rotSign.x, rotSign.y, rotSign.z);
+					fprintf(pFile, "		COL = %.2f %.2f %.2f %.2f\n", colSign.r, colSign.g, colSign.b, colSign.a);
 					fprintf(pFile, "		SCALE = %.2f\n", fScale);
-					fprintf(pFile, "	END_BUILDINGSET\n\n");
+					fprintf(pFile, "	END_SIGNBOARDSET\n\n");
 
 					// 次のオブジェクトへのポインタを代入
 					pObjCheck = pObjectNext;
@@ -310,7 +295,7 @@ void CEditBuilding::Save(FILE *pFile)
 		}
 
 		// 情報終了地点を書き出し
-		fprintf(pFile, "END_STAGE_BUILDINGSET\n\n");
+		fprintf(pFile, "END_STAGE_SIGNBOARDSET\n\n");
 	}
 
 #endif	// _DEBUG
@@ -319,41 +304,41 @@ void CEditBuilding::Save(FILE *pFile)
 //============================================================
 //	生成処理
 //============================================================
-CEditBuilding *CEditBuilding::Create(CEditStageManager *pEdit)
+CEditSignboard *CEditSignboard::Create(CEditStageManager *pEdit)
 {
 #if _DEBUG
 
 	// ポインタを宣言
-	CEditBuilding *pEditBuilding = NULL;	// エディットビル生成用
+	CEditSignboard *pEditSignboard = NULL;	// エディット看板生成用
 
-	if (pEditBuilding == NULL)
+	if (pEditSignboard == NULL)
 	{ // 使用されていない場合
 
 		// メモリ確保
-		pEditBuilding = new CEditBuilding;	// エディットビル
+		pEditSignboard = new CEditSignboard;	// エディット看板
 	}
 	else { assert(false); return NULL; }	// 使用中
 
-	if (pEditBuilding != NULL)
+	if (pEditSignboard != NULL)
 	{ // 使用されている場合
 		
-		// エディットビルの初期化
-		if (FAILED(pEditBuilding->Init()))
+		// エディット看板の初期化
+		if (FAILED(pEditSignboard->Init()))
 		{ // 初期化に失敗した場合
 
 			// メモリ開放
-			delete pEditBuilding;
-			pEditBuilding = NULL;
+			delete pEditSignboard;
+			pEditSignboard = NULL;
 
 			// 失敗を返す
 			return NULL;
 		}
 
 		// エディットステージの情報を設定
-		pEditBuilding->m_pEdit = pEdit;
+		pEditSignboard->m_pEdit = pEdit;
 
 		// 確保したアドレスを返す
-		return pEditBuilding;
+		return pEditSignboard;
 	}
 	else { assert(false); return NULL; }	// 確保失敗
 
@@ -368,19 +353,19 @@ CEditBuilding *CEditBuilding::Create(CEditStageManager *pEdit)
 //============================================================
 //	破棄処理
 //============================================================
-HRESULT CEditBuilding::Release(CEditBuilding *&prEditBuilding)
+HRESULT CEditSignboard::Release(CEditSignboard *&prEditSignboard)
 {
 #if _DEBUG
 
-	if (prEditBuilding != NULL)
+	if (prEditSignboard != NULL)
 	{ // 使用中の場合
 
-		// エディットビルの終了
-		prEditBuilding->Uninit();
+		// エディット看板の終了
+		prEditSignboard->Uninit();
 
 		// メモリ開放
-		delete prEditBuilding;
-		prEditBuilding = NULL;
+		delete prEditSignboard;
+		prEditSignboard = NULL;
 
 		// 成功を返す
 		return S_OK;
@@ -398,7 +383,7 @@ HRESULT CEditBuilding::Release(CEditBuilding *&prEditBuilding)
 //============================================================
 //	種類変更の更新処理
 //============================================================
-void CEditBuilding::UpdateChangeType(void)
+void CEditSignboard::UpdateChangeType(void)
 {
 	// ポインタを宣言
 	CInputKeyboard *m_pKeyboard = CManager::GetInstance()->GetKeyboard();	// キーボード情報
@@ -406,32 +391,17 @@ void CEditBuilding::UpdateChangeType(void)
 	// 種類を変更
 	if (m_pKeyboard->IsTrigger(KEY_TYPE))
 	{
-		m_building.type = (CBuilding::EType)((m_building.type + 1) % CBuilding::TYPE_MAX);
-	}
-}
-
-//============================================================
-//	判定変更の更新処理
-//============================================================
-void CEditBuilding::UpdateChangeColl(void)
-{
-	// ポインタを宣言
-	CInputKeyboard *m_pKeyboard = CManager::GetInstance()->GetKeyboard();	// キーボード情報
-
-	// 判定を変更
-	if (m_pKeyboard->IsTrigger(KEY_COLL))
-	{
-		m_building.coll = (CBuilding::ECollision)((m_building.coll + 1) % CBuilding::COLLISION_MAX);
+		m_signboard.type = (CSignboard::EType)((m_signboard.type + 1) % CSignboard::TYPE_MAX);
 	}
 }
 
 //============================================================
 //	拡大率変更の更新処理
 //============================================================
-void CEditBuilding::UpdateChangeScale(void)
+void CEditSignboard::UpdateChangeScale(void)
 {
 	// 変数を宣言
-	float fScale = m_building.pBuilding->GetScale();	// ビル拡大率
+	float fScale = m_signboard.pSignboard->GetScale();	// 看板拡大率
 
 	// ポインタを宣言
 	CInputKeyboard *m_pKeyboard = CManager::GetInstance()->GetKeyboard();	// キーボード情報
@@ -460,64 +430,64 @@ void CEditBuilding::UpdateChangeScale(void)
 		}
 	}
 
-	// ビル拡大率を反映
-	m_building.pBuilding->SetScale(fScale);
+	// 看板拡大率を反映
+	m_signboard.pSignboard->SetScale(fScale);
 }
 
 //============================================================
-//	ビルの生成処理
+//	看板の生成処理
 //============================================================
-void CEditBuilding::CreateBuilding(void)
+void CEditSignboard::CreateSignboard(void)
 {
 	// 変数を宣言
 	D3DXVECTOR3 posEdit = m_pEdit->GetVec3Position();	// エディットの位置
 	D3DXVECTOR3 rotEdit = m_pEdit->GetVec3Rotation();	// エディットの向き
-	D3DXCOLOR colBuild = XCOL_WHITE;	// 色保存用
+	D3DXCOLOR colSign = XCOL_WHITE;	// 色保存用
 	float fScale = 0.0f;	// 拡大率
 
 	// ポインタを宣言
 	CInputKeyboard *m_pKeyboard = CManager::GetInstance()->GetKeyboard();	// キーボード情報
 
-	// ビルを配置
+	// 看板を配置
 	if (m_pKeyboard->IsTrigger(KEY_CREATE))
 	{
 		//----------------------------------------------------
-		//	ビルの情報を配置用に変更
+		//	看板の情報を配置用に変更
 		//----------------------------------------------------
 		// 自動更新・自動描画をONにする
-		m_building.pBuilding->SetEnableUpdate(true);
-		m_building.pBuilding->SetEnableDraw(true);
+		m_signboard.pSignboard->SetEnableUpdate(true);
+		m_signboard.pSignboard->SetEnableDraw(true);
 
 		// 色を設定
-		colBuild = m_building.pBuilding->GetColor();	// 元の色を取得
-		m_building.pBuilding->SetColor(D3DXCOLOR(colBuild.r, colBuild.g, colBuild.b, 1.0f));
+		colSign = m_signboard.pSignboard->GetColor();	// 元の色を取得
+		m_signboard.pSignboard->SetColor(D3DXCOLOR(colSign.r, colSign.g, colSign.b, 1.0f));
 
 		// 拡大率を保存
-		fScale = m_building.pBuilding->GetScale();
+		fScale = m_signboard.pSignboard->GetScale();
 
 		// 未保存を設定
 		m_pEdit->UnSave();
 
 		//----------------------------------------------------
-		//	新しいビルの生成
+		//	新しい看板の生成
 		//----------------------------------------------------
-		// ビルの生成
-		m_building.pBuilding = CBuilding::Create(m_building.type, posEdit, rotEdit, m_building.coll);
-		assert(m_building.pBuilding != NULL);
+		// 看板の生成
+		m_signboard.pSignboard = CSignboard::Create(m_signboard.type, posEdit, rotEdit);
+		assert(m_signboard.pSignboard != NULL);
 
 		// 色を設定
-		colBuild = m_building.pBuilding->GetColor();	// 元の色を取得
-		m_building.pBuilding->SetColor(D3DXCOLOR(colBuild.r, colBuild.g, colBuild.b, INIT_ALPHA));
+		colSign = m_signboard.pSignboard->GetColor();	// 元の色を取得
+		m_signboard.pSignboard->SetColor(D3DXCOLOR(colSign.r, colSign.g, colSign.b, INIT_ALPHA));
 
 		// 拡大率を設定
-		m_building.pBuilding->SetScale(fScale);
+		m_signboard.pSignboard->SetScale(fScale);
 	}
 }
 
 //============================================================
-//	ビルの破棄処理
+//	看板の破棄処理
 //============================================================
-void CEditBuilding::ReleaseBuilding(void)
+void CEditSignboard::ReleaseSignboard(void)
 {
 	// 変数を宣言
 	bool bRelease = false;	// 破棄状況
@@ -525,46 +495,46 @@ void CEditBuilding::ReleaseBuilding(void)
 	// ポインタを宣言
 	CInputKeyboard *m_pKeyboard = CManager::GetInstance()->GetKeyboard();	// キーボード情報
 
-	// ビルを削除
+	// 看板を削除
 	if (m_pKeyboard->IsTrigger(KEY_RELEASE))
 	{
 		// 破棄する状態を設定
 		bRelease = true;
 	}
 
-	// ビルの削除判定
-	DeleteCollisionBuilding(bRelease);
+	// 看板の削除判定
+	DeleteCollisionSignboard(bRelease);
 }
 
 //============================================================
 //	方向表示エフェクトの生成処理
 //============================================================
-void CEditBuilding::CreateRotaEffect(void)
+void CEditSignboard::CreateCenterEffect(void)
 {
 	// 変数を宣言
 	D3DXVECTOR3 posEffect = VEC3_ZERO;								// エフェクト位置
 	D3DXVECTOR3 posEdit   = m_pEdit->GetVec3Position();				// エディットの位置
 	D3DXVECTOR3 rotEdit   = m_pEdit->GetVec3Rotation();				// エディットの向き
-	D3DXVECTOR3 sizeBuild = m_building.pBuilding->GetVec3Sizing();	// ビル大きさ
-	float fAverageSizeBuild = (sizeBuild.x + sizeBuild.z) * 0.5f;	// ビル大きさ平均
+	D3DXVECTOR3 sizeSign = m_signboard.pSignboard->GetVec3Sizing();	// 看板大きさ
+	float fAverageSizeSign = (sizeSign.x + sizeSign.z) * 0.5f;		// 看板大きさ平均
 
 	// エフェクト位置を計算
-	posEffect.x = posEdit.x + sinf(rotEdit.y + D3DX_PI) * fAverageSizeBuild;
-	posEffect.y = posEdit.y + sizeBuild.y * 2.0f;
-	posEffect.z = posEdit.z + cosf(rotEdit.y + D3DX_PI) * fAverageSizeBuild;
+	posEffect.x = posEdit.x + sinf(rotEdit.y + D3DX_PI) * fAverageSizeSign;
+	posEffect.y = posEdit.y + sizeSign.y * 2.0f;
+	posEffect.z = posEdit.z + cosf(rotEdit.y + D3DX_PI) * fAverageSizeSign;
 
 	// 方向表示エフェクトを生成
 	CEffect3D::Create(posEffect, EFFECT_RADIUS, CEffect3D::TYPE_NORMAL, EFFECT_LIFE);
 }
 
 //============================================================
-//	ビルの削除判定
+//	看板の削除判定
 //============================================================
-void CEditBuilding::DeleteCollisionBuilding(const bool bRelase)
+void CEditSignboard::DeleteCollisionSignboard(const bool bRelase)
 {
 	// 変数を宣言
 	D3DXVECTOR3 posEdit = m_pEdit->GetVec3Position();				// エディットの位置
-	D3DXVECTOR3 sizeEdit = m_building.pBuilding->GetVec3Sizing();	// エディットビルの大きさ
+	D3DXVECTOR3 sizeEdit = m_signboard.pSignboard->GetVec3Sizing();	// エディット看板の大きさ
 
 	for (int nCntPri = 0; nCntPri < MAX_PRIO; nCntPri++)
 	{ // 優先順位の総数分繰り返す
@@ -582,14 +552,14 @@ void CEditBuilding::DeleteCollisionBuilding(const bool bRelase)
 			{ // オブジェクトが使用されている場合繰り返す
 
 				// 変数を宣言
-				D3DXVECTOR3 posBuild = VEC3_ZERO;	// ビル位置
-				D3DXVECTOR3 sizeBuild = VEC3_ZERO;	// ビル大きさ
+				D3DXVECTOR3 posSign = VEC3_ZERO;	// 看板位置
+				D3DXVECTOR3 sizeSign = VEC3_ZERO;	// 看板大きさ
 
 				// ポインタを宣言
 				CObject *pObjectNext = pObjCheck->GetNext();	// 次オブジェクト
 
-				if (pObjCheck->GetLabel() != CObject::LABEL_BUILDING)
-				{ // オブジェクトラベルがビルではない場合
+				if (pObjCheck->GetLabel() != CObject::LABEL_SIGNBOARD)
+				{ // オブジェクトラベルが看板ではない場合
 
 					// 次のオブジェクトへのポインタを代入
 					pObjCheck = pObjectNext;
@@ -598,7 +568,7 @@ void CEditBuilding::DeleteCollisionBuilding(const bool bRelase)
 					continue;
 				}
 
-				if (pObjCheck == (CObject*)m_building.pBuilding)
+				if (pObjCheck == (CObject*)m_signboard.pSignboard)
 				{ // 同じアドレスだった場合
 
 					// 次のオブジェクトへのポインタを代入
@@ -608,18 +578,18 @@ void CEditBuilding::DeleteCollisionBuilding(const bool bRelase)
 					continue;
 				}
 
-				// ビルの位置を取得
-				posBuild = pObjCheck->GetVec3Position();
+				// 看板の位置を取得
+				posSign = pObjCheck->GetVec3Position();
 
-				// ビルの大きさを取得
-				sizeBuild = pObjCheck->GetVec3Sizing();
+				// 看板の大きさを取得
+				sizeSign = pObjCheck->GetVec3Sizing();
 
 				// 球体の当たり判定
 				if (collision::Circle3D
 				( // 引数
 					posEdit,							// 判定位置
-					posBuild,							// 判定目標位置
-					(sizeBuild.x + sizeBuild.z) * 0.5f,	// 判定半径
+					posSign,							// 判定目標位置
+					(sizeSign.x + sizeSign.z) * 0.5f,	// 判定半径
 					(sizeEdit.x + sizeEdit.z) * 0.5f	// 判定目標半径
 				))
 				{ // 判定内だった場合
@@ -655,9 +625,9 @@ void CEditBuilding::DeleteCollisionBuilding(const bool bRelase)
 }
 
 //============================================================
-//	ビルの色の全初期化処理
+//	看板の色の全初期化処理
 //============================================================
-void CEditBuilding::InitAllColorBuilding(void)
+void CEditSignboard::InitAllColorSignboard(void)
 {
 	for (int nCntPri = 0; nCntPri < MAX_PRIO; nCntPri++)
 	{ // 優先順位の総数分繰り返す
@@ -677,8 +647,8 @@ void CEditBuilding::InitAllColorBuilding(void)
 				// ポインタを宣言
 				CObject *pObjectNext = pObjCheck->GetNext();	// 次オブジェクト
 
-				if (pObjCheck->GetLabel() != CObject::LABEL_BUILDING)
-				{ // オブジェクトラベルがビルではない場合
+				if (pObjCheck->GetLabel() != CObject::LABEL_SIGNBOARD)
+				{ // オブジェクトラベルが看板ではない場合
 
 					// 次のオブジェクトへのポインタを代入
 					pObjCheck = pObjectNext;
@@ -687,7 +657,7 @@ void CEditBuilding::InitAllColorBuilding(void)
 					continue;
 				}
 
-				if (pObjCheck == (CObject*)m_building.pBuilding)
+				if (pObjCheck == (CObject*)m_signboard.pSignboard)
 				{ // 同じアドレスだった場合
 
 					// 次のオブジェクトへのポインタを代入

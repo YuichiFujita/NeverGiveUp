@@ -55,7 +55,9 @@ public:
 	void Uninit(void) override;		// 終了
 	void Update(void) override;		// 更新
 	void Draw(void) override;		// 描画
-	void SetType(const int nType) override;	// 種類設定
+	void SetType(const int nType) override;		// 種類設定
+	void SetScale(const float fScale) override;	// 拡大率設定
+	float GetScale(void) const override;		// 拡大率取得
 
 	// 静的メンバ関数
 	static CSignboard *Create	// 生成
@@ -63,12 +65,9 @@ public:
 		const EType type,			// 種類
 		const D3DXVECTOR3& rPos,	// 位置
 		const D3DXVECTOR3& rRot,	// 向き
-		const float fScale = 1.0f,			// 拡大率
+		const float fScale = 1.20f,			// 拡大率
 		const D3DXCOLOR& rCol = XCOL_WHITE	// 色
 	);
-
-	// メンバ関数
-	void SetScale(const float fScale);	// 拡大率設定
 
 private:
 	// 静的メンバ変数
@@ -77,6 +76,7 @@ private:
 
 	// メンバ変数
 	CMultiModel *m_pStand;	// 看板スタンドの情報
+	float m_fScale;			// 拡大率
 };
 
 #endif	// _SIGNBOARD_H_
