@@ -74,6 +74,7 @@ CSignboard::CSignboard() : CObjectMeshCube(CObject::LABEL_SIGNBOARD, SIGNBOARD_P
 {
 	// メンバ変数をクリア
 	m_pStand = NULL;	// 看板スタンドの情報
+	m_type   = TYPE_00;	// 種類
 	m_fScale = 0.0f;	// 拡大率
 }
 
@@ -92,6 +93,7 @@ HRESULT CSignboard::Init(void)
 {
 	// メンバ変数を初期化
 	m_pStand = NULL;	// 看板スタンドの情報
+	m_type   = TYPE_00;	// 種類
 	m_fScale = 1.0f;	// 拡大率
 
 	//--------------------------------------------------------
@@ -222,6 +224,9 @@ void CSignboard::SetType(const int nType)
 	if (nType < TYPE_MAX)
 	{ // 種類がある場合
 
+		// 引数の種類を設定
+		m_type = (EType)nType;
+
 		// 引数の種類のテクスチャを登録
 		faceTex = SFaceTex
 		( // 引数
@@ -237,6 +242,15 @@ void CSignboard::SetType(const int nType)
 		BindTexture(faceTex);
 	}
 	else { assert(false); }	// 種類オーバー
+}
+
+//============================================================
+//	種類取得処理
+//============================================================
+int CSignboard::GetType(void) const
+{
+	// 種類を返す
+	return m_type;
 }
 
 //============================================================

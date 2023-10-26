@@ -56,6 +56,7 @@ public:
 	void Update(void) override;		// 更新
 	void Draw(void) override;		// 描画
 	void SetType(const int nType) override;		// 種類設定
+	int GetType(void) const override;			// 種類取得
 	void SetScale(const float fScale) override;	// 拡大率設定
 	float GetScale(void) const override;		// 拡大率取得
 
@@ -76,6 +77,7 @@ private:
 
 	// メンバ変数
 	CMultiModel *m_pStand;	// 看板スタンドの情報
+	EType m_type;			// 種類
 	float m_fScale;			// 拡大率
 };
 

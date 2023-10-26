@@ -85,8 +85,8 @@ private:
 
 	// メンバ変数
 	ECollision m_collision;	// 当たり判定
-	SStatusInfo m_status;	// ステータス定数
-	EType m_type;			// 種類定数
+	SStatusInfo m_status;	// ステータス
+	EType m_type;			// 種類
 	float m_fScale;			// 拡大率
 };
 
