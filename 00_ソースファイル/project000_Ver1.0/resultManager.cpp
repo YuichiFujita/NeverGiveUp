@@ -16,7 +16,6 @@
 #include "texture.h"
 #include "model.h"
 #include "object2D.h"
-#include "score.h"
 #include "timerManager.h"
 #include "retentionManager.h"
 
@@ -36,25 +35,16 @@
 #define SET_RESULT_SCALE	(15.0f)	// リザルト表示の初期拡大率
 #define SUB_RESULT_SCALE	(0.65f)	// リザルト表示拡大率の減算量
 
-#define SCORE_WAIT_CNT	(10)	// スコア表示状態への変更待機フレーム数
-#define POS_SCORE_LOGO	(D3DXVECTOR3(250.0f, 400.0f, 0.0f))		// スコアロゴ位置
-#define SIZE_SCORE_LOGO	(D3DXVECTOR3(487.5f, 154.7f, 0.0f))		// スコアロゴ大きさ
-#define POS_SCORE		(D3DXVECTOR3(490.0f, 400.0f, 0.0f))		// スコア位置
-#define SIZE_SCORE		(D3DXVECTOR3(94.0f, 112.0f, 0.0f))		// スコア大きさ
-#define SPACE_SCORE		(D3DXVECTOR3(SIZE_SCORE.x, 0.0f, 0.0f))	// スコア空白
-#define SET_SCORE_SCALE	(8.0f)	// スコア表示の初期拡大率
-#define SUB_SCORE_SCALE	(0.4f)	// スコア表示拡大率の減算量
-
 #define TIME_WAIT_CNT	(3)	// タイム表示状態への変更待機フレーム数
-#define POS_TIME_LOGO	(D3DXVECTOR3(250.0f, 560.0f, 0.0f))			// タイムロゴ位置
+#define POS_TIME_LOGO	(D3DXVECTOR3(250.0f, 360.0f, 0.0f))			// タイムロゴ位置
 #define SIZE_TIME_LOGO	(D3DXVECTOR3(487.5f, 154.7f, 0.0f))			// タイムロゴ大きさ
-#define POS_TIME		(D3DXVECTOR3(490.0f, 560.0f, 0.0f))			// タイム位置
+#define POS_TIME		(D3DXVECTOR3(490.0f, 360.0f, 0.0f))			// タイム位置
 #define SIZE_TIME_VAL	(D3DXVECTOR3(94.0f, 112.0f, 0.0f))			// タイム数字大きさ
 #define SIZE_TIME_PART	(D3DXVECTOR3(48.0f, 112.0f, 0.0f))			// タイム区切り大きさ
 #define SPACE_TIME_VAL	(D3DXVECTOR3(SIZE_TIME_VAL.x, 0.0f, 0.0f))	// タイム数字空白
 #define SPACE_TIME_PART	(D3DXVECTOR3(SIZE_TIME_PART.x, 0.0f, 0.0f))	// タイム区切り空白
 #define SET_TIME_SCALE	(8.0f)	// タイム表示の初期拡大率
-#define SUB_TIME_SCALE	(0.4f)	// タイム表示拡大率の減算量
+#define SUB_TIME_SCALE	(0.3f)	// タイム表示拡大率の減算量
 
 //************************************************************
 //	静的メンバ変数宣言
@@ -78,10 +68,8 @@ CResultManager::CResultManager()
 {
 	// メンバ変数をクリア
 	memset(&m_apResult[0], 0, sizeof(m_apResult));	// リザルト表示の情報
-	m_pScoreLogo	= NULL;			// スコアロゴの情報
 	m_pTimeLogo		= NULL;			// タイムロゴの情報
 	m_pFade			= NULL;			// フェードの情報
-	m_pScore		= NULL;			// スコアの情報
 	m_pTime			= NULL;			// タイムの情報
 	m_state			= STATE_NONE;	// 状態
 	m_nCounterState	= 0;			// 状態管理カウンター
@@ -113,10 +101,8 @@ HRESULT CResultManager::Init(void)
 
 	// メンバ変数を初期化
 	memset(&m_apResult[0], 0, sizeof(m_apResult));	// リザルト表示の情報
-	m_pScoreLogo	= NULL;			// スコアロゴの情報
 	m_pTimeLogo		= NULL;			// タイムロゴの情報
 	m_pFade			= NULL;			// フェードの情報
-	m_pScore		= NULL;			// スコアの情報
 	m_pTime			= NULL;			// タイムの情報
 	m_state			= STATE_FADEIN;	// 状態
 	m_nCounterState	= 0;			// 状態管理カウンター
@@ -173,59 +159,6 @@ HRESULT CResultManager::Init(void)
 
 	// リザルト表示のテクスチャを設定
 	SetTexResult();
-
-	//--------------------------------------------------------
-	//	スコアロゴ表示の生成・設定
-	//--------------------------------------------------------
-	// スコアロゴ表示の生成
-	m_pScoreLogo = CObject2D::Create
-	( // 引数
-		POS_SCORE_LOGO,						// 位置
-		SIZE_SCORE_LOGO * SET_SCORE_SCALE	// 大きさ
-	);
-	if (m_pScoreLogo == NULL)
-	{ // 生成に失敗した場合
-
-		// 失敗を返す
-		assert(false);
-		return E_FAIL;
-	}
-
-	// テクスチャを登録・割当
-	m_pScoreLogo->BindTexture(pTexture->Regist(mc_apTextureFile[TEXTURE_SCORE]));
-
-	// 優先順位を設定
-	m_pScoreLogo->SetPriority(RESULT_PRIO);
-
-	// 描画をしない設定にする
-	m_pScoreLogo->SetEnableDraw(false);
-
-	//--------------------------------------------------------
-	//	スコア表示の生成・設定
-	//--------------------------------------------------------
-	// スコアオブジェクトの生成
-	m_pScore = CScore::Create
-	( // 引数
-		POS_SCORE,						// 位置
-		SIZE_SCORE * SET_SCORE_SCALE,	// 大きさ
-		SPACE_SCORE						// 空白
-	);
-	if (m_pScore == NULL)
-	{ // 非使用中の場合
-
-		// 失敗を返す
-		assert(false);
-		return E_FAIL;
-	}
-
-	// 優先順位を設定
-	m_pScore->SetPriority(RESULT_PRIO);
-
-	// 描画をしない設定にする
-	m_pScore->SetEnableDraw(false);
-
-	// スコアを設定
-	m_pScore->Set(CManager::GetInstance()->GetRetentionManager()->GetScore());
 
 	//--------------------------------------------------------
 	//	タイムロゴ表示の生成・設定
@@ -312,17 +245,11 @@ HRESULT CResultManager::Uninit(void)
 		m_apResult[nCntResult]->Uninit();
 	}
 
-	// スコアロゴ表示の終了
-	m_pScoreLogo->Uninit();
-
 	// タイムロゴ表示の終了
 	m_pTimeLogo->Uninit();
 
 	// フェードの終了
 	m_pFade->Uninit();
-
-	// 終了済みのオブジェクトポインタをNULLにする
-	m_pScore = NULL;	// スコアオブジェクト
 
 	// 成功を返す
 	return S_OK;
@@ -355,32 +282,6 @@ void CResultManager::Update(void)
 
 		// リザルト表示の更新
 		UpdateResult();
-
-		break;
-
-	case STATE_SCORE_WAIT:	// スコア表示待機状態
-
-		// 表示待機の更新
-		if (UpdateDrawWait(SCORE_WAIT_CNT))
-		{ // 待機完了の場合
-
-			// スコア表示の拡大率を設定
-			m_fScale = SET_SCORE_SCALE;
-
-			// スコア表示の描画開始
-			m_pScoreLogo->SetEnableDraw(true);
-			m_pScore->SetEnableDraw(true);
-
-			// 状態を変更
-			m_state = STATE_SCORE;	// スコア表示状態
-		}
-
-		break;
-
-	case STATE_SCORE:	// スコア表示状態
-
-		// スコア表示の更新
-		UpdateScore();
 
 		break;
 
@@ -427,9 +328,6 @@ void CResultManager::Update(void)
 		// リザルト表示の更新
 		m_apResult[nCntResult]->Update();
 	}
-
-	// スコアロゴ表示の更新
-	m_pScoreLogo->Update();
 
 	// タイムロゴ表示の更新
 	m_pTimeLogo->Update();
@@ -576,39 +474,6 @@ void CResultManager::UpdateResult(void)
 		}
 
 		// 状態を変更
-		m_state = STATE_SCORE_WAIT;	// スコア表示待機状態
-
-		// サウンドの再生
-		CManager::GetInstance()->GetSound()->Play(CSound::LABEL_SE_DECISION_001);	// 決定音01
-	}
-}
-
-//============================================================
-//	スコア表示の更新処理
-//============================================================
-void CResultManager::UpdateScore(void)
-{
-	if (m_fScale > 1.0f)
-	{ // 拡大率が最小値より大きい場合
-
-		// 拡大率を減算
-		m_fScale -= SUB_SCORE_SCALE;
-
-		// スコア表示の大きさを設定
-		m_pScoreLogo->SetVec3Sizing(SIZE_SCORE_LOGO * m_fScale);
-		m_pScore->SetVec3Sizing(SIZE_SCORE * m_fScale);
-	}
-	else
-	{ // 拡大率が最小値以下の場合
-
-		// 拡大率を補正
-		m_fScale = 1.0f;
-
-		// スコア表示の大きさを設定
-		m_pScoreLogo->SetVec3Sizing(SIZE_SCORE_LOGO);
-		m_pScore->SetVec3Sizing(SIZE_SCORE);
-
-		// 状態を変更
 		m_state = STATE_TIME_WAIT;	// タイム表示待機状態
 
 		// サウンドの再生
@@ -709,14 +574,6 @@ void CResultManager::SkipStaging(void)
 		m_apResult[nCntResult]->SetVec3Sizing(SIZE_RESULT);
 	}
 
-	// スコア表示をONにする
-	m_pScoreLogo->SetEnableDraw(true);
-	m_pScore->SetEnableDraw(true);
-
-	// スコア表示の大きさを設定
-	m_pScoreLogo->SetVec3Sizing(SIZE_SCORE_LOGO);
-	m_pScore->SetVec3Sizing(SIZE_SCORE);
-
 	// タイム表示をONにする
 	m_pTimeLogo->SetEnableDraw(true);
 	m_pTime->SetEnableDraw(true);
@@ -758,6 +615,13 @@ void CResultManager::SetTexResult(void)
 
 		// CLEARテクスチャ
 		m_apResult[1]->BindTexture(pTexture->Regist(mc_apTextureFile[TEXTURE_CLEAR]));
+
+		break;
+
+	default:
+
+		// エラーメッセージボックス
+		MessageBox(NULL, "リザルトなしが設定されています", "警告！", MB_ICONWARNING);
 
 		break;
 	}

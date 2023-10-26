@@ -208,9 +208,13 @@ void CEditSignboard::Update(void)
 //============================================================
 void CEditSignboard::SetDisp(const bool bDisp)
 {
-	// 自動更新・自動描画を表示状況に合わせる
+	// 看板の自動更新・自動描画を表示状況に合わせる
 	m_signboard.pSignboard->SetEnableUpdate(bDisp);	// 更新
 	m_signboard.pSignboard->SetEnableDraw(bDisp);	// 描画
+
+	// 中心表示の自動更新・自動描画を表示状況に合わせる
+	m_pCenter->SetEnableUpdate(bDisp);	// 更新
+	m_pCenter->SetEnableDraw(bDisp);	// 描画
 
 	if (bDisp)
 	{ // 表示ONの場合

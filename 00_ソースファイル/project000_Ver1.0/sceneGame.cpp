@@ -17,7 +17,6 @@
 #include "timerManager.h"
 #include "stage.h"
 #include "pause.h"
-#include "score.h"
 #include "player.h"
 #include "obstacle.h"
 
@@ -41,9 +40,7 @@
 //************************************************************
 CGameManager	*CSceneGame::m_pGameManager  = NULL;	// ゲームマネージャー
 CTimerManager	*CSceneGame::m_pTimerManager = NULL;	// タイマーマネージャー
-CWarningSpawn	*CSceneGame::m_pWarningSpawn = NULL;	// 出現警告表示オブジェクト
 CPause	*CSceneGame::m_pPause	= NULL;					// ポーズ
-CScore	*CSceneGame::m_pScore	= NULL;					// スコアオブジェクト
 
 bool CSceneGame::m_bControlCamera = false;	// カメラの操作状況
 bool CSceneGame::m_bDrawUI = true;			// UIの描画状況
@@ -98,23 +95,8 @@ HRESULT CSceneGame::Init(void)
 		return E_FAIL;
 	}
 
-	// スコアオブジェクトの生成
-	m_pScore = CScore::Create
-	( // 引数
-		SCO_POS,	// 位置
-		SCO_SIZE,	// 大きさ
-		SCO_SPACE	// 空白
-	);
-	if (m_pScore == NULL)
-	{ // 非使用中の場合
-
-		// 失敗を返す
-		assert(false);
-		return E_FAIL;
-	}
-
 	// シーンの初期化
-	CScene::Init();		// ステージ・地面・プレイヤーの生成
+	CScene::Init();		// ステージ・プレイヤーの生成
 
 	// ゲームマネージャーの生成
 	m_pGameManager = CGameManager::Create();
@@ -193,9 +175,6 @@ HRESULT CSceneGame::Uninit(void)
 		return E_FAIL;
 	}
 
-	// 終了済みのオブジェクトポインタをNULLにする
-	m_pScore = NULL;	// スコアオブジェクト
-
 	// シーンの終了
 	CScene::Uninit();
 
@@ -235,11 +214,11 @@ void CSceneGame::Update(void)
 		// プレイヤーの出現を設定
 		CScene::GetPlayer()->SetSpawn();
 	}
-	//else if (CManager::GetInstance()->GetKeyboard()->IsTrigger(DIK_F7))
-	//{
-	//	// リザルトに遷移
-	//	CManager::GetInstance()->SetScene(CScene::MODE_RESULT);	// リザルト画面
-	//}
+	else if (CManager::GetInstance()->GetKeyboard()->IsTrigger(DIK_F7))
+	{
+		// リザルトに遷移
+		CManager::GetInstance()->SetScene(CScene::MODE_RESULT);	// リザルト画面
+	}
 
 	// デバッグ表示
 	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "======================================\n");
@@ -251,7 +230,7 @@ void CSceneGame::Update(void)
 	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "[F4]：ポーズ描画のON/OFF\n");
 	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "[F5]：カメラ操作のON/OFF\n");
 	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "[F6]：プレイヤースポーン\n");
-	//CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "[F7]：リザルト遷移\n");
+	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "[F7]：リザルト遷移\n");
 
 	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "======================================\n");
 	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "　[デバッグ情報]\n");
@@ -342,24 +321,6 @@ CPause *CSceneGame::GetPause(void)
 }
 
 //============================================================
-//	スコア取得処理
-//============================================================
-CScore *CSceneGame::GetScore(void)
-{
-	// スコアのポインタを返す
-	return m_pScore;
-}
-
-//============================================================
-//	出現警告表示取得処理
-//============================================================
-CWarningSpawn *CSceneGame::GetWarningSpawn(void)
-{
-	// 出現警告表示のポインタを返す
-	return m_pWarningSpawn;
-}
-
-//============================================================
 //	UIの描画状況の設定処理
 //============================================================
 void CSceneGame::SetEnableDrawUI(const bool bDraw)
@@ -369,9 +330,6 @@ void CSceneGame::SetEnableDrawUI(const bool bDraw)
 
 	// タイマーの描画状況を設定
 	m_pTimerManager->SetEnableDraw(bDraw);
-
-	// スコアの描画状況を設定
-	m_pScore->SetEnableDraw(bDraw);
 }
 
 //============================================================
