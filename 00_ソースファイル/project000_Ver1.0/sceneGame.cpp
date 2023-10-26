@@ -23,6 +23,7 @@
 //************************************************************
 //	マクロ定義
 //************************************************************
+#define TIME_LIMIT		(180)										// 制限時間
 #define TIME_POS		(D3DXVECTOR3(40.0f, 50.0f, 0.0f))			// タイマー位置
 #define TIME_VAL_SIZE	(D3DXVECTOR3(60.0f, 80.0f, 0.0f))			// タイマー数字大きさ
 #define TIME_PART_SIZE	(D3DXVECTOR3(35.0f, 80.0f, 0.0f))			// タイマー区切り大きさ
@@ -81,11 +82,13 @@ HRESULT CSceneGame::Init(void)
 	// タイマーマネージャーの生成
 	m_pTimerManager = CTimerManager::Create
 	( // 引数
-		TIME_POS,		// 位置
-		TIME_VAL_SIZE,	// 数字の大きさ
-		TIME_PART_SIZE,	// 区切りの大きさ
-		TIME_VAL_SPACE,	// 数字の空白
-		TIME_PART_SPACE	// 区切りの空白
+		CTimerManager::TIME_SEC,	// 設定タイム
+		TIME_LIMIT,					// 制限時間
+		TIME_POS,					// 位置
+		TIME_VAL_SIZE,				// 数字の大きさ
+		TIME_PART_SIZE,				// 区切りの大きさ
+		TIME_VAL_SPACE,				// 数字の空白
+		TIME_PART_SPACE				// 区切りの空白
 	);
 	if (m_pTimerManager == NULL)
 	{ // 非使用中の場合
@@ -217,7 +220,7 @@ void CSceneGame::Update(void)
 	else if (CManager::GetInstance()->GetKeyboard()->IsTrigger(DIK_F7))
 	{
 		// リザルトに遷移
-		CManager::GetInstance()->SetScene(CScene::MODE_RESULT);	// リザルト画面
+		CScene::GetPlayer()->SetState(CPlayer::STATE_CLEAR);	// リザルト画面
 	}
 
 	// デバッグ表示

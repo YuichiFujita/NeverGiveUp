@@ -20,6 +20,7 @@
 
 #include "multiModel.h"
 #include "shadow.h"
+#include "timerManager.h"
 #include "stage.h"
 #include "field.h"
 #include "building.h"
@@ -258,9 +259,17 @@ void CPlayer::Update(void)
 		break;
 
 	case STATE_CLEAR:
+
+		// リザルト遷移
+		ResultTransition(CRetentionManager::RESULT_CLEAR, 40);	// TODO：余韻定数化
+
 		break;
 
 	case STATE_OVER:
+
+		// リザルト遷移
+		ResultTransition(CRetentionManager::RESULT_FAILED, 40);	// TODO：余韻定数化
+
 		break;
 
 	default:
@@ -480,6 +489,41 @@ void CPlayer::SetSpawn(void)
 }
 
 //============================================================
+//	リザルト遷移処理
+//============================================================
+void CPlayer::ResultTransition(const CRetentionManager::EResult result, const int nWait)
+{
+	// ポインタを宣言
+	CRetentionManager *m_pRetention = CManager::GetInstance()->GetRetentionManager();	// データ保存マネージャー
+	if (m_pRetention == NULL)
+	{ // データ保存マネージャーが使用されていない場合
+
+		// 処理を抜ける
+		assert(false);
+	}
+
+	CTimerManager *m_pTimer = CSceneGame::GetTimerManager();	// タイマーマネージャー
+	if (m_pTimer == NULL)
+	{ // タイマーマネージャーが使用されていない場合
+
+		// 処理を抜ける
+		assert(false);
+	}
+
+	// クリア状況を設定
+	m_pRetention->SetResult(result);
+
+	// 経過時間を設定
+	m_pRetention->SetTime(m_pTimer->GetLimit() - m_pTimer->Get());
+
+	// タイムの計測を終了
+	m_pTimer->End();
+
+	// シーンの設定
+	CManager::GetInstance()->SetScene(CScene::MODE_RESULT, nWait);	// リザルト画面
+}
+
+//============================================================
 //	スポーン状態時の更新処理
 //============================================================
 CPlayer::EMotion CPlayer::UpdateSpawn(void)
@@ -584,6 +628,15 @@ CPlayer::EMotion CPlayer::UpdateDamage(void)
 		return MOTION_IDOL;
 	}
 
+	CTimerManager *pTimer = CSceneGame::GetTimerManager();	// タイマー情報
+	if (pTimer == NULL)
+	{ // タイマーが使用されていない場合
+
+		// 処理を抜ける
+		assert(false);
+		return MOTION_IDOL;
+	}
+
 	// 向きを加算
 	rotPlayer += basic::DMG_ADDROT;
 
@@ -603,8 +656,21 @@ CPlayer::EMotion CPlayer::UpdateDamage(void)
 	if (UpdateFadeIn(basic::DMG_SUB_ALPHA))
 	{ // 透明になり切った場合
 
-		// 出現の設定
-		SetSpawn();
+		if (pTimer->GetState() != CTimerManager::STATE_END)
+		{ // タイマーが計測中の場合
+
+			// 出現の設定
+			SetSpawn();
+		}
+		else
+		{ // タイマーが計測中ではない場合
+
+			// 自動描画をOFF
+			SetEnableDraw(false);
+
+			// ゲームオーバー状態にする
+			SetState(STATE_OVER);
+		}
 	}
 
 	// デバッグ表示

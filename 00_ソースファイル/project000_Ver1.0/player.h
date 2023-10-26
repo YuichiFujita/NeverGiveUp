@@ -15,6 +15,7 @@
 //************************************************************
 #include "main.h"
 #include "objectChara.h"
+#include "retentionManager.h"
 
 //************************************************************
 //	前方宣言
@@ -118,7 +119,7 @@ public:
 
 	// メンバ関数
 	void SetSpawn(void);	// 出現設定
-
+	void ResultTransition(const CRetentionManager::EResult result, const int nWait);	// リザルト遷移
 private:
 	// メンバ関数
 	void LoadSetup(void);		// セットアップ

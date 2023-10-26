@@ -160,6 +160,8 @@ HRESULT CResultManager::Init(void)
 	// リザルト表示のテクスチャを設定
 	SetTexResult();
 
+	// TODO：遅刻回避成功 or 失敗にする
+
 	//--------------------------------------------------------
 	//	タイムロゴ表示の生成・設定
 	//--------------------------------------------------------
@@ -192,6 +194,8 @@ HRESULT CResultManager::Init(void)
 	// タイマーマネージャーの生成
 	m_pTime = CTimerManager::Create
 	( // 引数
+		CTimerManager::TIME_SEC,			// 設定タイム
+		0,									// 制限時間
 		POS_TIME,							// 位置
 		SIZE_TIME_VAL * SET_TIME_SCALE,		// 数字の大きさ
 		SIZE_TIME_PART * SET_TIME_SCALE,	// 区切りの大きさ

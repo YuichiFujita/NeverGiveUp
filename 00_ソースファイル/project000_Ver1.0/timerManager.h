@@ -40,20 +40,29 @@ class CTimerManager
 {
 public:
 	// テクスチャ列挙
-	enum ETexture
+	typedef enum
 	{
 		TEXTURE_NORMAL = 0,	// 区切り表示のテクスチャ
 		TEXTURE_MAX			// この列挙型の総数
-	};
+	}TEXTURE;
+
+	// タイム列挙
+	typedef enum
+	{
+		TIME_MSEC,	// ミリ秒
+		TIME_SEC,	// 秒
+		TIME_MIN,	// 分
+		TIME_MAX	// この列挙型の総数
+	}TIME;
 
 	// 計測列挙
-	enum EState
+	typedef enum
 	{
 		STATE_NONE = 0,	// 処理なし
 		STATE_MEASURE,	// 計測中
 		STATE_END,		// 計測終了 
 		STATE_MAX		// この列挙型の総数
-	};
+	}STATE;
 
 	// コンストラクタ
 	CTimerManager();
@@ -68,35 +77,38 @@ public:
 	void Start(void);	// 計測開始
 	void End(void);		// 計測終了
 	void EnableStop(const bool bStop);	// 計測停止設定
-
-	int  Get(void);				// タイム取得
+	STATE GetState(void);		// 計測状態取得
 	bool AddMSec(long nMSec);	// ミリ秒加算
-	bool SetMSec(long nMSec);	// ミリ秒設定
-	int  GetMSec(void);			// ミリ秒取得
 	bool AddSec(long nSec);		// 秒加算
-	bool SetSec(long nSec);		// 秒設定
-	int  GetSec(void);			// 秒取得
 	bool AddMin(long nMin);		// 分加算
+	bool SetMSec(long nMSec);	// ミリ秒設定
+	bool SetSec(long nSec);		// 秒設定
 	bool SetMin(long nMin);		// 分設定
-	int  GetMin(void);			// 分取得
-
-	void SetPriority(const int nPriority);			// 優先順位設定
-	void SetEnableUpdate(const bool bUpdate);		// 更新状況設定
-	void SetEnableDraw(const bool bDraw);			// 描画状況設定
-	void SetVec3Position(const D3DXVECTOR3& rPos);	// 位置設定
-	D3DXVECTOR3 GetVec3Position(void) const;		// 位置取得
-	void SetScalingValue(const D3DXVECTOR3& rSize);	// 区切りの大きさ設定
-	D3DXVECTOR3 GetScalingValue(void) const;		// 区切りの大きさ取得
-	void SetScalingPart(const D3DXVECTOR3& rSize);	// 数字の大きさ設定
-	D3DXVECTOR3 GetScalingPart(void) const;			// 数字の大きさ取得
-	void SetSpaceValue(const D3DXVECTOR3& rSpace);	// 区切りの空白設定
-	D3DXVECTOR3 GetSpaceValue(void) const;			// 区切りの空白取得
-	void SetSpacePart(const D3DXVECTOR3& rSpace);	// 数字の空白設定
-	D3DXVECTOR3 GetSpacePart(void) const;			// 数字の空白取得
+	int Get(void);				// タイム取得
+	int GetMSec(void);			// ミリ秒取得
+	int GetSec(void);			// 秒取得
+	int GetMin(void);			// 分取得
+	long GetLimit(void);		// 制限時間取得
+	void SetLimit(const TIME time, const long nTime);	// 制限時間設定
+	void SetPosition(const D3DXVECTOR3& rPos);			// 位置設定
+	void SetScalingValue(const D3DXVECTOR3& rSize);		// 区切りの大きさ設定
+	void SetScalingPart(const D3DXVECTOR3& rSize);		// 数字の大きさ設定
+	void SetSpaceValue(const D3DXVECTOR3& rSpace);		// 区切りの空白設定
+	void SetSpacePart(const D3DXVECTOR3& rSpace);		// 数字の空白設定
+	void SetPriority(const int nPriority);				// 優先順位設定
+	void SetEnableUpdate(const bool bUpdate);			// 更新状況設定
+	void SetEnableDraw(const bool bDraw);				// 描画状況設定
+	D3DXVECTOR3 GetPosition(void) const;				// 位置取得
+	D3DXVECTOR3 GetScalingValue(void) const;			// 区切りの大きさ取得
+	D3DXVECTOR3 GetScalingPart(void) const;				// 数字の大きさ取得
+	D3DXVECTOR3 GetSpaceValue(void) const;				// 区切りの空白取得
+	D3DXVECTOR3 GetSpacePart(void) const;				// 数字の空白取得
 
 	// 静的メンバ関数
 	static CTimerManager *Create	// 生成
 	( // 引数
+		const TIME time,				// 設定タイム
+		const long nTime,				// 制限時間
 		const D3DXVECTOR3& rPos,		// 位置
 		const D3DXVECTOR3& rSizeValue,	// 数字の大きさ
 		const D3DXVECTOR3& rSizePart,	// 区切りの大きさ
@@ -126,8 +138,9 @@ private:
 	DWORD m_dwStopStartTime;		// 停止開始時間
 	DWORD m_dwStopTime;				// 停止時間
 	DWORD m_dwTempTime;				// 経過時間の計算用
-	EState m_state;					// 計測状態
-	bool m_bStop;					// 計測停止状況
+	STATE m_state;					// 計測状態
+	bool  m_bStop;					// 計測停止状況
+	long  m_nLimit;					// 制限時間
 };
 
 #endif	// _TIMERMANAGER_H_

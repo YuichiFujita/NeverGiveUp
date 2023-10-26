@@ -13,11 +13,12 @@
 #include "texture.h"
 #include "value.h"
 #include "object2D.h"
+#include "player.h"
 
 //************************************************************
 //	マクロ定義
 //************************************************************
-#define TIMER_PRIO	(14)	// タイマーの優先順位
+#define TIMER_PRIO	(6)	// タイマーの優先順位
 
 #define TIME_NUMMIN	(DWORD)(0)			// 最少タイム
 #define TIME_NUMMAX	(DWORD)(99 * 60000)	// 最大タイム
@@ -53,6 +54,7 @@ CTimerManager::CTimerManager()
 	m_dwTempTime		= 0;			// 経過時間の計算用
 	m_state				= STATE_NONE;	// 計測状態
 	m_bStop				= true;			// 計測停止状況
+	m_nLimit			= 0;			// 制限時間
 }
 
 //============================================================
@@ -86,6 +88,7 @@ HRESULT CTimerManager::Init(void)
 	m_dwTempTime		= 0;			// 経過時間の計算用
 	m_state				= STATE_NONE;	// 計測状態
 	m_bStop				= true;			// 計測停止状況
+	m_nLimit			= 0;			// 制限時間
 
 	for (int nCntTimer = 0; nCntTimer < MAX_TIMER; nCntTimer++)
 	{ // タイマーの桁数分繰り返す
@@ -155,6 +158,16 @@ void CTimerManager::Uninit(void)
 //============================================================
 void CTimerManager::Update(void)
 {
+	// ポインタを宣言
+	CPlayer *pPlayer = CScene::GetPlayer();	// プレイヤー情報
+	if (pPlayer == NULL)
+	{ // プレイヤーが存在しない場合
+
+		// 処理を抜ける
+		assert(false);
+		return;
+	}
+
 	switch (m_state)
 	{ // 計測状態ごとの処理
 	case STATE_NONE:
@@ -168,8 +181,37 @@ void CTimerManager::Update(void)
 		if (m_bStop == false)
 		{ // 計測中の場合
 
-			// 現在の計測ミリ秒を設定
-			m_dwTime = timeGetTime() - m_dwTempTime;
+			if (m_nLimit <= 0)
+			{ // 制限時間が 0以下の場合
+
+				// 現在の計測ミリ秒を設定
+				m_dwTime = timeGetTime() - m_dwTempTime;
+			}
+			else
+			{ // 制限時間が 0より大きい場合
+
+				// 変数を宣言
+				long nTime = m_nLimit - (timeGetTime() - m_dwTempTime);	// 現在タイム
+
+				if (nTime > 0)
+				{ // タイムが 0より大きい場合
+
+					// 現在の計測ミリ秒を設定
+					m_dwTime = nTime;
+				}
+				else
+				{  // タイムが 0以下の場合
+
+					// 現在の計測ミリ秒を設定
+					m_dwTime = 0;
+
+					// 計測を終了する
+					End();
+
+					// プレイヤーをダメージ状態にする
+					pPlayer->SetState(CPlayer::STATE_DAMAGE);
+				}
+			}
 		}
 		else
 		{ // 計測停止中の場合
@@ -209,8 +251,8 @@ void CTimerManager::Update(void)
 	}
 
 	// デバッグ表示
-	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "[タイマー]：%d:%d:%d\n", m_dwTime / 60000, (m_dwTime / 1000) % 60, m_dwTime % 1000);
-	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "[停止タイマー]：%d:%d:%d\n", m_dwStopTime / 60000, (m_dwStopTime / 1000) % 60, m_dwStopTime % 1000);
+	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "タイマー：[%d:%d:%d]\n", m_dwTime / 60000, (m_dwTime / 1000) % 60, m_dwTime % 1000);
+	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "停止タイマー：[%d:%d:%d]\n", m_dwStopTime / 60000, (m_dwStopTime / 1000) % 60, m_dwStopTime % 1000);
 }
 
 //============================================================
@@ -218,6 +260,8 @@ void CTimerManager::Update(void)
 //============================================================
 CTimerManager *CTimerManager::Create
 (
+	const TIME time,				// 設定タイム
+	const long nTime,				// 制限時間
 	const D3DXVECTOR3& rPos,		// 位置
 	const D3DXVECTOR3& rSizeValue,	// 数字の大きさ
 	const D3DXVECTOR3& rSizePart,	// 区切りの大きさ
@@ -251,8 +295,11 @@ CTimerManager *CTimerManager::Create
 			return NULL;
 		}
 
+		// 制限時間を設定
+		pTimerManager->SetLimit(time, nTime);
+
 		// 位置を設定
-		pTimerManager->SetVec3Position(rPos);
+		pTimerManager->SetPosition(rPos);
 
 		// 数字の大きさを設定
 		pTimerManager->SetScalingValue(rSizeValue);
@@ -349,12 +396,12 @@ void CTimerManager::EnableStop(const bool bStop)
 }
 
 //============================================================
-//	タイムの取得処理
+//	計測状態取得処理
 //============================================================
-int CTimerManager::Get(void)
+CTimerManager::STATE CTimerManager::GetState(void)
 {
-	// タイムを返す
-	return m_dwTime;
+	// 計測状態を返す
+	return m_state;
 }
 
 //============================================================
@@ -370,6 +417,13 @@ bool CTimerManager::AddMSec(long nMSec)
 
 		if (m_bStop)
 		{ // 停止中の場合
+
+			// 加算できない状態にする
+			bAdd = false;
+		}
+
+		if (m_nLimit > 0)
+		{ // 制限時間が 0より大きい場合
 
 			// 加算できない状態にする
 			bAdd = false;
@@ -397,6 +451,104 @@ bool CTimerManager::AddMSec(long nMSec)
 }
 
 //============================================================
+//	秒の加算処理
+//============================================================
+bool CTimerManager::AddSec(long nSec)
+{
+	// 変数を宣言
+	bool bAdd = true;	// 加算状況
+
+	if (m_state == STATE_MEASURE)
+	{ // タイムの計測中の場合
+
+		if (m_bStop)
+		{ // 停止中の場合
+
+			// 加算できない状態にする
+			bAdd = false;
+		}
+
+		if (m_nLimit > 0)
+		{ // 制限時間が 0より大きい場合
+
+			// 加算できない状態にする
+			bAdd = false;
+		}
+	}
+
+	if (bAdd)
+	{ // 加算できる場合
+
+		// 引数をミリ秒に変換
+		nSec *= 1000;
+
+		// 加算量の補正
+		useful::LimitNum(nSec, -(long)m_dwTime, (long)TIME_NUMMAX);
+
+		// 引数の秒を減算
+		m_dwTempTime -= (DWORD)nSec;
+
+		// 現在の計測ミリ秒を設定
+		m_dwTime = timeGetTime() - m_dwTempTime;
+
+		// 数字のテクスチャ座標の設定
+		SetTexNum();
+	}
+
+	// 加算の成功失敗を返す
+	return bAdd;
+}
+
+//============================================================
+//	分の加算処理
+//============================================================
+bool CTimerManager::AddMin(long nMin)
+{
+	// 変数を宣言
+	bool bAdd = true;	// 加算状況
+
+	if (m_state == STATE_MEASURE)
+	{ // タイムの計測中の場合
+
+		if (m_bStop)
+		{ // 停止中の場合
+
+			// 加算できない状態にする
+			bAdd = false;
+		}
+
+		if (m_nLimit > 0)
+		{ // 制限時間が 0より大きい場合
+
+			// 加算できない状態にする
+			bAdd = false;
+		}
+	}
+
+	if (bAdd)
+	{ // 加算できる場合
+
+		// 引数をミリ秒に変換
+		nMin *= 60000;
+
+		// 加算量の補正
+		useful::LimitNum(nMin, -(long)m_dwTime, (long)TIME_NUMMAX);
+
+		// 引数の分を減算
+		m_dwTempTime -= (DWORD)nMin;
+
+		// 現在の計測ミリ秒を設定
+		m_dwTime = timeGetTime() - m_dwTempTime;
+
+		// 数字のテクスチャ座標の設定
+		SetTexNum();
+	}
+
+	// 加算の成功失敗を返す
+	return bAdd;
+}
+
+//============================================================
 //	ミリ秒の設定処理
 //============================================================
 bool CTimerManager::SetMSec(long nMSec)
@@ -409,6 +561,13 @@ bool CTimerManager::SetMSec(long nMSec)
 
 		if (m_bStop)
 		{ // 停止中の場合
+
+			// 設定できない状態にする
+			bSet = false;
+		}
+
+		if (m_nLimit > 0)
+		{ // 制限時間が 0より大きい場合
 
 			// 設定できない状態にする
 			bSet = false;
@@ -441,57 +600,6 @@ bool CTimerManager::SetMSec(long nMSec)
 }
 
 //============================================================
-//	ミリ秒の取得処理
-//============================================================
-int CTimerManager::GetMSec(void)
-{
-	// ミリ秒を返す
-	return m_dwTime % 1000;
-}
-
-//============================================================
-//	秒の加算処理
-//============================================================
-bool CTimerManager::AddSec(long nSec)
-{
-	// 変数を宣言
-	bool bAdd = true;	// 加算状況
-
-	if (m_state == STATE_MEASURE)
-	{ // タイムの計測中の場合
-
-		if (m_bStop)
-		{ // 停止中の場合
-
-			// 加算できない状態にする
-			bAdd = false;
-		}
-	}
-
-	if (bAdd)
-	{ // 加算できる場合
-
-		// 引数をミリ秒に変換
-		nSec *= 1000;
-
-		// 加算量の補正
-		useful::LimitNum(nSec, -(long)m_dwTime, (long)TIME_NUMMAX);
-
-		// 引数の秒を減算
-		m_dwTempTime -= (DWORD)nSec;
-
-		// 現在の計測ミリ秒を設定
-		m_dwTime = timeGetTime() - m_dwTempTime;
-
-		// 数字のテクスチャ座標の設定
-		SetTexNum();
-	}
-
-	// 加算の成功失敗を返す
-	return bAdd;
-}
-
-//============================================================
 //	秒の設定処理
 //============================================================
 bool CTimerManager::SetSec(long nSec)
@@ -504,6 +612,13 @@ bool CTimerManager::SetSec(long nSec)
 
 		if (m_bStop)
 		{ // 停止中の場合
+
+			// 設定できない状態にする
+			bSet = false;
+		}
+		
+		if (m_nLimit > 0)
+		{ // 制限時間が 0より大きい場合
 
 			// 設定できない状態にする
 			bSet = false;
@@ -539,57 +654,6 @@ bool CTimerManager::SetSec(long nSec)
 }
 
 //============================================================
-//	秒の取得処理
-//============================================================
-int CTimerManager::GetSec(void)
-{
-	// 秒を返す
-	return (m_dwTime / 1000) % 60;
-}
-
-//============================================================
-//	分の加算処理
-//============================================================
-bool CTimerManager::AddMin(long nMin)
-{
-	// 変数を宣言
-	bool bAdd = true;	// 加算状況
-
-	if (m_state == STATE_MEASURE)
-	{ // タイムの計測中の場合
-
-		if (m_bStop)
-		{ // 停止中の場合
-
-			// 加算できない状態にする
-			bAdd = false;
-		}
-	}
-
-	if (bAdd)
-	{ // 加算できる場合
-
-		// 引数をミリ秒に変換
-		nMin *= 60000;
-
-		// 加算量の補正
-		useful::LimitNum(nMin, -(long)m_dwTime, (long)TIME_NUMMAX);
-
-		// 引数の分を減算
-		m_dwTempTime -= (DWORD)nMin;
-
-		// 現在の計測ミリ秒を設定
-		m_dwTime = timeGetTime() - m_dwTempTime;
-
-		// 数字のテクスチャ座標の設定
-		SetTexNum();
-	}
-
-	// 加算の成功失敗を返す
-	return bAdd;
-}
-
-//============================================================
 //	分の設定処理
 //============================================================
 bool CTimerManager::SetMin(long nMin)
@@ -602,6 +666,13 @@ bool CTimerManager::SetMin(long nMin)
 
 		if (m_bStop)
 		{ // 停止中の場合
+
+			// 設定できない状態にする
+			bSet = false;
+		}
+
+		if (m_nLimit > 0)
+		{ // 制限時間が 0より大きい場合
 
 			// 設定できない状態にする
 			bSet = false;
@@ -637,12 +708,147 @@ bool CTimerManager::SetMin(long nMin)
 }
 
 //============================================================
+//	タイムの取得処理
+//============================================================
+int CTimerManager::Get(void)
+{
+	// タイムを返す
+	return m_dwTime;
+}
+
+//============================================================
+//	ミリ秒の取得処理
+//============================================================
+int CTimerManager::GetMSec(void)
+{
+	// ミリ秒を返す
+	return m_dwTime % 1000;
+}
+
+//============================================================
+//	秒の取得処理
+//============================================================
+int CTimerManager::GetSec(void)
+{
+	// 秒を返す
+	return (m_dwTime / 1000) % 60;
+}
+
+//============================================================
 //	分の取得処理
 //============================================================
 int CTimerManager::GetMin(void)
 {
 	// 分を返す
 	return m_dwTime / 60000;
+}
+
+//============================================================
+//	制限時間の取得処理
+//============================================================
+long CTimerManager::GetLimit(void)
+{
+	// 制限時間を返す
+	return m_nLimit;
+}
+
+//============================================================
+//	制限時間の設定処理
+//============================================================
+void CTimerManager::SetLimit(const TIME time, const long nTime)
+{
+	// 変数を宣言
+	long nMSec = 0;	// ミリ秒変換用
+
+	// 引数の制限時間を設定
+	switch (time)
+	{ // タイムごとの処理
+	case TIME_MSEC:	// ミリ秒
+
+		m_nLimit = nTime;	// 制限時間を設定
+
+		break;
+
+	case TIME_SEC:	// 秒
+
+		// 引数をミリ秒に変換
+		nMSec = nTime * 1000;
+		m_nLimit = nMSec;	// 制限時間を設定
+
+		break;
+
+	case TIME_MIN:	// 分
+
+		// 引数をミリ秒に変換
+		nMSec = nTime * 60000;
+		m_nLimit = nMSec;	// 制限時間を設定
+
+		break;
+
+	default:
+		assert(false);
+		break;
+	}
+}
+
+//============================================================
+//	位置の設定処理
+//============================================================
+void CTimerManager::SetPosition(const D3DXVECTOR3& rPos)
+{
+	// 引数の位置を設定
+	m_pos = rPos;
+
+	// 数字の表示設定
+	SetDrawValue();
+}
+
+//============================================================
+//	数字の大きさの設定処理
+//============================================================
+void CTimerManager::SetScalingValue(const D3DXVECTOR3& rSize)
+{
+	// 引数の数字の大きさを設定
+	m_sizeValue = rSize;
+
+	// 数字の表示設定
+	SetDrawValue();
+}
+
+//============================================================
+//	区切りの大きさの設定処理
+//============================================================
+void CTimerManager::SetScalingPart(const D3DXVECTOR3& rSize)
+{
+	// 引数の区切りの大きさを設定
+	m_sizePart = rSize;
+
+	// 数字の表示設定
+	SetDrawValue();
+}
+
+//============================================================
+//	数字の空白の設定処理
+//============================================================
+void CTimerManager::SetSpaceValue(const D3DXVECTOR3& rSpace)
+{
+	// 引数の数字の空白を設定
+	m_spaceValue = rSpace;
+
+	// 数字の表示設定
+	SetDrawValue();
+}
+
+//============================================================
+//	区切りの空白の設定処理
+//============================================================
+void CTimerManager::SetSpacePart(const D3DXVECTOR3& rSpace)
+{
+	// 引数の区切りの空白を設定
+	m_spacePart = rSpace;
+
+	// 数字の表示設定
+	SetDrawValue();
 }
 
 //============================================================
@@ -721,36 +927,12 @@ void CTimerManager::SetEnableDraw(const bool bDraw)
 }
 
 //============================================================
-//	位置の設定処理
-//============================================================
-void CTimerManager::SetVec3Position(const D3DXVECTOR3& rPos)
-{
-	// 引数の位置を設定
-	m_pos = rPos;
-
-	// 数字の表示設定
-	SetDrawValue();
-}
-
-//============================================================
 //	位置取得処理
 //============================================================
-D3DXVECTOR3 CTimerManager::GetVec3Position(void) const
+D3DXVECTOR3 CTimerManager::GetPosition(void) const
 {
 	// 位置を返す
 	return m_pos;
-}
-
-//============================================================
-//	数字の大きさの設定処理
-//============================================================
-void CTimerManager::SetScalingValue(const D3DXVECTOR3& rSize)
-{
-	// 引数の数字の大きさを設定
-	m_sizeValue = rSize;
-
-	// 数字の表示設定
-	SetDrawValue();
 }
 
 //============================================================
@@ -763,18 +945,6 @@ D3DXVECTOR3 CTimerManager::GetScalingValue(void) const
 }
 
 //============================================================
-//	区切りの大きさの設定処理
-//============================================================
-void CTimerManager::SetScalingPart(const D3DXVECTOR3& rSize)
-{
-	// 引数の区切りの大きさを設定
-	m_sizePart = rSize;
-
-	// 数字の表示設定
-	SetDrawValue();
-}
-
-//============================================================
 //	区切りの大きさ取得処理
 //============================================================
 D3DXVECTOR3 CTimerManager::GetScalingPart(void) const
@@ -784,36 +954,12 @@ D3DXVECTOR3 CTimerManager::GetScalingPart(void) const
 }
 
 //============================================================
-//	数字の空白の設定処理
-//============================================================
-void CTimerManager::SetSpaceValue(const D3DXVECTOR3& rSpace)
-{
-	// 引数の数字の空白を設定
-	m_spaceValue = rSpace;
-
-	// 数字の表示設定
-	SetDrawValue();
-}
-
-//============================================================
 //	数字の空白取得処理
 //============================================================
 D3DXVECTOR3 CTimerManager::GetSpaceValue(void) const
 {
 	// 数字の空白を返す
 	return m_spaceValue;
-}
-
-//============================================================
-//	区切りの空白の設定処理
-//============================================================
-void CTimerManager::SetSpacePart(const D3DXVECTOR3& rSpace)
-{
-	// 引数の区切りの空白を設定
-	m_spacePart = rSpace;
-
-	// 数字の表示設定
-	SetDrawValue();
 }
 
 //============================================================

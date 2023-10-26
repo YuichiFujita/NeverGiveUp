@@ -209,9 +209,6 @@ void CGoalPoint::CollisionPlayer(void)
 
 			// プレイヤーをクリア成功状態にする
 			pPlayer->SetState(CPlayer::STATE_CLEAR);
-
-			// デバッグパーティクル
-			CParticle3D::Create(CParticle3D::TYPE_HEAL, pPlayer->GetVec3Position(), XCOL_BLUE);
 		}
 	}
 }
