@@ -12,8 +12,8 @@
 #include "input.h"
 #include "collision.h"
 #include "editStageManager.h"
+#include "objectMeshCube.h"
 #include "stage.h"
-#include "effect3D.h"
 
 //************************************************************
 //	マクロ定義
@@ -42,6 +42,12 @@ namespace
 	const float CHANGE_SCALE	= 0.05f;	// 拡大率変更量
 	const float	EFFECT_RADIUS	= 30.0f;	// 方向表示エフェクトの半径
 	const int	EFFECT_LIFE		= 10;		// 方向表示エフェクトの寿命
+
+	namespace center
+	{
+		const D3DXVECTOR3	SIZE	= D3DXVECTOR3(280.0f, 20.0f, 280.0f);	// 中心表示の大きさ
+		const D3DXCOLOR		COL		= D3DXCOLOR(0.0f, 1.0f, 0.0f, 0.5f);	// 中心表示の色
+	}
 }
 
 //************************************************************
@@ -55,7 +61,8 @@ CEditSignboard::CEditSignboard()
 #if _DEBUG
 
 	// メンバ変数をクリア
-	m_pEdit = NULL;	// エディットステージの情報
+	m_pEdit = NULL;		// エディットステージの情報
+	m_pCenter = NULL;	// 中心の情報
 	memset(&m_signboard, 0, sizeof(m_signboard));	// 看板配置情報
 
 #endif	// _DEBUG
@@ -78,10 +85,32 @@ HRESULT CEditSignboard::Init(void)
 #if _DEBUG
 
 	// メンバ変数を初期化
-	m_pEdit = NULL;	// エディットステージの情報
-
+	m_pEdit = NULL;		// エディットステージの情報
+	m_pCenter = NULL;	// 中心の情報
 	m_signboard.pSignboard = NULL;			// 看板情報
 	m_signboard.type = CSignboard::TYPE_00;	// 看板種類
+
+	// 中心情報の生成
+	m_pCenter = CObjectMeshCube::Create
+	( // 引数
+		VEC3_ZERO,								// 位置
+		VEC3_ZERO,								// 向き
+		center::SIZE,							// 大きさ
+		center::COL,							// キューブ色
+		XCOL_WHITE,								// 縁取り色
+		CObjectMeshCube::BORDER_OFF,			// 縁取り状態
+		0.0f,									// 縁取り太さ
+		CObjectMeshCube::TEXSTATE_ONE,			// テクスチャ状態
+		CObjectMeshCube::ETexState(NONE_IDX),	// テクスチャ種類
+		CObjectMeshCube::ORIGIN_DOWN			// 原点
+	);
+	if (m_pCenter == NULL)
+	{ // 生成に失敗した場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
 
 	// 看板の生成
 	m_signboard.pSignboard = CSignboard::Create(m_signboard.type, VEC3_ZERO, VEC3_ZERO);
@@ -117,6 +146,15 @@ HRESULT CEditSignboard::Init(void)
 void CEditSignboard::Uninit(void)
 {
 #if _DEBUG
+
+	if (m_pCenter != NULL)
+	{ // 中心情報が使用されている場合
+
+		// 中心情報の終了
+		m_pCenter->Uninit();
+	}
+	else { assert(false); }	// 非使用中
+
 #endif	// _DEBUG
 }
 
@@ -141,8 +179,8 @@ void CEditSignboard::Update(void)
 	// 拡大率変更の更新
 	UpdateChangeScale();
 
-	// 中心表示エフェクト生成
-	CreateCenterEffect();
+	// 中心表示の更新
+	UpdateCenter();
 
 	// 看板の生成
 	CreateSignboard();
@@ -435,6 +473,25 @@ void CEditSignboard::UpdateChangeScale(void)
 }
 
 //============================================================
+//	中心表示の更新処理
+//============================================================
+void CEditSignboard::UpdateCenter(void)
+{
+	// 変数を宣言
+	D3DXVECTOR3 posCenter = VEC3_ZERO;					// 中心位置
+	D3DXVECTOR3 posEdit = m_pEdit->GetVec3Position();	// エディットの位置
+	D3DXVECTOR3 rotEdit = m_pEdit->GetVec3Rotation();	// エディットの向き
+
+	// 中心位置を計算
+	posCenter.x = posEdit.x + sinf(rotEdit.y + D3DX_PI) * 50.0f;
+	posCenter.y = posEdit.y + -240.0f;
+	posCenter.z = posEdit.z + cosf(rotEdit.y + D3DX_PI) * 50.0f;
+
+	// 中心位置を指定
+	m_pCenter->SetVec3Position(posCenter);
+}
+
+//============================================================
 //	看板の生成処理
 //============================================================
 void CEditSignboard::CreateSignboard(void)
@@ -504,27 +561,6 @@ void CEditSignboard::ReleaseSignboard(void)
 
 	// 看板の削除判定
 	DeleteCollisionSignboard(bRelease);
-}
-
-//============================================================
-//	方向表示エフェクトの生成処理
-//============================================================
-void CEditSignboard::CreateCenterEffect(void)
-{
-	// 変数を宣言
-	D3DXVECTOR3 posEffect = VEC3_ZERO;								// エフェクト位置
-	D3DXVECTOR3 posEdit   = m_pEdit->GetVec3Position();				// エディットの位置
-	D3DXVECTOR3 rotEdit   = m_pEdit->GetVec3Rotation();				// エディットの向き
-	D3DXVECTOR3 sizeSign = m_signboard.pSignboard->GetVec3Sizing();	// 看板大きさ
-	float fAverageSizeSign = (sizeSign.x + sizeSign.z) * 0.5f;		// 看板大きさ平均
-
-	// エフェクト位置を計算
-	posEffect.x = posEdit.x + sinf(rotEdit.y + D3DX_PI) * fAverageSizeSign;
-	posEffect.y = posEdit.y + sizeSign.y * 2.0f;
-	posEffect.z = posEdit.z + cosf(rotEdit.y + D3DX_PI) * fAverageSizeSign;
-
-	// 方向表示エフェクトを生成
-	CEffect3D::Create(posEffect, EFFECT_RADIUS, CEffect3D::TYPE_NORMAL, EFFECT_LIFE);
 }
 
 //============================================================

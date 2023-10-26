@@ -20,6 +20,7 @@
 //	前方宣言
 //************************************************************
 class CEditStageManager;	// エディットステージマネージャークラス
+class CObjectMeshCube;		// オブジェクトメッシュキューブクラス
 
 //************************************************************
 //	クラス定義
@@ -58,15 +59,16 @@ private:
 	// メンバ関数
 	void UpdateChangeType(void);	// 種類変更の更新
 	void UpdateChangeScale(void);	// 拡大率変更の更新
+	void UpdateCenter(void);		// 中心表示の更新
 	void CreateSignboard(void);		// 看板生成
 	void ReleaseSignboard(void);	// 看板破棄
-	void CreateCenterEffect(void);	// 中心表示エフェクト生成
 
 	void DeleteCollisionSignboard(const bool bRelase);	// 看板の削除判定
 	void InitAllColorSignboard(void);					// 看板の色全初期化
 
 	// メンバ変数
 	CEditStageManager *m_pEdit;	// エディットステージの情報
+	CObjectMeshCube *m_pCenter;	// 中心の情報
 	SInfo m_signboard;	// 看板配置情報
 };
 
