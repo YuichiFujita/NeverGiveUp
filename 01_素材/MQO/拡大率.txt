@@ -1,5 +1,11 @@
-obstacle_box = 0.3
-obstacle_bench = 0.3
+obstacle
+box = 0.3
+bench = 0.3
+jumppad = 0.3?
+fance = 0.5
+block = 1.4
+wall = 0.6
+
 player = 0.35
 friend = 0.35
 signboard = 0.5

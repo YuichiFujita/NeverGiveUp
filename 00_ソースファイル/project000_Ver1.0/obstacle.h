@@ -29,6 +29,11 @@ public:
 		TYPE_BOX = 0,	// 箱モデル
 		TYPE_BENCH,		// ベンチモデル
 		TYPE_JUMPPAD,	// ジャンプパッドモデル
+		TYPE_FENCE,		// フェンスモデル
+		TYPE_BLOCK,		// ブロックモデル
+		TYPE_WALL,		// 壁モデル
+		TYPE_BLUE_BOX,	// 青箱モデル
+		TYPE_CAR,		// 車モデル
 		TYPE_MAX		// この列挙型の総数
 	};
 

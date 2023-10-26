@@ -120,6 +120,13 @@ HRESULT CEditStageManager::Init(void)
 	m_bSave = false;			// 保存状況
 	m_bEdit	= false;			// エディット状況
 
+#if 0	// TODO：障害物検証用の初期化
+
+	m_pos = D3DXVECTOR3(-2880.0f, 1120.0f, -4000.0f);		// 位置
+	m_thing = THING_OBSTACLE;	// 配置物
+
+#endif
+
 	// エディットビルの生成
 	m_pBuilding = CEditBuilding::Create(this);
 	if (m_pBuilding == NULL)

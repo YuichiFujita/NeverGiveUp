@@ -30,6 +30,11 @@ const char *CObstacle::mc_apModelFile[] =	// モデル定数
 	"data\\MODEL\\OBSTACLE\\obstacle000.x",	// 箱
 	"data\\MODEL\\OBSTACLE\\obstacle001.x",	// ベンチ
 	"data\\MODEL\\OBSTACLE\\obstacle002.x",	// ジャンプパッド
+	"data\\MODEL\\OBSTACLE\\obstacle003.x",	// フェンス
+	"data\\MODEL\\OBSTACLE\\obstacle004.x",	// ブロック
+	"data\\MODEL\\OBSTACLE\\obstacle005.x",	// 壁
+	"data\\MODEL\\OBSTACLE\\obstacle006.x",	// 青箱
+	"data\\MODEL\\OBSTACLE\\obstacle007.x",	// 車
 };
 CObstacle::SStatusInfo CObstacle::m_aStatusInfo[TYPE_MAX] = {};	// ステータス情報
 
@@ -296,7 +301,7 @@ void CObstacle::LoadSetup(void)
 				do
 				{ // 読み込んだ文字列が END_STATUSSET ではない場合ループ
 
-				  // ファイルから文字列を読み込む
+					// ファイルから文字列を読み込む
 					fscanf(pFile, "%s", &aString[0]);
 
 					if (strcmp(&aString[0], "OBSTACLESET") == 0)
