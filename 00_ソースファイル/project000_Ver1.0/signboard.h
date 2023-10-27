@@ -38,9 +38,10 @@ public:
 	// 種類列挙
 	enum EType
 	{
-		TYPE_00 = 0,	// 看板00テクスチャ
-		TYPE_01,		// 看板01テクスチャ
-		TYPE_02,		// 看板02テクスチャ
+		TYPE_RIGHT = 0,	// 右テクスチャ
+		TYPE_LEFT,		// 左テクスチャ
+		TYPE_UP,		// 上テクスチャ
+		TYPE_DOWN,		// 下テクスチャ
 		TYPE_MAX		// この列挙型の総数
 	};
 

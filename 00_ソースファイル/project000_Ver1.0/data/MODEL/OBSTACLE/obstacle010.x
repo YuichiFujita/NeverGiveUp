@@ -1743,7 +1743,7 @@ Mesh {
    0.000000;0.000000;0.000000;;
    0.000000;0.000000;0.000000;;
    TextureFilename {
-    "C:\\Users\\student\\Downloads\\Fence.png";
+    "data\\MODEL\\TEXTURE\\fence000.png";
    }
   }
  }

@@ -23,7 +23,17 @@
 //************************************************************
 //	マクロ定義
 //************************************************************
-#define TIME_LIMIT		(0)	// 制限時間
+
+#if _DEBUG
+
+#define TIME_LIMIT	(0)	// 制限時間
+
+#else
+
+#define TIME_LIMIT	(180)	// 制限時間
+
+#endif
+
 #define TIME_POS		(D3DXVECTOR3(40.0f, 50.0f, 0.0f))	// タイマー位置
 #define TIME_VAL_SIZE	(D3DXVECTOR3(72.0f, 96.0f, 0.0f))	// タイマー数字大きさ
 #define TIME_PART_SIZE	(D3DXVECTOR3(42.0f, 96.0f, 0.0f))	// タイマー区切り大きさ

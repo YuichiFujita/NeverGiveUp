@@ -55,7 +55,7 @@ namespace
 		const float	JUMPPAD_MOVE	= 50.0f;	// ジャンプパッドの上移動量
 		const float	NOR_JUMP_REV	= 0.16f;	// 通常状態時の空中の移動量の減衰係数
 		const float	NOR_LAND_REV	= 0.16f;	// 通常状態時の地上の移動量の減衰係数
-		const float	DMG_JUMP_REV	= 0.01f;	// ダメージ状態時の空中の移動量の減衰係数
+		const float	DMG_JUMP_REV	= 0.025f;	// ダメージ状態時の空中の移動量の減衰係数
 		const float	DMG_LAND_REV	= 0.5f;		// ダメージ状態時の地上の移動量の減衰係数
 		const float DMG_SUB_ALPHA	= 0.025f;	// ダメージ状態時の透明度の減算量
 		const float	SPAWN_ADD_ALPHA	= 0.03f;	// スポーン状態時の透明度の加算量
@@ -758,6 +758,7 @@ void CPlayer::UpdateWallDash(D3DXVECTOR3& rPos)
 	// ポインタを宣言
 	CInputKeyboard	*pKeyboard	= CManager::GetInstance()->GetKeyboard();	// キーボード
 	CInputPad		*pPad		= CManager::GetInstance()->GetPad();		// パッド
+	CInputMouse		*pMouse		= CManager::GetInstance()->GetMouse();		// マウス
 
 	// 看板との当たり判定
 	bHit = CollisionSignboard(rPos, &fRate);	// 壁走り可能状況を設定
@@ -768,7 +769,9 @@ void CPlayer::UpdateWallDash(D3DXVECTOR3& rPos)
 		if (bHit)
 		{ // 壁走り可能な場合
 
-			if (pKeyboard->IsTrigger(DIK_S) || pPad->IsTrigger(CInputPad::KEY_A))
+			if (pKeyboard->IsTrigger(DIK_S)
+			||  pPad->IsTrigger(CInputPad::KEY_A)
+			||  pMouse->IsTrigger(CInputMouse::KEY_RIGHT))
 			{ // 壁走りの操作が行われた場合
 
 				// 壁走り操作が行われた情報を保存
@@ -822,7 +825,7 @@ void CPlayer::UpdateWallDash(D3DXVECTOR3& rPos)
 			if (m_nCounterWallDash > walldash::MIN_END_CNT)
 			{ // 壁走りの解除操作ができるカウントに到達した場合
 
-				if (!(pKeyboard->IsPress(DIK_S) || pPad->IsPress(CInputPad::KEY_A)))
+				if (!(pKeyboard->IsPress(DIK_S) || pPad->IsPress(CInputPad::KEY_A) || pMouse->IsPress(CInputMouse::KEY_RIGHT)))
 				{ // 壁走り解除の操作が行われた場合
 
 					// カウンターを初期化
@@ -871,11 +874,14 @@ void CPlayer::UpdateJump(void)
 	// ポインタを宣言
 	CInputKeyboard	*pKeyboard	= CManager::GetInstance()->GetKeyboard();	// キーボード
 	CInputPad		*pPad		= CManager::GetInstance()->GetPad();		// パッド
+	CInputMouse		*pMouse		= CManager::GetInstance()->GetMouse();		// マウス
 
 	if (!m_bJump && !m_bSlide && !m_bWallDash)
 	{ // ジャンプとスライディングと壁走りをしていない場合
 
-		if (pKeyboard->IsTrigger(DIK_W) || pPad->IsTrigger(CInputPad::KEY_B))
+		if (pKeyboard->IsTrigger(DIK_W)
+		||  pPad->IsTrigger(CInputPad::KEY_B)
+		||  pMouse->IsTrigger(CInputMouse::KEY_LEFT))
 		{ // ジャンプの操作が行われた場合
 
 			// 上移動量
@@ -898,11 +904,14 @@ void CPlayer::UpdateSliding(void)
 	// ポインタを宣言
 	CInputKeyboard	*pKeyboard	= CManager::GetInstance()->GetKeyboard();	// キーボード
 	CInputPad		*pPad		= CManager::GetInstance()->GetPad();		// パッド
+	CInputMouse		*pMouse		= CManager::GetInstance()->GetMouse();		// マウス
 
 	if (!m_bSlide)
 	{ // スライディングしていない場合
 
-		if (pKeyboard->IsTrigger(DIK_S) || pPad->IsTrigger(CInputPad::KEY_A))
+		if (pKeyboard->IsTrigger(DIK_S)
+		||  pPad->IsTrigger(CInputPad::KEY_A)
+		||  pMouse->IsTrigger(CInputMouse::KEY_RIGHT))
 		{ // スライディングの操作が行われた場合
 
 			if (!m_bWallDash)
@@ -960,7 +969,7 @@ void CPlayer::UpdateSliding(void)
 		if (m_nCounterSlide > slide::MIN_END_CNT)
 		{ // スライディングの解除操作ができるカウントに到達した場合
 
-			if (!(pKeyboard->IsPress(DIK_S) || pPad->IsPress(CInputPad::KEY_A)))
+			if (!(pKeyboard->IsPress(DIK_S) || pPad->IsPress(CInputPad::KEY_A) || pMouse->IsPress(CInputMouse::KEY_RIGHT)))
 			{ // スライディング解除の操作が行われた場合
 
 				// カウンターを初期化

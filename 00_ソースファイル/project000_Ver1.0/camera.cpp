@@ -49,7 +49,7 @@ namespace
 		const float REV_ROT		= 0.1f;		// カメラ向きの補正係数
 		const float INIT_DIS	= 1000.0f;	// 追従カメラの距離
 		const float INIT_ROTX	= 1.7f;		// 追従カメラの向きX初期値
-		const float ADD_ROTY	= 0.2f;		// 追従カメラの向き加算量Y
+		const float ADD_ROTY	= 0.45f;	// 追従カメラの向き加算量Y
 
 		const float LOOK_ADD_FORWARD	= 500.0f;	// プレイヤー位置からの前への加算量
 		const float LOOK_ADD_POSY		= 50.0f;	// プレイヤー位置からの上への加算量

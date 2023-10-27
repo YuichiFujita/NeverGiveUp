@@ -31,31 +31,40 @@ namespace
 //************************************************************
 const char *CSignboard::mc_apTextureFile[][6] =	// テクスチャ定数
 {
-	{ // 看板00テクスチャ
-		"data\\TEXTURE\\buildingRoof000.png",	// 左テクスチャ
-		"data\\TEXTURE\\buildingRoof000.png",	// 右テクスチャ
-		"data\\TEXTURE\\buildingRoof000.png",	// 下テクスチャ
-		"data\\TEXTURE\\buildingRoof000.png",	// 上テクスチャ
-		"data\\TEXTURE\\buildingRoof000.png",	// 前テクスチャ
-		"data\\TEXTURE\\buildingRoof000.png",	// 後テクスチャ
+	{ // 右テクスチャ
+		"data\\TEXTURE\\signboardSide000.png",	// 左テクスチャ
+		"data\\TEXTURE\\signboardSide000.png",	// 右テクスチャ
+		"data\\TEXTURE\\signboardSide000.png",	// 下テクスチャ
+		"data\\TEXTURE\\signboardSide000.png",	// 上テクスチャ
+		"data\\TEXTURE\\signboard000.png",		// 前テクスチャ
+		"data\\TEXTURE\\signboardBack000.png",	// 後テクスチャ
 	},
 
-	{ // 看板01テクスチャ
-		"data\\TEXTURE\\buildingRoof000.png",	// 左テクスチャ
-		"data\\TEXTURE\\buildingRoof000.png",	// 右テクスチャ
-		"data\\TEXTURE\\buildingRoof000.png",	// 下テクスチャ
-		"data\\TEXTURE\\buildingRoof000.png",	// 上テクスチャ
-		"data\\TEXTURE\\buildingRoof000.png",	// 前テクスチャ
-		"data\\TEXTURE\\buildingRoof000.png",	// 後テクスチャ
+	{ // 左テクスチャ
+		"data\\TEXTURE\\signboardSide000.png",	// 左テクスチャ
+		"data\\TEXTURE\\signboardSide000.png",	// 右テクスチャ
+		"data\\TEXTURE\\signboardSide000.png",	// 下テクスチャ
+		"data\\TEXTURE\\signboardSide000.png",	// 上テクスチャ
+		"data\\TEXTURE\\signboard000.png",		// 前テクスチャ
+		"data\\TEXTURE\\signboardBack000.png",	// 後テクスチャ
 	},
 
-	{ // 看板02テクスチャ
-		"data\\TEXTURE\\buildingRoof000.png",	// 左テクスチャ
-		"data\\TEXTURE\\buildingRoof000.png",	// 右テクスチャ
-		"data\\TEXTURE\\buildingRoof000.png",	// 下テクスチャ
-		"data\\TEXTURE\\buildingRoof000.png",	// 上テクスチャ
-		"data\\TEXTURE\\buildingRoof000.png",	// 前テクスチャ
-		"data\\TEXTURE\\buildingRoof000.png",	// 後テクスチャ
+	{ // 上テクスチャ
+		"data\\TEXTURE\\signboardSide000.png",	// 左テクスチャ
+		"data\\TEXTURE\\signboardSide000.png",	// 右テクスチャ
+		"data\\TEXTURE\\signboardSide000.png",	// 下テクスチャ
+		"data\\TEXTURE\\signboardSide000.png",	// 上テクスチャ
+		"data\\TEXTURE\\signboard000.png",		// 前テクスチャ
+		"data\\TEXTURE\\signboardBack000.png",	// 後テクスチャ
+	},
+
+	{ // 下テクスチャ
+		"data\\TEXTURE\\signboardSide000.png",	// 左テクスチャ
+		"data\\TEXTURE\\signboardSide000.png",	// 右テクスチャ
+		"data\\TEXTURE\\signboardSide000.png",	// 下テクスチャ
+		"data\\TEXTURE\\signboardSide000.png",	// 上テクスチャ
+		"data\\TEXTURE\\signboard000.png",		// 前テクスチャ
+		"data\\TEXTURE\\signboardBack000.png",	// 後テクスチャ
 	},
 };
 
@@ -73,9 +82,9 @@ const char *CSignboard::mc_apModelFile[] =	// モデル定数
 CSignboard::CSignboard() : CObjectMeshCube(CObject::LABEL_SIGNBOARD, SIGNBOARD_PRIO)
 {
 	// メンバ変数をクリア
-	m_pStand = NULL;	// 看板スタンドの情報
-	m_type   = TYPE_00;	// 種類
-	m_fScale = 0.0f;	// 拡大率
+	m_pStand = NULL;		// 看板スタンドの情報
+	m_type   = TYPE_LEFT;	// 種類
+	m_fScale = 0.0f;		// 拡大率
 }
 
 //============================================================
@@ -92,9 +101,9 @@ CSignboard::~CSignboard()
 HRESULT CSignboard::Init(void)
 {
 	// メンバ変数を初期化
-	m_pStand = NULL;	// 看板スタンドの情報
-	m_type   = TYPE_00;	// 種類
-	m_fScale = 1.0f;	// 拡大率
+	m_pStand = NULL;		// 看板スタンドの情報
+	m_type   = TYPE_LEFT;	// 種類
+	m_fScale = 1.0f;		// 拡大率
 
 	//--------------------------------------------------------
 	//	オブジェクトメッシュキューブの初期化

@@ -90,8 +90,8 @@ HRESULT CEditSignboard::Init(void)
 	// メンバ変数を初期化
 	m_pEdit = NULL;		// エディットステージの情報
 	m_pCenter = NULL;	// 中心の情報
-	m_signboard.pSignboard = NULL;			// 看板情報
-	m_signboard.type = CSignboard::TYPE_00;	// 看板種類
+	m_signboard.pSignboard = NULL;				// 看板情報
+	m_signboard.type = CSignboard::TYPE_LEFT;	// 看板種類
 
 	// 中心情報の生成
 	m_pCenter = CObjectMeshCube::Create
