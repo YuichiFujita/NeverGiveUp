@@ -29,20 +29,20 @@
 #define INITCOL_FADE	(XCOL_AWHITE)	// α値の初期値
 #define ADD_ALPHA		(0.008f)		// α値の加算量
 
-#define POS_RESULT_MISSION	(D3DXVECTOR3(360.0f, 170.0f, 0.0f))	// リザルト表示のMISSION位置
-#define POS_RESULT_RESULT	(D3DXVECTOR3(920.0f, 170.0f, 0.0f))	// リザルト表示のRESULT位置
+#define POS_RESULT_MISSION	(D3DXVECTOR3(380.0f, 170.0f, 0.0f))	// リザルト表示の遅刻回避の位置
+#define POS_RESULT_RESULT	(D3DXVECTOR3(960.0f, 170.0f, 0.0f))	// リザルト表示の成功失敗の位置
 #define SIZE_RESULT			(D3DXVECTOR3(632.7f, 203.5f, 0.0f))	// リザルト表示の大きさ
 #define SET_RESULT_SCALE	(15.0f)	// リザルト表示の初期拡大率
 #define SUB_RESULT_SCALE	(0.65f)	// リザルト表示拡大率の減算量
 
 #define TIME_WAIT_CNT	(3)	// タイム表示状態への変更待機フレーム数
-#define POS_TIME_LOGO	(D3DXVECTOR3(250.0f, 360.0f, 0.0f))			// タイムロゴ位置
-#define SIZE_TIME_LOGO	(D3DXVECTOR3(487.5f, 154.7f, 0.0f))			// タイムロゴ大きさ
-#define POS_TIME		(D3DXVECTOR3(490.0f, 360.0f, 0.0f))			// タイム位置
-#define SIZE_TIME_VAL	(D3DXVECTOR3(94.0f, 112.0f, 0.0f))			// タイム数字大きさ
-#define SIZE_TIME_PART	(D3DXVECTOR3(48.0f, 112.0f, 0.0f))			// タイム区切り大きさ
-#define SPACE_TIME_VAL	(D3DXVECTOR3(SIZE_TIME_VAL.x, 0.0f, 0.0f))	// タイム数字空白
-#define SPACE_TIME_PART	(D3DXVECTOR3(SIZE_TIME_PART.x, 0.0f, 0.0f))	// タイム区切り空白
+#define POS_TIME_LOGO	(D3DXVECTOR3(270.0f, 360.0f, 0.0f))	// タイムロゴ位置
+#define SIZE_TIME_LOGO	(D3DXVECTOR3(487.5f, 154.7f, 0.0f))	// タイムロゴ大きさ
+#define POS_TIME		(D3DXVECTOR3(535.0f, 360.0f, 0.0f))	// タイム位置
+#define SIZE_TIME_VAL	(D3DXVECTOR3(98.0f, 117.0f, 0.0f))	// タイム数字大きさ
+#define SIZE_TIME_PART	(D3DXVECTOR3(50.0f, 117.0f, 0.0f))	// タイム区切り大きさ
+#define SPACE_TIME_VAL	(D3DXVECTOR3(SIZE_TIME_VAL.x  * 0.9f, 0.0f, 0.0f))	// タイム数字空白
+#define SPACE_TIME_PART	(D3DXVECTOR3(SIZE_TIME_PART.x * 0.9f, 0.0f, 0.0f))	// タイム区切り空白
 #define SET_TIME_SCALE	(8.0f)	// タイム表示の初期拡大率
 #define SUB_TIME_SCALE	(0.3f)	// タイム表示拡大率の減算量
 
@@ -51,11 +51,10 @@
 //************************************************************
 const char *CResultManager::mc_apTextureFile[] =	// テクスチャ定数
 {
-	"data\\TEXTURE\\result000.png",	// MISSIONテクスチャ
-	"data\\TEXTURE\\result001.png",	// CLEARテクスチャ
-	"data\\TEXTURE\\result002.png",	// FAILEDテクスチャ
-	"data\\TEXTURE\\result003.png",	// スコア表示テクスチャ
-	"data\\TEXTURE\\result004.png",	// タイム表示テクスチャ
+	"data\\TEXTURE\\result000.png",	// 遅刻回避テクスチャ
+	"data\\TEXTURE\\result001.png",	// 成功テクスチャ
+	"data\\TEXTURE\\result002.png",	// 失敗テクスチャ
+	"data\\TEXTURE\\result003.png",	// タイム表示テクスチャ
 };
 
 //************************************************************
@@ -159,8 +158,6 @@ HRESULT CResultManager::Init(void)
 
 	// リザルト表示のテクスチャを設定
 	SetTexResult();
-
-	// TODO：遅刻回避成功 or 失敗にする
 
 	//--------------------------------------------------------
 	//	タイムロゴ表示の生成・設定

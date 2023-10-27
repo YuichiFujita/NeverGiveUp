@@ -25,9 +25,6 @@
 const char *CValue::mc_apTextureFile[] =	// テクスチャ定数
 {
 	"data\\TEXTURE\\number000.png",	// 通常テクスチャ
-	"data\\TEXTURE\\number001.png",	// 魔法っぽいテクスチャ (白)
-	"data\\TEXTURE\\number002.png",	// 魔法っぽいテクスチャ (緑)
-	"data\\TEXTURE\\number003.png",	// かくかくしたテクスチャ
 };
 
 //************************************************************

@@ -489,41 +489,6 @@ void CPlayer::SetSpawn(void)
 }
 
 //============================================================
-//	リザルト遷移処理
-//============================================================
-void CPlayer::ResultTransition(const CRetentionManager::EResult result, const int nWait)
-{
-	// ポインタを宣言
-	CRetentionManager *m_pRetention = CManager::GetInstance()->GetRetentionManager();	// データ保存マネージャー
-	if (m_pRetention == NULL)
-	{ // データ保存マネージャーが使用されていない場合
-
-		// 処理を抜ける
-		assert(false);
-	}
-
-	CTimerManager *m_pTimer = CSceneGame::GetTimerManager();	// タイマーマネージャー
-	if (m_pTimer == NULL)
-	{ // タイマーマネージャーが使用されていない場合
-
-		// 処理を抜ける
-		assert(false);
-	}
-
-	// クリア状況を設定
-	m_pRetention->SetResult(result);
-
-	// 経過時間を設定
-	m_pRetention->SetTime(m_pTimer->GetLimit() - m_pTimer->Get());
-
-	// タイムの計測を終了
-	m_pTimer->End();
-
-	// シーンの設定
-	CManager::GetInstance()->SetScene(CScene::MODE_RESULT, nWait);	// リザルト画面
-}
-
-//============================================================
 //	スポーン状態時の更新処理
 //============================================================
 CPlayer::EMotion CPlayer::UpdateSpawn(void)
@@ -1202,6 +1167,41 @@ bool CPlayer::UpdateFadeIn(const float fSub)
 
 	// 透明状況を返す
 	return bAlpha;
+}
+
+//============================================================
+//	リザルト遷移処理
+//============================================================
+void CPlayer::ResultTransition(const CRetentionManager::EResult result, const int nWait)
+{
+	// ポインタを宣言
+	CRetentionManager *m_pRetention = CManager::GetInstance()->GetRetentionManager();	// データ保存マネージャー
+	if (m_pRetention == NULL)
+	{ // データ保存マネージャーが使用されていない場合
+
+		// 処理を抜ける
+		assert(false);
+	}
+
+	CTimerManager *m_pTimer = CSceneGame::GetTimerManager();	// タイマーマネージャー
+	if (m_pTimer == NULL)
+	{ // タイマーマネージャーが使用されていない場合
+
+		// 処理を抜ける
+		assert(false);
+	}
+
+	// クリア状況を設定
+	m_pRetention->SetResult(result);
+
+	// 経過時間を設定
+	m_pRetention->SetTime(m_pTimer->GetLimit() - m_pTimer->Get());
+
+	// タイムの計測を終了
+	m_pTimer->End();
+
+	// シーンの設定
+	CManager::GetInstance()->SetScene(CScene::MODE_RESULT, nWait);	// リザルト画面
 }
 
 //============================================================

@@ -36,10 +36,9 @@ public:
 	// テクスチャ列挙
 	enum ETexture
 	{
-		TEXTURE_MISSION = 0,	// MISSIONテクスチャ
-		TEXTURE_CLEAR,			// CLEARテクスチャ
-		TEXTURE_FAILED,			// FAILEDテクスチャ
-		TEXTURE_SCORE,			// スコア表示テクスチャ
+		TEXTURE_MISSION = 0,	// 遅刻回避テクスチャ
+		TEXTURE_CLEAR,			// 成功テクスチャ
+		TEXTURE_FAILED,			// 失敗テクスチャ
 		TEXTURE_TIME,			// タイム表示テクスチャ
 		TEXTURE_MAX				// この列挙型の総数
 	};
@@ -86,12 +85,12 @@ private:
 
 	// メンバ変数
 	CObject2D *m_apResult[NUM_RESULT];	// リザルト表示の情報
-	CObject2D *m_pTimeLogo;		// タイムロゴの情報
-	CObject2D *m_pFade;			// フェードの情報
-	CTimerManager *m_pTime;		// タイムの情報
-	EState m_state;				// 状態
-	int m_nCounterState;		// 状態管理カウンター
-	float m_fScale;				// ポリゴン拡大率
+	CObject2D *m_pTimeLogo;	// タイムロゴの情報
+	CObject2D *m_pFade;		// フェードの情報
+	CTimerManager *m_pTime;	// タイムの情報
+	EState m_state;			// 状態
+	int m_nCounterState;	// 状態管理カウンター
+	float m_fScale;			// ポリゴン拡大率
 };
 
 #endif	// _RESULTMANAGER_H_
