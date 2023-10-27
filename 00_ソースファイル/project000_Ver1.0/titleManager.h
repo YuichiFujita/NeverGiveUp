@@ -30,9 +30,10 @@ public:
 	// ƒƒS—ñ‹“
 	enum ELogo
 	{
-		LOGO_MAGICAL = 0,	// MAGICALƒƒS
-		LOGO_TOP,			// TOPƒƒS
-		LOGO_MAX			// ‚±‚Ì—ñ‹“Œ^‚Ì‘”
+		LOGO_NEVER = 0,	// NEVERƒƒS
+		LOGO_GIVE,		// GIVEƒƒS
+		LOGO_UP,		// UP!ƒƒS
+		LOGO_MAX		// ‚±‚Ì—ñ‹“Œ^‚Ì‘”
 	};
 
 	// ‘I‘ð—ñ‹“
