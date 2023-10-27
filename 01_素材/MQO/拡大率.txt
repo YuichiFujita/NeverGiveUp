@@ -5,6 +5,9 @@ jumppad = 0.3?
 fance = 0.5
 block = 1.4
 wall = 0.6
+wheel = 0.5
+drumTowor = 0.65
+fenceDown = 1.2
 
 player = 0.35
 friend = 0.35

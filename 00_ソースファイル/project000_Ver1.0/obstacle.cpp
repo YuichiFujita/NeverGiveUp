@@ -35,6 +35,9 @@ const char *CObstacle::mc_apModelFile[] =	// モデル定数
 	"data\\MODEL\\OBSTACLE\\obstacle005.x",	// 壁
 	"data\\MODEL\\OBSTACLE\\obstacle006.x",	// 青箱
 	"data\\MODEL\\OBSTACLE\\obstacle007.x",	// 車
+	"data\\MODEL\\OBSTACLE\\obstacle008.x",	// タイヤ
+	"data\\MODEL\\OBSTACLE\\obstacle009.x",	// ドラム缶タワー
+	"data\\MODEL\\OBSTACLE\\obstacle010.x",	// パイプフェンス
 };
 CObstacle::SStatusInfo CObstacle::m_aStatusInfo[TYPE_MAX] = {};	// ステータス情報
 

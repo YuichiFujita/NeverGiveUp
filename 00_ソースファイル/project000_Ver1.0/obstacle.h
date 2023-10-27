@@ -34,6 +34,9 @@ public:
 		TYPE_WALL,		// 壁モデル
 		TYPE_BLUE_BOX,	// 青箱モデル
 		TYPE_CAR,		// 車モデル
+		TYPE_WHEEL,		// タイヤモデル
+		TYPE_DRUMTOWER,	// ドラム缶タワーモデル
+		TYPE_PIPEFENCE,	// パイプフェンスモデル
 		TYPE_MAX		// この列挙型の総数
 	};
 
