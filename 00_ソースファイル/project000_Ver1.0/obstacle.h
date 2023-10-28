@@ -42,6 +42,15 @@ public:
 		TYPE_STRUCTURE_02,	// ストラクチャーモデル（紫）
 		TYPE_STRUCTURE_03,	// ストラクチャーモデル（赤・青）
 		TYPE_STRUCTURE_04,	// ストラクチャーモデル（黄・緑）
+		TYPE_STRUCTURE_05,	// ストラクチャーモデル（装飾なし：赤）
+		TYPE_STRUCTURE_06,	// ストラクチャーモデル（装飾なし：灰）
+		TYPE_STRUCTURE_07,	// ストラクチャーモデル（装飾なし：紫）
+		TYPE_STRUCTURE_08,	// ストラクチャーモデル（装飾なし：青）
+		TYPE_STRUCTURE_09,	// ストラクチャーモデル（装飾なし：緑）
+		TYPE_STRUCTURE_10,	// ストラクチャーモデル（装飾なし：黄）
+		TYPE_STRUCTURE_11,	// ストラクチャーモデル（灰）
+		TYPE_STRUCTURE_12,	// ストラクチャーモデル（青）
+		TYPE_WOODGROUND,	// 着地板
 		TYPE_MAX			// この列挙型の総数
 	};
 

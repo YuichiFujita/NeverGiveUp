@@ -8,6 +8,8 @@ wall = 0.6
 wheel = 0.5
 drumTowor = 0.65
 fenceDown = 1.2
+structure = 0.55
+wood = 0.55
 
 player = 0.35
 friend = 0.35

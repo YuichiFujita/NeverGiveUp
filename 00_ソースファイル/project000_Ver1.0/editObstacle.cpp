@@ -20,6 +20,8 @@
 //************************************************************
 #define KEY_DOUBLE		(DIK_LCONTROL)	// 二重化キー
 #define NAME_DOUBLE		("LCTRL")		// 二重化表示
+#define KEY_REVERSE		(DIK_LCONTROL)	// 逆転キー
+#define NAME_REVERSE	("LCTRL")		// 逆転表示
 #define KEY_TRIGGER		(DIK_LSHIFT)	// トリガー化キー
 #define NAME_TRIGGER	("LSHIFT")		// トリガー化表示
 
@@ -273,7 +275,7 @@ void CEditObstacle::DrawDebugControl(void)
 	pDebug->Print(CDebugProc::POINT_RIGHT, "障害物保存：[%s+%s]\n", NAME_DOUBLE, NAME_SAVE);
 	pDebug->Print(CDebugProc::POINT_RIGHT, "判定拡大：[%s/%s/%s+%s]\n", NAME_XSIZE_UP, NAME_YSIZE_UP, NAME_ZSIZE_UP, NAME_TRIGGER);
 	pDebug->Print(CDebugProc::POINT_RIGHT, "判定縮小：[%s/%s/%s+%s]\n", NAME_XSIZE_DOWN, NAME_YSIZE_DOWN, NAME_ZSIZE_DOWN, NAME_TRIGGER);
-	pDebug->Print(CDebugProc::POINT_RIGHT, "種類変更：[%s]\n", NAME_TYPE);
+	pDebug->Print(CDebugProc::POINT_RIGHT, "種類変更：[%s/%s+%s]\n", NAME_TYPE, NAME_REVERSE, NAME_TYPE);
 	pDebug->Print(CDebugProc::POINT_RIGHT, "特殊状態変更：[%s]\n", NAME_STATE);
 	pDebug->Print(CDebugProc::POINT_RIGHT, "回避法変更：[%s]\n", NAME_DODGE);
 	pDebug->Print(CDebugProc::POINT_RIGHT, "削除：[%s]\n", NAME_RELEASE);
@@ -543,14 +545,29 @@ void CEditObstacle::UpdateChangeType(void)
 	CInputKeyboard *m_pKeyboard = CManager::GetInstance()->GetKeyboard();	// キーボード情報
 
 	// 種類を変更
-	if (m_pKeyboard->IsTrigger(KEY_TYPE))
+	if (m_pKeyboard->IsPress(KEY_REVERSE))
 	{
-		// 種類を変更
-		m_obstacle.type = (CObstacle::EType)((m_obstacle.type + 1) % CObstacle::TYPE_MAX);
+		if (m_pKeyboard->IsTrigger(KEY_TYPE))
+		{
+			// 種類を変更
+			m_obstacle.type = (CObstacle::EType)((m_obstacle.type + (CObstacle::TYPE_MAX - 1)) % CObstacle::TYPE_MAX);
 
-		// 種類を反映
-		m_obstacle.pObstacle->SetType(m_obstacle.type);
-		m_obstacle.pObstacle->SetAlpha(INIT_ALPHA);	// 透明度を再設定
+			// 種類を反映
+			m_obstacle.pObstacle->SetType(m_obstacle.type);
+			m_obstacle.pObstacle->SetAlpha(INIT_ALPHA);	// 透明度を再設定
+		}
+	}
+	else
+	{
+		if (m_pKeyboard->IsTrigger(KEY_TYPE))
+		{
+			// 種類を変更
+			m_obstacle.type = (CObstacle::EType)((m_obstacle.type + 1) % CObstacle::TYPE_MAX);
+
+			// 種類を反映
+			m_obstacle.pObstacle->SetType(m_obstacle.type);
+			m_obstacle.pObstacle->SetAlpha(INIT_ALPHA);	// 透明度を再設定
+		}
 	}
 }
 

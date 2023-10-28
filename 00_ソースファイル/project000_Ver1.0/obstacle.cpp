@@ -43,6 +43,15 @@ const char *CObstacle::mc_apModelFile[] =	// モデル定数
 	"data\\MODEL\\OBSTACLE\\obstacle013.x",	// ストラクチャー（紫）
 	"data\\MODEL\\OBSTACLE\\obstacle014.x",	// ストラクチャー（赤・青）
 	"data\\MODEL\\OBSTACLE\\obstacle015.x",	// ストラクチャー（黄・緑）
+	"data\\MODEL\\OBSTACLE\\obstacle016.x",	// ストラクチャー（装飾なし：赤）
+	"data\\MODEL\\OBSTACLE\\obstacle017.x",	// ストラクチャー（装飾なし：灰）
+	"data\\MODEL\\OBSTACLE\\obstacle018.x",	// ストラクチャー（装飾なし：紫）
+	"data\\MODEL\\OBSTACLE\\obstacle019.x",	// ストラクチャー（装飾なし：青）
+	"data\\MODEL\\OBSTACLE\\obstacle020.x",	// ストラクチャー（装飾なし：緑）
+	"data\\MODEL\\OBSTACLE\\obstacle021.x",	// ストラクチャー（装飾なし：黄）
+	"data\\MODEL\\OBSTACLE\\obstacle022.x",	// ストラクチャー（青）
+	"data\\MODEL\\OBSTACLE\\obstacle023.x",	// ストラクチャー（灰）
+	"data\\MODEL\\OBSTACLE\\obstacle024.x",	// 着地板
 };
 CObstacle::SStatusInfo CObstacle::m_aStatusInfo[TYPE_MAX] = {};	// ステータス情報
 

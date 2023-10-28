@@ -552,6 +552,9 @@ CPlayer::EMotion CPlayer::UpdateNormal(void)
 	// ステージ範囲外の補正
 	pStage->LimitPosition(posPlayer, basic::RADIUS);
 
+	// 障害物の当たり判定
+	CollisionObstacle(posPlayer);
+
 	// 位置を反映
 	SetVec3Position(posPlayer);
 
@@ -1055,7 +1058,7 @@ bool CPlayer::UpdateLanding(D3DXVECTOR3& rPos)
 	}
 
 	// 障害物の当たり判定・着地判定
-	if (CollisionObstacle(rPos))
+	if (LandObstacle(rPos))
 	{ // 障害物に着地していた場合
 
 		// 着地している状態にする
@@ -1762,12 +1765,11 @@ bool CPlayer::CollisionSignboard(D3DXVECTOR3& rPos, float *pRate)
 //============================================================
 //	障害物との当たり判定
 //============================================================
-bool CPlayer::CollisionObstacle(D3DXVECTOR3& rPos)
+void CPlayer::CollisionObstacle(D3DXVECTOR3& rPos)
 {
 	// 変数を宣言
 	D3DXVECTOR3 sizeMinPlayer = D3DXVECTOR3(basic::RADIUS, 0.0f, basic::RADIUS);			// プレイヤー最小大きさ
 	D3DXVECTOR3 sizeMaxPlayer = D3DXVECTOR3(basic::RADIUS, basic::HEIGHT, basic::RADIUS);	// プレイヤー最大大きさ
-	bool bLand = false;	// 着地状況
 
 	for (int nCntPri = 0; nCntPri < MAX_PRIO; nCntPri++)
 	{ // 優先順位の総数分繰り返す
@@ -1798,6 +1800,16 @@ bool CPlayer::CollisionObstacle(D3DXVECTOR3& rPos)
 
 				if (pObjCheck->GetLabel() != CObject::LABEL_OBSTACLE)
 				{ // オブジェクトラベルが障害物ではない場合
+
+					// 次のオブジェクトへのポインタを代入
+					pObjCheck = pObjectNext;
+
+					// 次の繰り返しに移行
+					continue;
+				}
+
+				if (pObjCheck->GetState() == CObstacle::STATE_LAND)
+				{ // 着地できる特殊状態の場合
 
 					// 次のオブジェクトへのポインタを代入
 					pObjCheck = pObjectNext;
@@ -1852,6 +1864,12 @@ bool CPlayer::CollisionObstacle(D3DXVECTOR3& rPos)
 
 						switch (pObjCheck->GetDodge())
 						{ // 回避法ごとの処理
+						case CObstacle::DODGE_NONE:		// 回避方法なし
+
+							// 無し
+
+							break;
+
 						case CObstacle::DODGE_JUMP:		// ジャンプ回避
 
 							if (!m_bJump)
@@ -1895,50 +1913,171 @@ bool CPlayer::CollisionObstacle(D3DXVECTOR3& rPos)
 
 						break;
 
-					case CObstacle::STATE_LAND:	// 着地できる特殊状態
+					
+					default:	// 例外処理
+						assert(false);
+						break;
+					}
+				}
 
-						if (m_oldPos.y >= posObs.y + sizeObs.y)
-						{ // 前回の位置が着地点以上の場合
+				// 次のオブジェクトへのポインタを代入
+				pObjCheck = pObjectNext;
+			}
+		}
+	}
+}
 
-							// プレイヤー位置を障害物の上にする
-							rPos.y = posObs.y + sizeObs.y;
+//============================================================
+//	障害物との着地判定
+//============================================================
+bool CPlayer::LandObstacle(D3DXVECTOR3& rPos)
+{
+	// 変数を宣言
+	D3DXVECTOR3 sizeMinPlayer = D3DXVECTOR3(basic::RADIUS, 0.0f, basic::RADIUS);			// プレイヤー最小大きさ
+	D3DXVECTOR3 sizeMaxPlayer = D3DXVECTOR3(basic::RADIUS, basic::HEIGHT, basic::RADIUS);	// プレイヤー最大大きさ
+	bool bLand = false;	// 着地状況
 
-							// 着地している状況にする
-							bLand = true;
+	for (int nCntPri = 0; nCntPri < MAX_PRIO; nCntPri++)
+	{ // 優先順位の総数分繰り返す
 
-							// 縦移動量を初期化
-							m_move.y = 0.0f;
-						}
-						else
-						{ // 前回の位置が着地点より小さい場合
+		// ポインタを宣言
+		CObject *pObjectTop = CObject::GetTop(nCntPri);	// 先頭オブジェクト
 
-							switch (pObjCheck->GetDodge())
-							{ // 回避法ごとの処理
-							case CObstacle::DODGE_JUMP:		// ジャンプ回避
+		if (pObjectTop != NULL)
+		{ // 先頭が存在する場合
+
+			// ポインタを宣言
+			CObject *pObjCheck = pObjectTop;	// オブジェクト確認用
+
+			while (pObjCheck != NULL)
+			{ // オブジェクトが使用されている場合繰り返す
+
+				// 変数を宣言
+				D3DXVECTOR3 pos0, pos1, pos2, pos3;	// 頂点座標代入用
+				D3DXVECTOR3 posObs  = VEC3_ZERO;	// 障害物位置
+				D3DXVECTOR3 rotObs  = VEC3_ZERO;	// 障害物向き
+				D3DXVECTOR3 sizeObs = VEC3_ZERO;	// 障害物大きさ
+				float fAngle  = 0.0f;	// 対角線の角度
+				float fLength = 0.0f;	// 対角線の長さ
+				bool  bHit = false;		// 判定情報
+
+				// ポインタを宣言
+				CObject *pObjectNext = pObjCheck->GetNext();	// 次オブジェクト
+
+				if (pObjCheck->GetLabel() != CObject::LABEL_OBSTACLE)
+				{ // オブジェクトラベルが障害物ではない場合
+
+					// 次のオブジェクトへのポインタを代入
+					pObjCheck = pObjectNext;
+
+					// 次の繰り返しに移行
+					continue;
+				}
+
+				if (pObjCheck->GetState() != CObstacle::STATE_LAND)
+				{ // 着地できる特殊状態ではない場合
+
+					// 次のオブジェクトへのポインタを代入
+					pObjCheck = pObjectNext;
+
+					// 次の繰り返しに移行
+					continue;
+				}
+
+				// 障害物の情報を取得
+				posObs  = pObjCheck->GetVec3Position();	// 位置
+				rotObs  = pObjCheck->GetVec3Rotation();	// 向き
+				sizeObs = pObjCheck->GetVec3Sizing();	// 大きさ
+				fAngle  = pObjCheck->GetAngle();		// 対角線角度
+				fLength = pObjCheck->GetLength();		// 対角線長さ
+
+				// 頂点座標を計算
+				pos0.x = posObs.x + sinf(rotObs.y + (D3DX_PI + fAngle)) * fLength;
+				pos0.y = 0.0f;
+				pos0.z = posObs.z + cosf(rotObs.y + (D3DX_PI + fAngle)) * fLength;
+				pos1.x = posObs.x + sinf(rotObs.y + (D3DX_PI - fAngle)) * fLength;
+				pos1.y = 0.0f;
+				pos1.z = posObs.z + cosf(rotObs.y + (D3DX_PI - fAngle)) * fLength;
+				pos3.x = posObs.x + sinf(rotObs.y - fAngle) * fLength;
+				pos3.y = 0.0f;
+				pos3.z = posObs.z + cosf(rotObs.y - fAngle) * fLength;
+				pos2.x = posObs.x + sinf(rotObs.y + fAngle) * fLength;
+				pos2.y = 0.0f;
+				pos2.z = posObs.z + cosf(rotObs.y + fAngle) * fLength;
+
+				// 障害物との判定
+				if (rPos.y + basic::HEIGHT > posObs.y
+				&&  rPos.y < posObs.y + sizeObs.y)
+				{ // Y座標が範囲内の場合
+
+					// 二軸の矩形の衝突判定
+					bHit = collision::BoxOuterPillar
+					( // 引数
+						pos0,	// 四角の各頂点
+						pos1,	// 四角の各頂点
+						pos2,	// 四角の各頂点
+						pos3,	// 四角の各頂点
+						rPos	// 判定位置
+					);
+				}
+
+				if (bHit)
+				{ // 当たっていた場合
+
+					if (m_oldPos.y >= posObs.y + sizeObs.y)
+					{ // 前回の位置が着地点以上の場合
+
+						// プレイヤー位置を障害物の上にする
+						rPos.y = posObs.y + sizeObs.y;
+
+						// 着地している状況にする
+						bLand = true;
+
+						// 縦移動量を初期化
+						m_move.y = 0.0f;
+					}
+					else if (m_oldPos.y + basic::HEIGHT <= posObs.y)
+					{ // 前回の位置が原点以下の場合
+
+						// プレイヤー位置を障害物の上にする
+						rPos.y = posObs.y - basic::HEIGHT;
+
+						// 縦移動量を初期化
+						m_move.y = 0.0f;
+					}
+					else
+					{ // 前回の位置が着地点より小さい場合
+
+						switch (pObjCheck->GetDodge())
+						{ // 回避法ごとの処理
+						case CObstacle::DODGE_NONE:		// 回避方法なし
+
+							// 無し
+			
+							break;
+
+						case CObstacle::DODGE_JUMP:		// ジャンプ回避
+
+							// ヒット
+							Hit();
+
+							break;
+
+						case CObstacle::DODGE_SLIDE:	// スライディング回避
+
+							if (!m_bSlide)
+							{ // スライディング中ではない場合
 
 								// ヒット
 								Hit();
-
-								break;
-
-							case CObstacle::DODGE_SLIDE:	// スライディング回避
-
-								if (!m_bSlide)
-								{ // スライディング中ではない場合
-
-									// ヒット
-									Hit();
-								}
-
-								break;
-
-							default:	// 例外処理
-								assert(false);
-								break;
 							}
-						}
 
-						break;
+							break;
+
+						default:	// 例外処理
+							assert(false);
+							break;
+						}
 					}
 				}
 

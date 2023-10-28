@@ -144,7 +144,8 @@ private:
 	void CollisionRotationBuilding(D3DXVECTOR3& rPos);					// 向き変更の当たり判定
 	bool ResponseSingleBuilding(const EAxis axis, D3DXVECTOR3& rPos);	// ビルとの一軸ごとの当たり判定
 	bool CollisionSignboard(D3DXVECTOR3& rPos, float *pRate = NULL);	// 看板との当たり判定
-	bool CollisionObstacle(D3DXVECTOR3& rPos);	// 障害物との当たり判定
+	void CollisionObstacle(D3DXVECTOR3& rPos);	// 障害物との当たり判定
+	bool LandObstacle(D3DXVECTOR3& rPos);		// 障害物との着地判定
 	bool CollisionBuilding(D3DXVECTOR3& rPos);	// ビルとの当たり判定
 
 	// 静的メンバ変数
