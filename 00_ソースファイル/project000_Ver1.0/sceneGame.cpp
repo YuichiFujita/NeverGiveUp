@@ -225,6 +225,8 @@ void CSceneGame::Update(void)
 		// プレイヤーの出現を設定
 		CScene::GetPlayer()->SetSpawn();
 	}
+
+#if 0
 	else if (CManager::GetInstance()->GetKeyboard()->IsTrigger(DIK_F7))
 	{
 		// リザルトに遷移
@@ -235,6 +237,7 @@ void CSceneGame::Update(void)
 		// リザルトに遷移
 		CScene::GetPlayer()->SetState(CPlayer::STATE_OVER);
 	}
+#endif
 
 	// デバッグ表示
 	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "======================================\n");
@@ -246,8 +249,11 @@ void CSceneGame::Update(void)
 	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "[F4]：ポーズ描画のON/OFF\n");
 	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "[F5]：カメラ操作のON/OFF\n");
 	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "[F6]：プレイヤースポーン\n");
+
+#if 0
 	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "[F7]：成功リザルト遷移\n");
 	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "[F8]：失敗リザルト遷移\n");
+#endif
 
 	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "======================================\n");
 	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "　[デバッグ情報]\n");

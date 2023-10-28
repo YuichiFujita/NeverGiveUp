@@ -70,6 +70,7 @@ private:
 	void UpdateChangeMove(void);	// 移動量変更の更新
 	void UpdatePosition(void);		// 位置更新
 	void UpdateRotation(void);		// 向き更新
+	void UpdatePosCamera(void);		// カメラ位置変更の更新
 	void DrawDebugControl(void);	// 操作表示描画
 	void DrawDebugInfo(void);		// 情報表示描画
 	void SaveStage(void);			// ステージ保存

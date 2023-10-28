@@ -82,7 +82,7 @@ namespace
 		const float	PLUS_SUB_MOVE	= 0.0f;		// 移動量の最大追加減算量
 		const float	PLUS_COLL_SIZE	= 90.0f;	// 判定の拡張量
 		const float	MAX_GRAVITY		= -8.2f;	// 重力の最大値
-		const float	GRAVITY_LOW		= 0.28f;		// 上昇量がない場合の重力
+		const float	GRAVITY_LOW		= 0.28f;	// 上昇量がない場合の重力
 		const float	GRAVITY_HIGH	= 1.3f;		// 上昇量がある場合の重力
 		const float	PLUSMOVE_UP		= 22.0f;	// 壁ダッシュ成功時の上昇量
 		const float	PLUSMOVE_SIDE	= 3.0f;		// 壁ダッシュ成功時の加速量

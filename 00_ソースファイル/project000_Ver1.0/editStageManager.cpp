@@ -10,6 +10,7 @@
 #include "editStageManager.h"
 #include "manager.h"
 #include "input.h"
+#include "camera.h"
 #include "editBuilding.h"
 #include "editWindow.h"
 #include "editSignboard.h"
@@ -30,6 +31,9 @@
 
 #define KEY_CHANGE_THING	(DIK_1)	// 配置物変更キー
 #define NAME_CHANGE_THING	("1")	// 配置物変更表示
+
+#define KEY_CAMERA	(DIK_1)	// カメラ位置変更キー
+#define NAME_CAMERA	("1")	// カメラ位置変更表示
 
 #define KEY_MOVE_UP		(DIK_UP)	// 移動量上昇キー
 #define NAME_MOVE_UP	("↑")		// 移動量上昇表示
@@ -284,6 +288,9 @@ void CEditStageManager::Update(void)
 
 	// 向きの更新
 	UpdateRotation();
+
+	// カメラ位置変更の更新
+	UpdatePosCamera();
 
 	switch (m_thing)
 	{ // 配置物ごとの処理
@@ -585,167 +592,170 @@ void CEditStageManager::UpdateChangeThing(void)
 	CInputKeyboard *m_pKeyboard = CManager::GetInstance()->GetKeyboard();	// キーボード情報
 
 	// 配置物を変更
-	if (m_pKeyboard->IsTrigger(KEY_CHANGE_THING))
+	if (!m_pKeyboard->IsPress(KEY_DOUBLE))
 	{
-		switch (m_thing)
-		{ // 配置物ごとの処理
-		case THING_BUILDING:	// ビル
+		if (m_pKeyboard->IsTrigger(KEY_CHANGE_THING))
+		{
+			switch (m_thing)
+			{ // 配置物ごとの処理
+			case THING_BUILDING:	// ビル
 
-			if (m_pBuilding != NULL)
-			{ // エディットビルが使用されている場合
+				if (m_pBuilding != NULL)
+				{ // エディットビルが使用されている場合
 
-				// エディットビルの表示の設定
-				m_pBuilding->SetDisp(false);
+					// エディットビルの表示の設定
+					m_pBuilding->SetDisp(false);
+				}
+				else { assert(false); }	// 非使用中
+
+				break;
+
+			case THING_WINDOW:		// 窓
+
+				if (m_pWindow != NULL)
+				{ // エディット窓が使用されている場合
+
+					// エディット窓の表示の設定
+					m_pWindow->SetDisp(false);
+				}
+				else { assert(false); }	// 非使用中
+
+				break;
+
+			case THING_SIGNBOARD:	// 看板
+
+				if (m_pSignboard != NULL)
+				{ // エディット看板が使用されている場合
+
+					// エディット看板の表示の設定
+					m_pSignboard->SetDisp(false);
+				}
+				else { assert(false); }	// 非使用中
+
+				break;
+
+			case THING_OBSTACLE:	// 障害物
+
+				if (m_pObstacle != NULL)
+				{ // エディット障害物が使用されている場合
+
+					// エディット障害物の表示の設定
+					m_pObstacle->SetDisp(false);
+				}
+				else { assert(false); }	// 非使用中
+
+				break;
+
+			case THING_SAVEPOINT:	// セーブポイント
+
+				if (m_pSavePoint != NULL)
+				{ // エディットセーブポイントが使用されている場合
+
+					// エディットセーブポイントの表示の設定
+					m_pSavePoint->SetDisp(false);
+				}
+				else { assert(false); }	// 非使用中
+
+				break;
+
+			case THING_GOALPOINT:	// ゴールポイント
+
+				if (m_pGoalPoint != NULL)
+				{ // エディットゴールポイントが使用されている場合
+
+					// エディットゴールポイントの表示の設定
+					m_pGoalPoint->SetDisp(false);
+				}
+				else { assert(false); }	// 非使用中
+
+				break;
+
+			default:	// 例外処理
+				assert(false);
+				break;
 			}
-			else { assert(false); }	// 非使用中
 
-			break;
+			// 配置物の変更
+			m_thing = (EThing)((m_thing + 1) % THING_MAX);
 
-		case THING_WINDOW:		// 窓
+			switch (m_thing)
+			{ // 配置物ごとの処理
+			case THING_BUILDING:	// ビル
 
-			if (m_pWindow != NULL)
-			{ // エディット窓が使用されている場合
+				if (m_pBuilding != NULL)
+				{ // エディットビルが使用されている場合
 
-				// エディット窓の表示の設定
-				m_pWindow->SetDisp(false);
+					// エディットビルの表示の設定
+					m_pBuilding->SetDisp(true);
+				}
+				else { assert(false); }	// 非使用中
+
+				break;
+
+			case THING_WINDOW:		// 窓
+
+				if (m_pWindow != NULL)
+				{ // エディット窓が使用されている場合
+
+					// エディット窓の表示の設定
+					m_pWindow->SetDisp(true);
+				}
+				else { assert(false); }	// 非使用中
+
+				break;
+
+			case THING_SIGNBOARD:	// 看板
+
+				if (m_pSignboard != NULL)
+				{ // エディット看板が使用されている場合
+
+					// エディット看板の表示の設定
+					m_pSignboard->SetDisp(true);
+				}
+				else { assert(false); }	// 非使用中
+
+				break;
+
+			case THING_OBSTACLE:	// 障害物
+
+				if (m_pObstacle != NULL)
+				{ // エディット障害物が使用されている場合
+
+					// エディット障害物の表示の設定
+					m_pObstacle->SetDisp(true);
+				}
+				else { assert(false); }	// 非使用中
+
+				break;
+
+			case THING_SAVEPOINT:	// セーブポイント
+
+				if (m_pSavePoint != NULL)
+				{ // エディットセーブポイントが使用されている場合
+
+					// エディットセーブポイントの表示の設定
+					m_pSavePoint->SetDisp(true);
+				}
+				else { assert(false); }	// 非使用中
+
+				break;
+
+			case THING_GOALPOINT:	// ゴールポイント
+
+				if (m_pGoalPoint != NULL)
+				{ // エディットゴールポイントが使用されている場合
+
+					// エディットゴールポイントの表示の設定
+					m_pGoalPoint->SetDisp(true);
+				}
+				else { assert(false); }	// 非使用中
+
+				break;
+
+			default:	// 例外処理
+				assert(false);
+				break;
 			}
-			else { assert(false); }	// 非使用中
-
-			break;
-
-		case THING_SIGNBOARD:	// 看板
-
-			if (m_pSignboard != NULL)
-			{ // エディット看板が使用されている場合
-
-				// エディット看板の表示の設定
-				m_pSignboard->SetDisp(false);
-			}
-			else { assert(false); }	// 非使用中
-
-			break;
-
-		case THING_OBSTACLE:	// 障害物
-
-			if (m_pObstacle != NULL)
-			{ // エディット障害物が使用されている場合
-
-				// エディット障害物の表示の設定
-				m_pObstacle->SetDisp(false);
-			}
-			else { assert(false); }	// 非使用中
-
-			break;
-
-		case THING_SAVEPOINT:	// セーブポイント
-
-			if (m_pSavePoint != NULL)
-			{ // エディットセーブポイントが使用されている場合
-
-				// エディットセーブポイントの表示の設定
-				m_pSavePoint->SetDisp(false);
-			}
-			else { assert(false); }	// 非使用中
-
-			break;
-
-		case THING_GOALPOINT:	// ゴールポイント
-
-			if (m_pGoalPoint != NULL)
-			{ // エディットゴールポイントが使用されている場合
-
-				// エディットゴールポイントの表示の設定
-				m_pGoalPoint->SetDisp(false);
-			}
-			else { assert(false); }	// 非使用中
-
-			break;
-
-		default:	// 例外処理
-			assert(false);
-			break;
-		}
-
-		// 配置物の変更
-		m_thing = (EThing)((m_thing + 1) % THING_MAX);
-
-		switch (m_thing)
-		{ // 配置物ごとの処理
-		case THING_BUILDING:	// ビル
-
-			if (m_pBuilding != NULL)
-			{ // エディットビルが使用されている場合
-
-				// エディットビルの表示の設定
-				m_pBuilding->SetDisp(true);
-			}
-			else { assert(false); }	// 非使用中
-
-			break;
-
-		case THING_WINDOW:		// 窓
-
-			if (m_pWindow != NULL)
-			{ // エディット窓が使用されている場合
-
-				// エディット窓の表示の設定
-				m_pWindow->SetDisp(true);
-			}
-			else { assert(false); }	// 非使用中
-
-			break;
-
-		case THING_SIGNBOARD:	// 看板
-
-			if (m_pSignboard != NULL)
-			{ // エディット看板が使用されている場合
-
-				// エディット看板の表示の設定
-				m_pSignboard->SetDisp(true);
-			}
-			else { assert(false); }	// 非使用中
-
-			break;
-
-		case THING_OBSTACLE:	// 障害物
-
-			if (m_pObstacle != NULL)
-			{ // エディット障害物が使用されている場合
-
-				// エディット障害物の表示の設定
-				m_pObstacle->SetDisp(true);
-			}
-			else { assert(false); }	// 非使用中
-
-			break;
-
-		case THING_SAVEPOINT:	// セーブポイント
-
-			if (m_pSavePoint != NULL)
-			{ // エディットセーブポイントが使用されている場合
-
-				// エディットセーブポイントの表示の設定
-				m_pSavePoint->SetDisp(true);
-			}
-			else { assert(false); }	// 非使用中
-
-			break;
-
-		case THING_GOALPOINT:	// ゴールポイント
-
-			if (m_pGoalPoint != NULL)
-			{ // エディットゴールポイントが使用されている場合
-
-				// エディットゴールポイントの表示の設定
-				m_pGoalPoint->SetDisp(true);
-			}
-			else { assert(false); }	// 非使用中
-
-			break;
-
-		default:	// 例外処理
-			assert(false);
-			break;
 		}
 	}
 }
@@ -759,13 +769,27 @@ void CEditStageManager::UpdateChangeMove(void)
 	CInputKeyboard *m_pKeyboard = CManager::GetInstance()->GetKeyboard();	// キーボード情報
 
 	// 移動量を変更
-	if (m_pKeyboard->IsPress(KEY_MOVE_UP))
+	if (!m_pKeyboard->IsPress(KEY_TRIGGER))
 	{
-		m_fMove += CHANGE_MOVE;
+		if (m_pKeyboard->IsPress(KEY_MOVE_UP))
+		{
+			m_fMove += CHANGE_MOVE;
+		}
+		if (m_pKeyboard->IsPress(KEY_MOVE_DOWN))
+		{
+			m_fMove -= CHANGE_MOVE;
+		}
 	}
-	if (m_pKeyboard->IsPress(KEY_MOVE_DOWN))
+	else
 	{
-		m_fMove -= CHANGE_MOVE;
+		if (m_pKeyboard->IsTrigger(KEY_MOVE_UP))
+		{
+			m_fMove += CHANGE_MOVE;
+		}
+		if (m_pKeyboard->IsTrigger(KEY_MOVE_DOWN))
+		{
+			m_fMove -= CHANGE_MOVE;
+		}
 	}
 
 	// 移動量を補正
@@ -860,6 +884,33 @@ void CEditStageManager::UpdateRotation(void)
 }
 
 //============================================================
+//	カメラ位置変更の更新処理
+//============================================================
+void CEditStageManager::UpdatePosCamera(void)
+{
+	// ポインタを宣言
+	CInputKeyboard *m_pKeyboard = CManager::GetInstance()->GetKeyboard();	// キーボード情報
+
+	// カメラ位置を変更
+	if (m_pKeyboard->IsPress(KEY_DOUBLE))
+	{
+		if (m_pKeyboard->IsTrigger(KEY_CAMERA))
+		{
+			// ポインタを宣言
+			CCamera *pCamera = CManager::GetInstance()->GetCamera();	// カメラ情報
+
+#if _DEBUG
+
+			// 配置物の位置に注視点を設定
+			pCamera->SetThingLook();
+
+#endif	// _DEBUG
+
+		}
+	}
+}
+
+//============================================================
 //	操作表示の描画処理
 //============================================================
 void CEditStageManager::DrawDebugControl(void)
@@ -874,6 +925,7 @@ void CEditStageManager::DrawDebugControl(void)
 	pDebug->Print(CDebugProc::POINT_RIGHT, "移動：[%s/%s/%s/%s/%s/%s+%s]\n", NAME_FAR, NAME_LEFT, NAME_NEAR, NAME_RIGHT, NAME_UP, NAME_DOWN, NAME_TRIGGER);
 	pDebug->Print(CDebugProc::POINT_RIGHT, "移動量変更：[%s/%s]\n", NAME_MOVE_UP, NAME_MOVE_DOWN);
 	pDebug->Print(CDebugProc::POINT_RIGHT, "回転：[%s/%s]\n", NAME_ROTA_RIGHT, NAME_ROTA_LEFT);
+	pDebug->Print(CDebugProc::POINT_RIGHT, "配置物カメラ：[%s+%s]\n", NAME_DOUBLE, NAME_CAMERA);
 	pDebug->Print(CDebugProc::POINT_RIGHT, "配置物変更：[%s]\n", NAME_CHANGE_THING);
 
 	switch (m_thing)

@@ -32,8 +32,10 @@
 #define NAME_RELEASE	("9")	// 破棄表示
 #define KEY_TYPE		(DIK_2)	// 種類変更キー
 #define NAME_TYPE		("2")	// 種類変更表示
-#define KEY_DODGE		(DIK_3)	// 回避法変更キー
-#define NAME_DODGE		("3")	// 回避法変更表示
+#define KEY_STATE		(DIK_3)	// 特殊状態変更キー
+#define NAME_STATE		("3")	// 特殊状態変更表示
+#define KEY_DODGE		(DIK_4)	// 回避法変更キー
+#define NAME_DODGE		("4")	// 回避法変更表示
 
 #define KEY_XSIZE_UP	(DIK_T)	// X拡大キー
 #define NAME_XSIZE_UP	("T")	// X拡大表示
@@ -198,6 +200,9 @@ void CEditObstacle::Update(void)
 	// 種類変更の更新
 	UpdateChangeType();
 
+	// 特殊状態変更の更新
+	UpdateChangeState();
+
 	// 回避法変更の更新
 	UpdateChangeDodge();
 
@@ -219,9 +224,7 @@ void CEditObstacle::Update(void)
 	m_pCollision->SetVec3Rotation(m_pEdit->GetVec3Rotation());
 
 	// 大きさを反映
-	D3DXVECTOR3 sizeColl = CObstacle::GetStatusInfo(m_obstacle.type).size;
-	sizeColl.x *= 0.5f;
-	sizeColl.z *= 0.5f;
+	D3DXVECTOR3 sizeColl = CObstacle::GetStatusInfo(m_obstacle.type).size * 0.5f;
 	m_pCollision->SetVec3Sizing(sizeColl);
 
 #endif	// _DEBUG
@@ -271,6 +274,7 @@ void CEditObstacle::DrawDebugControl(void)
 	pDebug->Print(CDebugProc::POINT_RIGHT, "判定拡大：[%s/%s/%s+%s]\n", NAME_XSIZE_UP, NAME_YSIZE_UP, NAME_ZSIZE_UP, NAME_TRIGGER);
 	pDebug->Print(CDebugProc::POINT_RIGHT, "判定縮小：[%s/%s/%s+%s]\n", NAME_XSIZE_DOWN, NAME_YSIZE_DOWN, NAME_ZSIZE_DOWN, NAME_TRIGGER);
 	pDebug->Print(CDebugProc::POINT_RIGHT, "種類変更：[%s]\n", NAME_TYPE);
+	pDebug->Print(CDebugProc::POINT_RIGHT, "特殊状態変更：[%s]\n", NAME_STATE);
 	pDebug->Print(CDebugProc::POINT_RIGHT, "回避法変更：[%s]\n", NAME_DODGE);
 	pDebug->Print(CDebugProc::POINT_RIGHT, "削除：[%s]\n", NAME_RELEASE);
 	pDebug->Print(CDebugProc::POINT_RIGHT, "設置：[%s]\n", NAME_CREATE);
@@ -281,15 +285,22 @@ void CEditObstacle::DrawDebugControl(void)
 //============================================================
 void CEditObstacle::DrawDebugInfo(void)
 {
+	// 変数を宣言
+	CObstacle::SStatusInfo info = CObstacle::GetStatusInfo(m_obstacle.type);	// ステ－タス情報
+
 	// ポインタを宣言
-	CDebugProc *pDebug = CManager::GetInstance()->GetDebugProc();	// デバッグプロックの情報
+	CDebugProc *pDebug = CManager::GetInstance()->GetDebugProc();				// デバッグプロックの情報
+	static char* apState[] = { "特殊状態無し", "ジャンプ", "着地" };			// 特殊状態
 	static char* apDodge[] = { "回避法無し", "ジャンプ", "スライディング" };	// 回避法
 
-	// 配置物数の不一致
+	// 特殊状態・回避法数の不一致
+	assert((sizeof(apState) / sizeof(apState[0])) == CObstacle::STATE_MAX);
 	assert((sizeof(apDodge) / sizeof(apDodge[0])) == CObstacle::DODGE_MAX);
 
 	pDebug->Print(CDebugProc::POINT_RIGHT, "%d：[種類]\n", m_obstacle.type);
-	pDebug->Print(CDebugProc::POINT_RIGHT, "%s：[回避法]\n", apDodge[CObstacle::GetStatusInfo(m_obstacle.type).dodge]);
+	pDebug->Print(CDebugProc::POINT_RIGHT, "%s：[特殊状態]\n", apState[info.state]);
+	pDebug->Print(CDebugProc::POINT_RIGHT, "%s：[回避法]\n", apDodge[info.dodge]);
+	pDebug->Print(CDebugProc::POINT_RIGHT, "%f %f %f：[判定サイズ]\n", info.size.x, info.size.y, info.size.z);
 }
 
 //============================================================
@@ -544,6 +555,27 @@ void CEditObstacle::UpdateChangeType(void)
 }
 
 //============================================================
+//	特殊状態変更の更新処理
+//============================================================
+void CEditObstacle::UpdateChangeState(void)
+{
+	// 変数を宣言
+	CObstacle::SStatusInfo info = CObstacle::GetStatusInfo(m_obstacle.type);	// ステ－タス情報
+
+	// ポインタを宣言
+	CInputKeyboard *m_pKeyboard = CManager::GetInstance()->GetKeyboard();	// キーボード情報
+
+	// 特殊状態を変更
+	if (m_pKeyboard->IsTrigger(KEY_STATE))
+	{
+		info.state = (CObstacle::EState)((info.state + 1) % CObstacle::STATE_MAX);
+	}
+
+	// ステ－タス情報を反映
+	CObstacle::SetStatusInfo(info, m_obstacle.type);
+}
+
+//============================================================
 //	回避法変更の更新処理
 //============================================================
 void CEditObstacle::UpdateChangeDodge(void)
@@ -557,7 +589,6 @@ void CEditObstacle::UpdateChangeDodge(void)
 	// 回避法を変更
 	if (m_pKeyboard->IsTrigger(KEY_DODGE))
 	{
-		// 回避法を変更
 		info.dodge = (CObstacle::EDodge)((info.dodge + 1) % CObstacle::DODGE_MAX);
 	}
 
@@ -690,7 +721,7 @@ void CEditObstacle::DeleteCollisionObstacle(const bool bRelase)
 					posEdit,	// 判定位置
 					posObs,	// 判定目標位置
 					((sizeObs.x + sizeObs.z) * 0.5f) * 0.5f,	// 判定半径
-					((sizeEdit.x + sizeEdit.z) * 0.5f) * 0.5f		// 判定目標半径
+					((sizeEdit.x + sizeEdit.z) * 0.5f) * 0.5f	// 判定目標半径
 				))
 				{ // 判定内だった場合
 
@@ -817,7 +848,19 @@ void CEditObstacle::Save(void)
 		fprintf(pFile, "#	Author : you\n");
 		fprintf(pFile, "#\n");
 		fprintf(pFile, "#==============================================================================\n");
-		fprintf(pFile, "---------->--<---------- ここから下を コピーし貼り付け ---------->--<----------\n\n");
+		fprintf(pFile, "---------->--<---------- ここから下を コピーし貼り付け ---------->--<----------\n");
+		fprintf(pFile, "\n");
+		fprintf(pFile, "#------------------------------------------------------------------------------\n");
+		fprintf(pFile, "#	パラメーター情報\n");
+		fprintf(pFile, "#------------------------------------------------------------------------------\n");
+		fprintf(pFile, "#	特殊状態無し		：0\n");
+		fprintf(pFile, "#	触れるとジャンプする：1\n");
+		fprintf(pFile, "#	着地できる			：2\n");
+		fprintf(pFile, "#------------------------------------------------------------------------------\n");
+		fprintf(pFile, "#	回避方法無し		：0\n");
+		fprintf(pFile, "#	ジャンプ回避		：1\n");
+		fprintf(pFile, "#	スライディング回避	：2\n");
+		fprintf(pFile, "#------------------------------------------------------------------------------\n");
 
 		// 情報開始地点を書き出し
 		fprintf(pFile, "STATUSSET\n\n");
@@ -832,6 +875,7 @@ void CEditObstacle::Save(void)
 			fprintf(pFile, "	OBSTACLESET\n");
 			fprintf(pFile, "		TYPE = %d\n", nCntObs);
 			fprintf(pFile, "		SIZE = %.2f %.2f %.2f\n", info.size.x, info.size.y, info.size.z);
+			fprintf(pFile, "		STATE = %d\n", info.state);
 			fprintf(pFile, "		DODGE = %d\n", info.dodge);
 			fprintf(pFile, "	END_OBSTACLESET\n\n");
 		}

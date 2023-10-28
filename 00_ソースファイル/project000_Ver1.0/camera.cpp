@@ -15,6 +15,11 @@
 #include "player.h"
 #include "stage.h"
 
+#if _DEBUG
+#include "gameManager.h"
+#include "editStageManager.h"
+#endif	_DEBUG
+
 //************************************************************
 //	定数宣言
 //************************************************************
@@ -68,6 +73,16 @@ namespace
 		const float LIMIT_ROT_HIGH	= D3DX_PI - 0.1f;	// X上回転の制限値
 		const float LIMIT_ROT_LOW	= 0.1f;				// X下回転の制限値
 	}
+
+#if _DEBUG
+
+	// エディットカメラ情報
+	namespace edit
+	{
+		const float INIT_DIS = -1000.0f;	// エディットカメラの距離
+	}
+
+#endif	// _DEBUG
 }
 
 //************************************************************
@@ -428,6 +443,40 @@ D3DXVECTOR3 CCamera::GetVec3DestRotation(void) const
 	// カメラの目標向きを返す
 	return m_aCamera[TYPE_MAIN].destRot;
 }
+
+//============================================================
+//	配置物の位置に注視点を設定する処理
+//============================================================
+#if _DEBUG
+
+void CCamera::SetThingLook(void)
+{
+	// ポインタを宣言
+	CEditStageManager *pEdit = CSceneGame::GetGameManager()->GetEditStage();	// エディットステージの情報
+	assert(pEdit != NULL);
+
+	// 変数を宣言
+	D3DXVECTOR3 posEdit = pEdit->GetVec3Position();	// エディット位置
+
+	//----------------------------------------------------
+	//	距離の更新
+	//----------------------------------------------------
+	// 目標距離を設定
+	m_aCamera[TYPE_MAIN].fDis = m_aCamera[TYPE_MAIN].fDestDis = edit::INIT_DIS;
+
+	//----------------------------------------------------
+	//	位置の更新
+	//----------------------------------------------------
+	// 注視点の更新
+	m_aCamera[TYPE_MAIN].posR = m_aCamera[TYPE_MAIN].destPosR = posEdit;
+
+	// 視点の更新
+	m_aCamera[TYPE_MAIN].posV.x = m_aCamera[TYPE_MAIN].destPosV.x = m_aCamera[TYPE_MAIN].destPosR.x + ((-m_aCamera[TYPE_MAIN].fDis * sinf(m_aCamera[TYPE_MAIN].rot.x)) * sinf(m_aCamera[TYPE_MAIN].rot.y));
+	m_aCamera[TYPE_MAIN].posV.y = m_aCamera[TYPE_MAIN].destPosV.y = m_aCamera[TYPE_MAIN].destPosR.y + ((-m_aCamera[TYPE_MAIN].fDis * cosf(m_aCamera[TYPE_MAIN].rot.x)));
+	m_aCamera[TYPE_MAIN].posV.z = m_aCamera[TYPE_MAIN].destPosV.z = m_aCamera[TYPE_MAIN].destPosR.z + ((-m_aCamera[TYPE_MAIN].fDis * sinf(m_aCamera[TYPE_MAIN].rot.x)) * cosf(m_aCamera[TYPE_MAIN].rot.y));
+}
+
+#endif	// _DEBUG
 
 //============================================================
 //	生成処理

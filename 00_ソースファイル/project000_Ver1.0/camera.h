@@ -80,6 +80,12 @@ public:
 	D3DXVECTOR3 GetVec3Rotation(void) const;			// 現在向き取得
 	D3DXVECTOR3 GetVec3DestRotation(void) const;		// 目標向き取得
 
+#if _DEBUG
+
+	void SetThingLook(void);	// 配置物設定
+
+#endif	// _DEBUG
+
 	// 静的メンバ関数
 	static CCamera *Create(void);				// 生成
 	static HRESULT Release(CCamera *&prCamera);	// 破棄

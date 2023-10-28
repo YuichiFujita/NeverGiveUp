@@ -59,6 +59,7 @@ private:
 	// メンバ関数
 	void UpdateCollSize(void);		// 判定大きさの更新
 	void UpdateChangeType(void);	// 種類変更の更新
+	void UpdateChangeState(void);	// 特殊状態変更の更新
 	void UpdateChangeDodge(void);	// 回避法変更の更新
 	void CreateObstacle(void);		// 障害物生成
 	void ReleaseObstacle(void);		// 障害物破棄
