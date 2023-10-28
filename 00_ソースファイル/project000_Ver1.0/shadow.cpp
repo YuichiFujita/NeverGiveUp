@@ -16,6 +16,7 @@
 #include "field.h"
 #include "stage.h"
 #include "building.h"
+#include "obstacle.h"
 
 //************************************************************
 //	マクロ定義
@@ -276,7 +277,13 @@ D3DXVECTOR3 CShadow::SetDrawPosition(void)
 	// 影の位置を求める
 	posShadow = posParent;	// 親オブジェクトの座標代入
 
-	if (CollisionBuilding(posParent, fPosHeight))
+	if (CollisionObstacle(posParent, fPosHeight))
+	{ // 障害物の範囲内の場合
+
+		// 高さを障害物の上に設定
+		posShadow.y = fPosHeight + PLUS_POSY;
+	}
+	else if (CollisionBuilding(posParent, fPosHeight))
 	{ // ビルの範囲内の場合
 
 		// 高さをビルの上に設定
@@ -315,6 +322,166 @@ void CShadow::DeleteObjectParent(void)
 {
 	// 親オブジェクトをNULLにする
 	m_pParentObject = NULL;
+}
+
+//============================================================
+//	障害物との当たり判定
+//============================================================
+bool CShadow::CollisionObstacle(D3DXVECTOR3& rPos, float& rDrawPos)
+{
+	// 変数を宣言
+	float fDisPosY = 0.0f;	// プレイヤーとビルのY距離
+	bool bInitDis = false;	// Y距離の初期化状況
+
+	// ポインタを宣言
+	CObject *pCurrentObj = NULL;	// 現在の影乗っかりオブジェクト
+
+	for (int nCntPri = 0; nCntPri < MAX_PRIO; nCntPri++)
+	{ // 優先順位の総数分繰り返す
+
+		// ポインタを宣言
+		CObject *pObjectTop = CObject::GetTop(nCntPri);	// 先頭オブジェクト
+
+		if (pObjectTop != NULL)
+		{ // 先頭が存在する場合
+
+			// ポインタを宣言
+			CObject *pObjCheck = pObjectTop;	// オブジェクト確認用
+
+			while (pObjCheck != NULL)
+			{ // オブジェクトが使用されている場合繰り返す
+
+				// 変数を宣言
+				D3DXVECTOR3 pos0, pos1, pos2, pos3;	// 頂点座標代入用
+				D3DXVECTOR3 posObs  = VEC3_ZERO;	// 障害物位置
+				D3DXVECTOR3 rotObs  = VEC3_ZERO;	// 障害物向き
+				D3DXVECTOR3 sizeObs = VEC3_ZERO;	// 障害物大きさ
+				float fAngle  = 0.0f;	// 対角線の角度
+				float fLength = 0.0f;	// 対角線の長さ
+				bool  bHit = false;		// 判定情報
+
+				// ポインタを宣言
+				CObject *pObjectNext = pObjCheck->GetNext();	// 次オブジェクト
+
+				if (pObjCheck->GetLabel() != CObject::LABEL_OBSTACLE)
+				{ // オブジェクトラベルが障害物ではない場合
+
+					// 次のオブジェクトへのポインタを代入
+					pObjCheck = pObjectNext;
+
+					// 次の繰り返しに移行
+					continue;
+				}
+
+				if (pObjCheck->GetState() != CObstacle::STATE_LAND)
+				{ // 特殊状態が着地できるではない場合
+
+					// 次のオブジェクトへのポインタを代入
+					pObjCheck = pObjectNext;
+
+					// 次の繰り返しに移行
+					continue;
+				}
+
+				// 障害物の情報を取得
+				posObs  = pObjCheck->GetVec3Position();	// 位置
+				rotObs  = pObjCheck->GetVec3Rotation();	// 向き
+				sizeObs = pObjCheck->GetVec3Sizing();	// 大きさ
+				fAngle  = pObjCheck->GetAngle();		// 対角線角度
+				fLength = pObjCheck->GetLength();		// 対角線長さ
+
+				// 頂点座標を計算
+				pos0.x = posObs.x + sinf(rotObs.y + (D3DX_PI + fAngle)) * fLength;
+				pos0.y = 0.0f;
+				pos0.z = posObs.z + cosf(rotObs.y + (D3DX_PI + fAngle)) * fLength;
+				pos1.x = posObs.x + sinf(rotObs.y + (D3DX_PI - fAngle)) * fLength;
+				pos1.y = 0.0f;
+				pos1.z = posObs.z + cosf(rotObs.y + (D3DX_PI - fAngle)) * fLength;
+				pos3.x = posObs.x + sinf(rotObs.y - fAngle) * fLength;
+				pos3.y = 0.0f;
+				pos3.z = posObs.z + cosf(rotObs.y - fAngle) * fLength;
+				pos2.x = posObs.x + sinf(rotObs.y + fAngle) * fLength;
+				pos2.y = 0.0f;
+				pos2.z = posObs.z + cosf(rotObs.y + fAngle) * fLength;
+
+				// 障害物との判定
+				bHit = collision::BoxOuterPillar
+				( // 引数
+					pos0,	// 四角の各頂点
+					pos1,	// 四角の各頂点
+					pos2,	// 四角の各頂点
+					pos3,	// 四角の各頂点
+					rPos	// 判定位置
+				);
+
+				if (bHit)
+				{ // 当たっていた場合
+
+					// 変数を宣言
+					float fDis = rPos.y - (posObs.y + sizeObs.y);	// 影と障害物のY距離
+
+					if (fDis >= 0.0f)
+					{ // プレイヤーと障害物のY距離がプラスの場合
+
+						if (!bInitDis)
+						{ // 初期化していない場合
+
+							// 現在の距離を代入
+							fDisPosY = fDis;
+
+							// 現在の影乗っかりオブジェクトを代入
+							pCurrentObj = pObjCheck;
+
+							// 初期化済みにする
+							bInitDis = true;
+						}
+						else
+						{ // 初期化している場合
+
+							if (fDis < fDisPosY)
+							{ // より近い障害物の場合
+
+								// 現在の距離を代入
+								fDisPosY = fDis;
+
+								// 現在の影乗っかりオブジェクトを代入
+								pCurrentObj = pObjCheck;
+							}
+						}
+					}
+				}
+
+				// 次のオブジェクトへのポインタを代入
+				pObjCheck = pObjectNext;
+			}
+		}
+	}
+
+	if (pCurrentObj != NULL)
+	{ // 障害物があった場合
+
+		// 変数を宣言
+		D3DXVECTOR3 posObs = VEC3_ZERO;		// 障害物位置
+		D3DXVECTOR3 sizeObs = VEC3_ZERO;	// 障害物大きさ
+		
+		// 障害物の位置を取得
+		posObs = pCurrentObj->GetVec3Position();
+
+		// 障害物の大きさを取得
+		sizeObs = pCurrentObj->GetVec3Sizing();
+
+		// 描画位置を設定
+		rDrawPos = posObs.y + sizeObs.y;
+
+		// 当たっている判定を返す
+		return true;
+	}
+	else
+	{ // 障害物がなかった場合
+
+		// 当たっていない判定を返す
+		return false;
+	}
 }
 
 //============================================================
@@ -442,7 +609,8 @@ bool CShadow::CollisionBuilding(D3DXVECTOR3& rPos, float& rDrawPos)
 		return true;
 	}
 	else
-	{
+	{ // ビルがなかった場合
+
 		// 当たっていない判定を返す
 		return false;
 	}
