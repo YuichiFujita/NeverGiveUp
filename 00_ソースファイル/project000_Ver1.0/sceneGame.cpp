@@ -37,8 +37,8 @@
 #define TIME_POS		(D3DXVECTOR3(40.0f, 50.0f, 0.0f))	// タイマー位置
 #define TIME_VAL_SIZE	(D3DXVECTOR3(72.0f, 96.0f, 0.0f))	// タイマー数字大きさ
 #define TIME_PART_SIZE	(D3DXVECTOR3(42.0f, 96.0f, 0.0f))	// タイマー区切り大きさ
-#define TIME_VAL_SPACE	(D3DXVECTOR3(TIME_VAL_SIZE.x  * 0.9f, 0.0f, 0.0f))	// タイマー数字空白
-#define TIME_PART_SPACE	(D3DXVECTOR3(TIME_PART_SIZE.x * 0.9f, 0.0f, 0.0f))	// タイマー区切り空白
+#define TIME_VAL_SPACE	(D3DXVECTOR3(TIME_VAL_SIZE.x  * 0.85f, 0.0f, 0.0f))	// タイマー数字空白
+#define TIME_PART_SPACE	(D3DXVECTOR3(TIME_PART_SIZE.x * 0.85f, 0.0f, 0.0f))	// タイマー区切り空白
 
 #define SCO_POS		(D3DXVECTOR3(825.0f, 50.0f, 0.0f))		// スコア位置
 #define SCO_SIZE	(D3DXVECTOR3(60.0f, 80.0f, 0.0f))		// スコア大きさ
@@ -228,7 +228,12 @@ void CSceneGame::Update(void)
 	else if (CManager::GetInstance()->GetKeyboard()->IsTrigger(DIK_F7))
 	{
 		// リザルトに遷移
-		CScene::GetPlayer()->SetState(CPlayer::STATE_CLEAR);	// リザルト画面
+		CScene::GetPlayer()->SetState(CPlayer::STATE_CLEAR);
+	}
+	else if (CManager::GetInstance()->GetKeyboard()->IsTrigger(DIK_F8))
+	{
+		// リザルトに遷移
+		CScene::GetPlayer()->SetState(CPlayer::STATE_OVER);
 	}
 
 	// デバッグ表示
@@ -241,7 +246,8 @@ void CSceneGame::Update(void)
 	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "[F4]：ポーズ描画のON/OFF\n");
 	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "[F5]：カメラ操作のON/OFF\n");
 	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "[F6]：プレイヤースポーン\n");
-	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "[F7]：リザルト遷移\n");
+	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "[F7]：成功リザルト遷移\n");
+	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "[F8]：失敗リザルト遷移\n");
 
 	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "======================================\n");
 	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "　[デバッグ情報]\n");

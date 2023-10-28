@@ -38,6 +38,11 @@ const char *CObstacle::mc_apModelFile[] =	// モデル定数
 	"data\\MODEL\\OBSTACLE\\obstacle008.x",	// タイヤ
 	"data\\MODEL\\OBSTACLE\\obstacle009.x",	// ドラム缶タワー
 	"data\\MODEL\\OBSTACLE\\obstacle010.x",	// パイプフェンス
+	"data\\MODEL\\OBSTACLE\\obstacle011.x",	// ストラクチャー（赤）
+	"data\\MODEL\\OBSTACLE\\obstacle012.x",	// ストラクチャー（青・黄）
+	"data\\MODEL\\OBSTACLE\\obstacle013.x",	// ストラクチャー（紫）
+	"data\\MODEL\\OBSTACLE\\obstacle014.x",	// ストラクチャー（赤・青）
+	"data\\MODEL\\OBSTACLE\\obstacle015.x",	// ストラクチャー（黄・緑）
 };
 CObstacle::SStatusInfo CObstacle::m_aStatusInfo[TYPE_MAX] = {};	// ステータス情報
 

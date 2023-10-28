@@ -26,18 +26,23 @@ public:
 	// 種類列挙
 	enum EType
 	{
-		TYPE_BOX = 0,	// 箱モデル
-		TYPE_BENCH,		// ベンチモデル
-		TYPE_JUMPPAD,	// ジャンプパッドモデル
-		TYPE_FENCE,		// フェンスモデル
-		TYPE_BLOCK,		// ブロックモデル
-		TYPE_WALL,		// 壁モデル
-		TYPE_BLUE_BOX,	// 青箱モデル
-		TYPE_CAR,		// 車モデル
-		TYPE_WHEEL,		// タイヤモデル
-		TYPE_DRUMTOWER,	// ドラム缶タワーモデル
-		TYPE_PIPEFENCE,	// パイプフェンスモデル
-		TYPE_MAX		// この列挙型の総数
+		TYPE_BOX = 0,		// 箱モデル
+		TYPE_BENCH,			// ベンチモデル
+		TYPE_JUMPPAD,		// ジャンプパッドモデル
+		TYPE_FENCE,			// フェンスモデル
+		TYPE_BLOCK,			// ブロックモデル
+		TYPE_WALL,			// 壁モデル
+		TYPE_BLUE_BOX,		// 青箱モデル
+		TYPE_CAR,			// 車モデル
+		TYPE_WHEEL,			// タイヤモデル
+		TYPE_DRUMTOWER,		// ドラム缶タワーモデル
+		TYPE_PIPEFENCE,		// パイプフェンスモデル
+		TYPE_STRUCTURE_00,	// ストラクチャーモデル（赤）
+		TYPE_STRUCTURE_01,	// ストラクチャーモデル（青・黄）
+		TYPE_STRUCTURE_02,	// ストラクチャーモデル（紫）
+		TYPE_STRUCTURE_03,	// ストラクチャーモデル（赤・青）
+		TYPE_STRUCTURE_04,	// ストラクチャーモデル（黄・緑）
+		TYPE_MAX			// この列挙型の総数
 	};
 
 	// 回避列挙
