@@ -45,6 +45,15 @@ public:
 		TYPE_MAX			// この列挙型の総数
 	};
 
+	// 特殊状態列挙
+	enum EState
+	{
+		STATE_NONE = 0,	// 特殊状態無し
+		STATE_JUMP,		// 触れるとジャンプする
+		STATE_LAND,		// 着地できる
+		STATE_MAX		// この列挙型の総数
+	};
+
 	// 回避列挙
 	enum EDodge
 	{
@@ -64,6 +73,7 @@ public:
 	struct SStatusInfo
 	{
 		D3DXVECTOR3 size;	// 大きさ
+		EState state;		// 特殊状態
 		EDodge dodge;		// 回避法
 	};
 
@@ -74,7 +84,8 @@ public:
 	void Draw(void) override;		// 描画
 
 	int GetType(void) const override;		// 種類取得
-	int GetState(void) const override;		// 回避法取得
+	int GetState(void) const override;		// 特殊状態取得
+	int GetDodge(void) const override;		// 回避法取得
 	float GetAngle(void) const override;	// 角度取得
 	float GetLength(void) const override;	// 長さ取得
 

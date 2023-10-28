@@ -130,9 +130,18 @@ int CObstacle::GetType(void) const
 }
 
 //============================================================
-//	回避法取得処理
+//	特殊状態取得処理
 //============================================================
 int CObstacle::GetState(void) const
+{
+	// 障害物の特殊状態を返す
+	return m_status.state;
+}
+
+//============================================================
+//	回避法取得処理
+//============================================================
+int CObstacle::GetDodge(void) const
 {
 	// 障害物の回避法を返す
 	return m_status.dodge;
@@ -334,6 +343,12 @@ void CObstacle::LoadSetup(void)
 								fscanf(pFile, "%f", &m_aStatusInfo[nType].size.x);	// 大きさXを読み込む
 								fscanf(pFile, "%f", &m_aStatusInfo[nType].size.y);	// 大きさYを読み込む
 								fscanf(pFile, "%f", &m_aStatusInfo[nType].size.z);	// 大きさZを読み込む
+							}
+							else if (strcmp(&aString[0], "STATE") == 0)
+							{ // 読み込んだ文字列が STATE の場合
+
+								fscanf(pFile, "%s", &aString[0]);					// = を読み込む (不要)
+								fscanf(pFile, "%d", &m_aStatusInfo[nType].state);	// 特殊状態を読み込む
 							}
 							else if (strcmp(&aString[0], "DODGE") == 0)
 							{ // 読み込んだ文字列が DODGE の場合

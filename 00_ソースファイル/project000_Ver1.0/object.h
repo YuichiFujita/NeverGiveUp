@@ -101,6 +101,8 @@ public:
 	virtual int GetState(void) const;					// 状態取得
 	virtual void SetType(const int nType);				// 種類設定
 	virtual int GetType(void) const;					// 種類取得
+	virtual void SetDodge(const int nDodge);			// 回避法設定
+	virtual int GetDodge(void) const;					// 回避法取得
 	virtual void SetAngle(const float fAngle);			// 角度設定
 	virtual float GetAngle(void) const;					// 角度取得
 	virtual void SetLength(const float fLength);		// 長さ設定

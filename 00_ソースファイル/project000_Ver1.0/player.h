@@ -132,6 +132,7 @@ private:
 	void UpdateWallDash(D3DXVECTOR3& rPos);	// 壁走りの更新
 	void UpdateJump(void);					// ジャンプの更新
 	void UpdateSliding(void);				// スライディングの更新
+	void UpdateGravity(void);				// 重力の更新
 	bool UpdateLanding(D3DXVECTOR3& rPos);	// 着地状況の更新
 	void UpdateRotation(D3DXVECTOR3& rRot);	// 向きの更新
 	void UpdateMotion(int nMotion);			// モーション・オブジェクトキャラクターの更新
@@ -143,8 +144,8 @@ private:
 	void CollisionRotationBuilding(D3DXVECTOR3& rPos);					// 向き変更の当たり判定
 	bool ResponseSingleBuilding(const EAxis axis, D3DXVECTOR3& rPos);	// ビルとの一軸ごとの当たり判定
 	bool CollisionSignboard(D3DXVECTOR3& rPos, float *pRate = NULL);	// 看板との当たり判定
-	bool CollisionBuilding(D3DXVECTOR3& rPos);	// ビルとの当たり判定
 	bool CollisionObstacle(D3DXVECTOR3& rPos);	// 障害物との当たり判定
+	bool CollisionBuilding(D3DXVECTOR3& rPos);	// ビルとの当たり判定
 
 	// 静的メンバ変数
 	static const char *mc_apModelFile[];	// モデル定数
