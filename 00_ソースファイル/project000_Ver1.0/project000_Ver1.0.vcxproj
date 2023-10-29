@@ -206,12 +206,14 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="rankingManager.cpp" />
     <ClCompile Include="renderer.cpp" />
     <ClCompile Include="resultManager.cpp" />
     <ClCompile Include="retentionManager.cpp" />
     <ClCompile Include="savePoint.cpp" />
     <ClCompile Include="scene.cpp" />
     <ClCompile Include="sceneGame.cpp" />
+    <ClCompile Include="sceneRanking.cpp" />
     <ClCompile Include="sceneResult.cpp" />
     <ClCompile Include="scenery.cpp" />
     <ClCompile Include="sceneTitle.cpp" />
@@ -283,6 +285,7 @@
     <ClInclude Include="pause.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="precompile.h" />
+    <ClInclude Include="rankingManager.h" />
     <ClInclude Include="renderer.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="resultManager.h" />
@@ -290,6 +293,7 @@
     <ClInclude Include="savePoint.h" />
     <ClInclude Include="scene.h" />
     <ClInclude Include="sceneGame.h" />
+    <ClInclude Include="sceneRanking.h" />
     <ClInclude Include="sceneResult.h" />
     <ClInclude Include="scenery.h" />
     <ClInclude Include="sceneTitle.h" />

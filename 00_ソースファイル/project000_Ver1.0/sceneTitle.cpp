@@ -15,12 +15,6 @@
 #include "camera.h"
 #include "titleManager.h"
 
-#include "stage.h"
-#include "field.h"
-#include "wall.h"
-#include "scenery.h"
-#include "sky.h"
-
 //************************************************************
 //	静的メンバ変数宣言
 //************************************************************
@@ -75,7 +69,7 @@ HRESULT CSceneTitle::Init(void)
 	CManager::GetInstance()->GetCamera()->SetEnableUpdate(false);			// 更新を停止
 
 	// BGMの再生
-	CManager::GetInstance()->GetSound()->Play(CSound::LABEL_BGM_TITLE_RESULT);
+	CManager::GetInstance()->GetSound()->Play(CSound::LABEL_BGM_GENERAL);
 
 	// 成功を返す
 	return S_OK;

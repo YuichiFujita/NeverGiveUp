@@ -448,6 +448,12 @@ CPlayer *CPlayer::Create(CScene::EMode mode)
 
 			break;
 
+		case CScene::MODE_RANKING:
+
+			// –³‚µ
+
+			break;
+
 		default:	// —áŠOˆ—
 			assert(false);
 			break;

@@ -35,6 +35,7 @@ public:
 		MODE_TUTORIAL,	// チュートリアル画面
 		MODE_GAME,		// ゲーム画面
 		MODE_RESULT,	// リザルト画面
+		MODE_RANKING,	// ランキング画面
 		MODE_MAX		// この列挙型の総数
 	};
 

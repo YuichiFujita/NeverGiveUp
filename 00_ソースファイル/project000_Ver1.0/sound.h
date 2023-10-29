@@ -31,9 +31,9 @@ public:
 	// サウンドラベル列挙
 	enum ELabel
 	{
-		LABEL_BGM_TITLE_RESULT = 0,	// BGM (タイトル・リザルト)
-		LABEL_BGM_TUTORIAL,			// BGM (チュートリアル)
-		LABEL_BGM_GAME,				// BGM (ゲーム)
+		LABEL_BGM_GENERAL = 0,	// BGM (汎用)
+		LABEL_BGM_TUTORIAL,		// BGM (チュートリアル)
+		LABEL_BGM_GAME,			// BGM (ゲーム)
 
 		LABEL_SE_SELECT_000,	// 選択操作音00
 		LABEL_SE_SELECT_001,	// 選択操作音01

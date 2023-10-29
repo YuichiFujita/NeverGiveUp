@@ -16,16 +16,10 @@
 #include "sceneTutorial.h"
 #include "sceneGame.h"
 #include "sceneResult.h"
+#include "sceneRanking.h"
 
 #include "stage.h"
 #include "player.h"
-#include "field.h"
-
-//************************************************************
-//	マクロ定義
-//************************************************************
-#define FIELD_SIZE	(D3DXVECTOR2(12000.0f, 12000.0f))	// 地面の大きさ
-#define FIELD_PART	(POSGRID2(120, 120))				// 地面の分割数
 
 //************************************************************
 //	静的メンバ変数宣言
@@ -173,6 +167,13 @@ CScene *CScene::Create(EMode mode)
 
 			// リザルト画面を生成
 			pScene = new CSceneResult(mode);
+
+			break;
+
+		case MODE_RANKING:
+
+			// ランキング画面を生成
+			pScene = new CSceneRanking(mode);
 
 			break;
 

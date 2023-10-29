@@ -1,32 +1,32 @@
 //============================================================
 //
-//	リザルト画面処理 [sceneResult.cpp]
+//	ランキング画面処理 [sceneRanking.cpp]
 //	Author：藤田勇一
 //
 //============================================================
 //************************************************************
 //	インクルードファイル
 //************************************************************
-#include "sceneResult.h"
+#include "sceneRanking.h"
 #include "manager.h"
 #include "texture.h"
 #include "input.h"
 #include "sound.h"
 #include "camera.h"
-#include "resultManager.h"
+#include "rankingManager.h"
 
 //************************************************************
 //	静的メンバ変数宣言
 //************************************************************
-CResultManager *CSceneResult::m_pResultManager = NULL;	// リザルトマネージャー
+CRankingManager *CSceneRanking::m_pRankingManager = NULL;	// ランキングマネージャー
 
 //************************************************************
-//	子クラス [CSceneResult] のメンバ関数
+//	子クラス [CSceneRanking] のメンバ関数
 //************************************************************
 //============================================================
 //	コンストラクタ
 //============================================================
-CSceneResult::CSceneResult(const EMode mode) : CScene(mode)
+CSceneRanking::CSceneRanking(const EMode mode) : CScene(mode)
 {
 
 }
@@ -34,7 +34,7 @@ CSceneResult::CSceneResult(const EMode mode) : CScene(mode)
 //============================================================
 //	デストラクタ
 //============================================================
-CSceneResult::~CSceneResult()
+CSceneRanking::~CSceneRanking()
 {
 
 }
@@ -42,14 +42,14 @@ CSceneResult::~CSceneResult()
 //============================================================
 //	初期化処理
 //============================================================
-HRESULT CSceneResult::Init(void)
+HRESULT CSceneRanking::Init(void)
 {
 	//--------------------------------------------------------
-	//	リザルトの初期化
+	//	ランキングの初期化
 	//--------------------------------------------------------
-	// リザルトマネージャーの生成
-	m_pResultManager = CResultManager::Create();
-	if (m_pResultManager == NULL)
+	// ランキングマネージャーの生成
+	m_pRankingManager = CRankingManager::Create();
+	if (m_pRankingManager == NULL)
 	{ // 非使用中の場合
 
 		// 失敗を返す
@@ -77,10 +77,10 @@ HRESULT CSceneResult::Init(void)
 //============================================================
 //	終了処理
 //============================================================
-HRESULT CSceneResult::Uninit(void)
+HRESULT CSceneRanking::Uninit(void)
 {
-	// リザルトマネージャーの破棄
-	if (FAILED(CResultManager::Release(m_pResultManager)))
+	// ランキングマネージャーの破棄
+	if (FAILED(CRankingManager::Release(m_pRankingManager)))
 	{ // 破棄に失敗した場合
 
 		// 失敗を返す
@@ -98,18 +98,18 @@ HRESULT CSceneResult::Uninit(void)
 //============================================================
 //	更新処理
 //============================================================
-void CSceneResult::Update(void)
+void CSceneRanking::Update(void)
 {
 	// デバッグ表示
 	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "======================================\n");
 	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "　[デバッグ情報]\n");
 	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "======================================\n");
 
-	if (m_pResultManager != NULL)
+	if (m_pRankingManager != NULL)
 	{ // 使用中の場合
 
-		// リザルトマネージャーの更新
-		m_pResultManager->Update();
+		// ランキングマネージャーの更新
+		m_pRankingManager->Update();
 	}
 	else { assert(false); }	// 非使用中
 
@@ -120,16 +120,16 @@ void CSceneResult::Update(void)
 //============================================================
 //	描画処理
 //============================================================
-void CSceneResult::Draw(void)
+void CSceneRanking::Draw(void)
 {
 
 }
 
 //============================================================
-//	リザルトマネージャー取得処理
+//	ランキングマネージャー取得処理
 //============================================================
-CResultManager *CSceneResult::GetResultManager(void)
+CRankingManager *CSceneRanking::GetRankingManager(void)
 {
-	// リザルトマネージャーを返す
-	return m_pResultManager;
+	// ランキングマネージャーを返す
+	return m_pRankingManager;
 }

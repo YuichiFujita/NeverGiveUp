@@ -813,7 +813,7 @@ void CResultManager::UpdateTransition(void)
 				case SELECT_NO:
 
 					// シーンの設定
-					CManager::GetInstance()->SetScene(CScene::MODE_TITLE);	// タイトル画面
+					CManager::GetInstance()->SetScene(CScene::MODE_RANKING);	// ランキング画面
 
 					break;
 				}
