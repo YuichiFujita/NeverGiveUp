@@ -15,6 +15,7 @@
 //************************************************************
 #include "main.h"
 #include "objectChara.h"
+#include "scene.h"
 #include "retentionManager.h"
 
 //************************************************************
@@ -57,6 +58,8 @@ public:
 		MOTION_MOVE,		// 移動モーション
 		MOTION_JUMP,		// ジャンプモーション
 		MOTION_SLIDE,		// スライディングモーション
+		MOTION_WALLDASH,	// 壁走りモーション
+		MOTION_FALL,		// 落下モーション
 		MOTION_MAX			// この列挙型の総数
 	};
 
@@ -115,7 +118,7 @@ public:
 	D3DXMATRIX GetMtxWorld(void) const override;		// マトリックス取得
 
 	// 静的メンバ関数
-	static CPlayer *Create(void);	// 生成
+	static CPlayer *Create(CScene::EMode mode);	// 生成
 
 	// メンバ関数
 	void SetSpawn(void);	// 出現設定

@@ -41,9 +41,9 @@ namespace
 	namespace rotate
 	{
 		const D3DXVECTOR3 INIT_POSR	= D3DXVECTOR3(0.0f, 550.0f, 0.0f);	// 回転カメラの注視点の初期値
-		const D3DXVECTOR3 INIT_ROT	= D3DXVECTOR2(1.9f, 0.0f);			// 回転カメラの向き初期値
+		const D3DXVECTOR3 INIT_ROT	= D3DXVECTOR2(1.2f, 0.0f);			// 回転カメラの向き初期値
 
-		const float INIT_DIS	= -1350.0f;	// 回転カメラの距離初期値
+		const float INIT_DIS	= -6350.0f;	// 回転カメラの距離初期値
 		const float ADD_ROTY	= 0.005f;	// 回転カメラの向き加算量Y
 	}
 
@@ -56,7 +56,7 @@ namespace
 		const float INIT_ROTX	= 1.7f;		// 追従カメラの向きX初期値
 		const float ADD_ROTY	= 0.45f;	// 追従カメラの向き加算量Y
 
-		const float LOOK_ADD_FORWARD	= 500.0f;	// プレイヤー位置からの前への加算量
+		const float LOOK_ADD_FORWARD	= 450.0f;	// プレイヤー位置からの前への加算量
 		const float LOOK_ADD_POSY		= 50.0f;	// プレイヤー位置からの上への加算量
 	}
 

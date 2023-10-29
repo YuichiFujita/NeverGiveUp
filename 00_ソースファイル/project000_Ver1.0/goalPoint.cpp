@@ -173,42 +173,46 @@ CGoalPoint *CGoalPoint::Create	// 生成
 //============================================================
 void CGoalPoint::CollisionPlayer(void)
 {
-	// ポインタを宣言
-	CPlayer *pPlayer = CScene::GetPlayer();	// プレイヤー情報
-	if (pPlayer == NULL)
-	{ // プレイヤーが存在しない場合
+	if (CManager::GetInstance()->GetMode() == CScene::MODE_GAME)
+	{ // ゲームモードの場合
 
-		// 処理を抜ける
-		assert(false);
-		return;
-	}
+		// ポインタを宣言
+		CPlayer *pPlayer = CScene::GetPlayer();	// プレイヤー情報
+		if (pPlayer == NULL)
+		{ // プレイヤーが存在しない場合
 
-	// 変数を宣言
-	bool  bHit = false;	// 判定状況
-	float fPlayerRadius    = pPlayer->GetRadius();			// プレイヤー半径
-	D3DXVECTOR3 posPlayer  = pPlayer->GetVec3Position();	// プレイヤー位置
-	D3DXVECTOR3 posGoal    = GetVec3Position();				// ゴール位置
-	D3DXVECTOR3 sizePlayer = D3DXVECTOR3(fPlayerRadius, 0.0f, fPlayerRadius);	// プレイヤー大きさ
+			// 処理を抜ける
+			assert(false);
+			return;
+		}
 
-	if (pPlayer->GetState() != CPlayer::STATE_CLEAR
-	&&  pPlayer->GetState() != CPlayer::STATE_OVER)
-	{ // ゲーム終了に関する状態ではない場合
+		// 変数を宣言
+		bool  bHit = false;	// 判定状況
+		float fPlayerRadius    = pPlayer->GetRadius();			// プレイヤー半径
+		D3DXVECTOR3 posPlayer  = pPlayer->GetVec3Position();	// プレイヤー位置
+		D3DXVECTOR3 posGoal    = GetVec3Position();				// ゴール位置
+		D3DXVECTOR3 sizePlayer = D3DXVECTOR3(fPlayerRadius, 0.0f, fPlayerRadius);	// プレイヤー大きさ
 
-		// プレイヤーとの判定
-		bHit = collision::Box2D
-		( // 引数
-			posPlayer,	// 判定位置
-			posGoal,	// 判定目標位置
-			sizePlayer,	// 判定サイズ(右・上・後)
-			sizePlayer,	// 判定サイズ(左・下・前)
-			m_size,		// 判定目標サイズ(右・上・後)
-			m_size		// 判定目標サイズ(左・下・前)
-		);
-		if (bHit)
-		{ // プレイヤーが判定内の場合
+		if (pPlayer->GetState() != CPlayer::STATE_CLEAR
+		&&  pPlayer->GetState() != CPlayer::STATE_OVER)
+		{ // ゲーム終了に関する状態ではない場合
 
-			// プレイヤーをクリア成功状態にする
-			pPlayer->SetState(CPlayer::STATE_CLEAR);
+			// プレイヤーとの判定
+			bHit = collision::Box2D
+			( // 引数
+				posPlayer,	// 判定位置
+				posGoal,	// 判定目標位置
+				sizePlayer,	// 判定サイズ(右・上・後)
+				sizePlayer,	// 判定サイズ(左・下・前)
+				m_size,		// 判定目標サイズ(右・上・後)
+				m_size		// 判定目標サイズ(左・下・前)
+			);
+			if (bHit)
+			{ // プレイヤーが判定内の場合
+
+				// プレイヤーをクリア成功状態にする
+				pPlayer->SetState(CPlayer::STATE_CLEAR);
+			}
 		}
 	}
 }

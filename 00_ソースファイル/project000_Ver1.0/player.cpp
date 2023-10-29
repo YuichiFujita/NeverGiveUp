@@ -9,7 +9,6 @@
 //************************************************************
 #include "player.h"
 #include "manager.h"
-#include "scene.h"
 #include "sceneGame.h"
 #include "renderer.h"
 #include "input.h"
@@ -48,15 +47,15 @@ namespace
 		const float	RADIUS		= 20.0f;	// 半径
 		const float	HEIGHT		= 100.0f;	// 縦幅
 		const float	REV_ROTA	= 0.15f;	// 向き変更の補正係数
-		const float	BLOW_SIDE	= 40.0f;	// 吹っ飛び時の横移動量
+		const float	BLOW_SIDE	= 10.0f;	// 吹っ飛び時の横移動量
 		const float	BLOW_UP		= 30.0f;	// 吹っ飛び時の縦移動量
 		const float	ADD_MOVE	= 0.08f;	// 非アクション時の速度加算量
 
 		const float	JUMPPAD_MOVE	= 50.0f;	// ジャンプパッドの上移動量
 		const float	NOR_JUMP_REV	= 0.16f;	// 通常状態時の空中の移動量の減衰係数
 		const float	NOR_LAND_REV	= 0.16f;	// 通常状態時の地上の移動量の減衰係数
-		const float	DMG_JUMP_REV	= 0.025f;	// ダメージ状態時の空中の移動量の減衰係数
-		const float	DMG_LAND_REV	= 0.5f;		// ダメージ状態時の地上の移動量の減衰係数
+		const float	DMG_JUMP_REV	= 0.015f;	// ダメージ状態時の空中の移動量の減衰係数
+		const float	DMG_LAND_REV	= 0.25f;	// ダメージ状態時の地上の移動量の減衰係数
 		const float DMG_SUB_ALPHA	= 0.025f;	// ダメージ状態時の透明度の減算量
 		const float	SPAWN_ADD_ALPHA	= 0.03f;	// スポーン状態時の透明度の加算量
 
@@ -317,6 +316,9 @@ void CPlayer::Hit(void)
 
 			// 状態を変更
 			SetState(STATE_DAMAGE);	// ダメージ状態
+
+			// 待機モーションを設定
+			SetMotion(MOTION_IDOL);
 		}
 	}
 }
@@ -410,7 +412,7 @@ D3DXMATRIX CPlayer::GetMtxWorld(void) const
 //============================================================
 //	生成処理
 //============================================================
-CPlayer *CPlayer::Create(void)
+CPlayer *CPlayer::Create(CScene::EMode mode)
 {
 	// ポインタを宣言
 	CPlayer *pPlayer = NULL;	// プレイヤー生成用
@@ -418,8 +420,38 @@ CPlayer *CPlayer::Create(void)
 	if (pPlayer == NULL)
 	{ // 使用されていない場合
 
-		// メモリ確保
-		pPlayer = new CPlayer;	// プレイヤー
+		switch (mode)
+		{ // モードごとの処理
+		case CScene::MODE_TITLE:
+
+			// 無し
+
+			break;
+
+		case CScene::MODE_TUTORIAL:
+
+			// メモリ確保
+			pPlayer = new CPlayer;	// プレイヤー
+
+			break;
+
+		case CScene::MODE_GAME:
+
+			// メモリ確保
+			pPlayer = new CPlayer;	// プレイヤー
+
+			break;
+
+		case CScene::MODE_RESULT:
+
+			// 無し
+
+			break;
+
+		default:	// 例外処理
+			assert(false);
+			break;
+		}
 	}
 	else { assert(false); return NULL; }	// 使用中
 
@@ -791,7 +823,7 @@ void CPlayer::UpdateWallDash(D3DXVECTOR3& rPos)
 				m_bWallDash = true;
 
 				// 壁走りモーションを設定
-				SetMotion(MOTION_IDOL);
+				SetMotion(MOTION_WALLDASH);
 			}
 		}
 	}
@@ -846,6 +878,9 @@ void CPlayer::UpdateWallDash(D3DXVECTOR3& rPos)
 
 						// プラス移動量を設定
 						m_fPlusMove = walldash::PLUSMOVE_SIDE;
+
+						// ジャンプモーションを設定
+						SetMotion(MOTION_JUMP);
 					}
 				}
 			}
@@ -1080,6 +1115,18 @@ bool CPlayer::UpdateLanding(D3DXVECTOR3& rPos)
 		m_bJump = false;
 	}
 
+	if (!bLand)
+	{ // 着地していなかった場合
+
+		if (m_state == STATE_NORMAL
+		&&  GetMotionType() == MOTION_MOVE)
+		{ // 通常状態且つ、移動モーションだった場合
+
+			// 落下モーションを設定
+			SetMotion(MOTION_FALL);
+		}
+	}
+
 	// 着地状況を返す
 	return bLand;
 }
@@ -1135,35 +1182,65 @@ void CPlayer::UpdateMotion(int nMotion)
 	CObjectChara::Update();
 
 	// モーションの遷移
-	if (IsMotionFinish())
-	{ // モーションが終了していた場合
+	switch (GetMotionType())
+	{ // モーションの種類ごとの処理
+	case MOTION_JUMP:		// ジャンプモーション
 
-		switch (GetMotionType())
-		{ // モーションの種類ごとの処理
-		case MOTION_JUMP:	// ジャンプモーション
+		if (!m_bJump)
+		{ // ジャンプ中ではない場合
 
-			if (!m_bJump)
+			// 現在のモーションの設定
+			SetMotion(nMotion);
+		}
+
+		// 処理を抜ける
+		break;
+
+	case MOTION_SLIDE:		// スライディングモーション
+
+		if (!m_bSlide)
+		{ // スライディング中ではない場合
+
+			// 現在のモーションの設定
+			SetMotion(nMotion);
+		}
+
+		// 処理を抜ける
+		break;
+
+	case MOTION_WALLDASH:	// 壁走りモーション
+
+		if (!m_bWallDash)
+		{ // 壁走り中ではない場合
+
+			if (m_bJump)
+			{ // ジャンプ中の場合
+
+				// 現在のモーションの設定
+				SetMotion(MOTION_FALL);
+			}
+			else
 			{ // ジャンプ中ではない場合
 
 				// 現在のモーションの設定
 				SetMotion(nMotion);
 			}
-
-			// 処理を抜ける
-			break;
-
-		case MOTION_SLIDE:	// スライディングモーション
-
-			if (!m_bSlide)
-			{ // スライディング中ではない場合
-
-				// 現在のモーションの設定
-				SetMotion(nMotion);
-			}
-
-			// 処理を抜ける
-			break;
 		}
+
+		// 処理を抜ける
+		break;
+
+	case MOTION_FALL:		// 落下モーション
+
+		if (!m_bJump)
+		{ // ジャンプ中ではない場合
+
+			// 現在のモーションの設定
+			SetMotion(nMotion);
+		}
+
+		// 処理を抜ける
+		break;
 	}
 }
 
@@ -1909,6 +1986,9 @@ void CPlayer::CollisionObstacle(D3DXVECTOR3& rPos)
 
 							// ジャンプモーションを設定
 							SetMotion(MOTION_JUMP);
+
+							// ジャンプしている状態にする
+							m_bJump = true;
 						}
 
 						break;

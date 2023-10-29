@@ -158,16 +158,6 @@ void CTimerManager::Uninit(void)
 //============================================================
 void CTimerManager::Update(void)
 {
-	// ポインタを宣言
-	CPlayer *pPlayer = CScene::GetPlayer();	// プレイヤー情報
-	if (pPlayer == NULL)
-	{ // プレイヤーが存在しない場合
-
-		// 処理を抜ける
-		assert(false);
-		return;
-	}
-
 	switch (m_state)
 	{ // 計測状態ごとの処理
 	case STATE_NONE:
@@ -201,6 +191,16 @@ void CTimerManager::Update(void)
 				}
 				else
 				{  // タイムが 0以下の場合
+
+					// ポインタを宣言
+					CPlayer *pPlayer = CScene::GetPlayer();	// プレイヤー情報
+					if (pPlayer == NULL)
+					{ // プレイヤーが存在しない場合
+
+						// 処理を抜ける
+						assert(false);
+						return;
+					}
 
 					// 現在の計測ミリ秒を設定
 					m_dwTime = 0;

@@ -255,52 +255,56 @@ CSavePoint::SInfo CSavePoint::GetSavePointInfo(void)
 //============================================================
 void CSavePoint::CollisionPlayer(void)
 {
-	// ポインタを宣言
-	CPlayer *pPlayer = CScene::GetPlayer();	// プレイヤー情報
-	if (pPlayer == NULL)
-	{ // プレイヤーが存在しない場合
+	if (CManager::GetInstance()->GetMode() == CScene::MODE_GAME)
+	{ // ゲームモードの場合
 
-		// 処理を抜ける
-		assert(false);
-		return;
-	}
+		// ポインタを宣言
+		CPlayer *pPlayer = CScene::GetPlayer();	// プレイヤー情報
+		if (pPlayer == NULL)
+		{ // プレイヤーが存在しない場合
 
-	// 変数を宣言
-	D3DXVECTOR3 posPlayer = pPlayer->GetVec3Position();	// プレイヤー位置
-	D3DXVECTOR3 posSave = GetVec3Position();	// セーブ位置
-	float fPlayerRadius = pPlayer->GetRadius();	// プレイヤー半径
-	float fPlayerHeight = pPlayer->GetHeight();	// プレイヤー縦幅
-	bool  bHit = false;	// 判定状況
+			// 処理を抜ける
+			assert(false);
+			return;
+		}
 
-	if ((CObject*)this != m_pCurrentSave)
-	{ // 現在のセーブポイントと一致しない場合
+		// 変数を宣言
+		D3DXVECTOR3 posPlayer = pPlayer->GetVec3Position();	// プレイヤー位置
+		D3DXVECTOR3 posSave = GetVec3Position();	// セーブ位置
+		float fPlayerRadius = pPlayer->GetRadius();	// プレイヤー半径
+		float fPlayerHeight = pPlayer->GetHeight();	// プレイヤー縦幅
+		bool  bHit = false;	// 判定状況
 
-		if (posPlayer.y + fPlayerHeight >= posSave.y
-		&&  posPlayer.y <= posSave.y + COL_HEIGHT)
-		{ // Y座標が範囲内の場合
+		if ((CObject*)this != m_pCurrentSave)
+		{ // 現在のセーブポイントと一致しない場合
 
-			// プレイヤーとの判定
-			bHit = collision::Circle2D
-			( // 引数
-				posPlayer,		// 判定位置
-				posSave,		// 判定目標位置
-				fPlayerRadius,	// 判定半径
-				COL_RADIUS		// 判定目標半径
-			);
-			if (bHit)
-			{ // プレイヤーが判定内の場合
+			if (posPlayer.y + fPlayerHeight >= posSave.y
+			&&  posPlayer.y <= posSave.y + COL_HEIGHT)
+			{ // Y座標が範囲内の場合
 
-				// セーブポイントを自身に変更
-				m_pCurrentSave = (CObject*)this;
+				// プレイヤーとの判定
+				bHit = collision::Circle2D
+				( // 引数
+					posPlayer,		// 判定位置
+					posSave,		// 判定目標位置
+					fPlayerRadius,	// 判定半径
+					COL_RADIUS		// 判定目標半径
+				);
+				if (bHit)
+				{ // プレイヤーが判定内の場合
 
-				// カウンターを初期化
-				m_nCounterState = 0;
+					// セーブポイントを自身に変更
+					m_pCurrentSave = (CObject*)this;
 
-				// セーブ状態を設定
-				m_state = STATE_SAVE;
+					// カウンターを初期化
+					m_nCounterState = 0;
 
-				// マテリアルを発光緑に差し替え
-				SetMaterial(material::GlowGreen(), CHANGE_MAT_ID);
+					// セーブ状態を設定
+					m_state = STATE_SAVE;
+
+					// マテリアルを発光緑に差し替え
+					SetMaterial(material::GlowGreen(), CHANGE_MAT_ID);
+				}
 			}
 		}
 	}
