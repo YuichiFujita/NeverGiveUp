@@ -52,7 +52,7 @@ namespace
 	{
 		const float REV_POS		= 0.25f;	// カメラ位置の補正係数
 		const float REV_ROT		= 0.045f;	// カメラ向きの補正係数
-		const float INIT_DIS	= 1000.0f;	// 追従カメラの距離
+		const float INIT_DIS	= 920.0f;	// 追従カメラの距離
 		const float INIT_ROTX	= 1.7f;		// 追従カメラの向きX初期値
 		const float ADD_ROTY	= 0.45f;	// 追従カメラの向き加算量Y
 
