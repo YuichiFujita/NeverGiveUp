@@ -95,6 +95,7 @@ public:
 	void SetScalingPart(const D3DXVECTOR3& rSize);		// ”š‚Ì‘å‚«‚³İ’è
 	void SetSpaceValue(const D3DXVECTOR3& rSpace);		// ‹æØ‚è‚Ì‹ó”’İ’è
 	void SetSpacePart(const D3DXVECTOR3& rSpace);		// ”š‚Ì‹ó”’İ’è
+	void SetColor(const D3DXCOLOR& rCol);				// F‚Ìİ’è
 	void SetPriority(const int nPriority);				// —Dæ‡ˆÊİ’è
 	void SetEnableUpdate(const bool bUpdate);			// XVó‹µİ’è
 	void SetEnableDraw(const bool bDraw);				// •`‰æó‹µİ’è

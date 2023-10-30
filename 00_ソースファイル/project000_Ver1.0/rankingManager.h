@@ -90,13 +90,14 @@ private:
 
 	// 静的メンバ関数
 	static void Sort(const long nValue);		// ソート
-	static void ChangeColor(const long nValue);	// 新スコアの色変更
+	static void SetNewRank(const long nValue);	// スコア変動インデックス設定
 	static void Save(void);		// 保存
 	static void Load(void);		// 読込
 
 	// 静的メンバ変数
 	static const char *mc_apTextureFile[];	// テクスチャ定数
 	static long m_aRanking[NUM_RANKING];	// ランキング情報
+	static int m_nNewRankID;	// 変動したスコアのインデックス
 
 	// メンバ変数
 	CTimerManager *m_apTime[NUM_RANKING];	// クリアタイムの情報

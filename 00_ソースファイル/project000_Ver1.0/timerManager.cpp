@@ -870,6 +870,31 @@ void CTimerManager::SetSpacePart(const D3DXVECTOR3& rSpace)
 }
 
 //============================================================
+//	色の設定処理
+//============================================================
+void CTimerManager::SetColor(const D3DXCOLOR& rCol)
+{
+	if (m_apValue[0] != NULL)
+	{ // スコアの先頭の数値が使用されている場合
+
+		for (int nCntTimer = 0; nCntTimer < MAX_TIMER; nCntTimer++)
+		{ // タイマーの桁数分繰り返す
+
+			// 数字の色を設定
+			m_apValue[nCntTimer]->SetColor(rCol);
+		}
+
+		for (int nCntTimer = 0; nCntTimer < MAX_PART; nCntTimer++)
+		{ // 区切りの数分繰り返す
+
+			// 区切りの色を設定
+			m_apPart[nCntTimer]->SetColor(rCol);
+		}
+	}
+	else { assert(false); }	// 非使用中
+}
+
+//============================================================
 //	優先順位の設定処理
 //============================================================
 void CTimerManager::SetPriority(const int nPriority)

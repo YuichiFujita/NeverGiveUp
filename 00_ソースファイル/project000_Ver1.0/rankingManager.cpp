@@ -27,7 +27,8 @@ namespace
 	// ランキング基本情報
 	const char* RANKING_BIN = "data\\BIN\\ranking.bin";	// ランキング情報バイナリ
 
-	const int PRIORITY = 14;	// ランキングの優先順位
+	const int		PRIORITY	= 14;	// ランキングの優先順位
+	const D3DXCOLOR	COL_NEWRANK = D3DXCOLOR(0.0f, 0.8f, 1.0f, 1.0f);	// 変動したスコアの色
 
 	// フェード基本情報
 	namespace fade
@@ -87,6 +88,7 @@ const char *CRankingManager::mc_apTextureFile[] =	// テクスチャ定数
 	"data\\TEXTURE\\ranking001.png",	// ランキング順位テクスチャ
 };
 long CRankingManager::m_aRanking[NUM_RANKING] = { 0 };	// ランキング情報
+int CRankingManager::m_nNewRankID = NONE_IDX;	// 変動したスコアのインデックス
 
 //************************************************************
 //	親クラス [CRankingManager] のメンバ関数
@@ -244,6 +246,16 @@ HRESULT CRankingManager::Init(void)
 	
 		// 描画をしない設定にする
 		m_apTime[nCntRank]->SetEnableDraw(false);
+
+		if (m_nNewRankID == nCntRank)
+		{ // 値の変動があった場合
+
+			// 色を設定
+			m_apTime[nCntRank]->SetColor(COL_NEWRANK);
+
+			// 変動したスコアのインデックスを初期化
+			m_nNewRankID = NONE_IDX;
+		}
 	
 		// タイムを設定
 		if (!m_apTime[nCntRank]->SetMSec(m_aRanking[nCntRank]))
@@ -394,7 +406,8 @@ void CRankingManager::Set(const long nValue)
 		// 保存
 		Save();
 
-		// TODO：置き換えCheck
+		// スコア変動インデックスの設定
+		SetNewRank(nValue);
 	}
 }
 
@@ -832,21 +845,20 @@ void CRankingManager::Sort(const long nValue)
 }
 
 //============================================================
-//	新スコアの色変更処理
+//	スコア変動インデックスの設定処理
 //============================================================
-void CRankingManager::ChangeColor(const long nValue)
+void CRankingManager::SetNewRank(const long nValue)
 {
-#if 0
 	for (int nCntRank = 0; nCntRank < NUM_RANKING; nCntRank++)
 	{ // ランキングの上位表示数分繰り返す
 
 		if (m_aRanking[nCntRank] == nValue)
-		{ // 
+		{ // 入れ替わった値と一致した場合
 
-			m_apTime[nCntRank]
+			// 一致した値を設定
+			m_nNewRankID = nCntRank;
 		}
 	}
-#endif
 }
 
 //============================================================
