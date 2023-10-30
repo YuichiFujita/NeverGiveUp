@@ -116,6 +116,8 @@ public:
 		const D3DXVECTOR3& rSpacePart	// 区切りの空白
 	);
 	static HRESULT Release(CTimerManager *&prTimerManager);	// 破棄
+	static DWORD GetMinTime(void);	// 最少タイム取得
+	static DWORD GetMaxTime(void);	// 最大タイム取得
 
 private:
 	// メンバ関数

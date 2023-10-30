@@ -17,6 +17,7 @@
 #include "object2D.h"
 #include "anim2D.h"
 #include "timerManager.h"
+#include "retentionManager.h"
 
 //************************************************************
 //	定数宣言
@@ -24,6 +25,8 @@
 namespace
 {
 	// ランキング基本情報
+	const char* RANKING_BIN = "data\\BIN\\ranking.bin";	// ランキング情報バイナリ
+
 	const int PRIORITY = 14;	// ランキングの優先順位
 
 	// フェード基本情報
@@ -83,6 +86,7 @@ const char *CRankingManager::mc_apTextureFile[] =	// テクスチャ定数
 	"data\\TEXTURE\\ranking000.png",	// ランキングロゴテクスチャ
 	"data\\TEXTURE\\ranking001.png",	// ランキング順位テクスチャ
 };
+long CRankingManager::m_aRanking[NUM_RANKING] = { 0 };	// ランキング情報
 
 //************************************************************
 //	親クラス [CRankingManager] のメンバ関数
@@ -125,6 +129,9 @@ HRESULT CRankingManager::Init(void)
 	m_fScale	= 0.0f;					// ポリゴン拡大率
 	m_nCounterState = 0;				// 状態管理カウンター
 	m_nCounterDraw = NUM_RANKING - 1;	// 描画管理カウンター
+
+	// ランキング読込
+	Load();
 
 	//--------------------------------------------------------
 	//	フェードの生成・設定
@@ -239,7 +246,7 @@ HRESULT CRankingManager::Init(void)
 		m_apTime[nCntRank]->SetEnableDraw(false);
 	
 		// タイムを設定
-		if (!m_apTime[nCntRank]->SetMSec(0))	// TODO：読み込んだ値を設定
+		if (!m_apTime[nCntRank]->SetMSec(m_aRanking[nCntRank]))
 		{ // 設定に失敗した場合
 	
 			// 失敗を返す
@@ -365,6 +372,30 @@ void CRankingManager::Update(void)
 
 	// フェードの更新
 	m_pFade->Update();
+}
+
+//============================================================
+//	設定処理
+//============================================================
+void CRankingManager::Set(const long nValue)
+{
+	// 変数を宣言
+	long nLowestID = NUM_RANKING - 1;	// 最下位の配列インデックス
+
+	// 読込
+	Load();
+
+	if (nValue < m_aRanking[nLowestID])
+	{ // 最下位のクリアタイムより早いクリアタイムの場合
+
+		// ソート
+		Sort(nValue);
+
+		// 保存
+		Save();
+
+		// TODO：置き換えCheck
+	}
 }
 
 //============================================================
@@ -757,5 +788,148 @@ bool CRankingManager::UpdateDrawWait(const int nWait)
 
 		// 待機完了を返す
 		return true;
+	}
+}
+
+//============================================================
+//	ソート処理
+//============================================================
+void CRankingManager::Sort(const long nValue)
+{
+	// 変数を宣言
+	long nKeepNum;		// ソート用
+	int	nCurrentMinID;	// 最小値のインデックス
+
+	// 現在の最下位の情報と書き換え
+	m_aRanking[NUM_RANKING - 1] = nValue;
+
+	for (int nCntKeep = 0; nCntKeep < (NUM_RANKING - 1); nCntKeep++)
+	{ // 入れ替える値の総数 -1回分繰り返す
+
+		// 現在の繰り返し数を代入 (要素1とする)
+		nCurrentMinID = nCntKeep;
+
+		for (int nCntSort = nCntKeep + 1; nCntSort < NUM_RANKING; nCntSort++)
+		{ // 入れ替える値の総数 -nCntKeep分繰り返す
+
+			if (m_aRanking[nCurrentMinID] > m_aRanking[nCntSort])	
+			{ // 最小値に設定されている値より、現在の値のほうが小さい場合
+
+				// 現在の要素番号を最小値に設定
+				nCurrentMinID = nCntSort;
+			}
+		}
+
+		if (nCntKeep != nCurrentMinID)
+		{ // 最小値の要素番号に変動があった場合
+
+			// 要素の入れ替え
+			nKeepNum					= m_aRanking[nCntKeep];
+			m_aRanking[nCntKeep]		= m_aRanking[nCurrentMinID];
+			m_aRanking[nCurrentMinID]	= nKeepNum;
+		}
+	}
+}
+
+//============================================================
+//	新スコアの色変更処理
+//============================================================
+void CRankingManager::ChangeColor(const long nValue)
+{
+#if 0
+	for (int nCntRank = 0; nCntRank < NUM_RANKING; nCntRank++)
+	{ // ランキングの上位表示数分繰り返す
+
+		if (m_aRanking[nCntRank] == nValue)
+		{ // 
+
+			m_apTime[nCntRank]
+		}
+	}
+#endif
+}
+
+//============================================================
+//	保存処理
+//============================================================
+void CRankingManager::Save(void)
+{
+	// ポインタを宣言
+	FILE *pFile;	// ファイルポインタ
+
+	// バイナリファイルを書き出し方式で開く
+	pFile = fopen(RANKING_BIN, "wb");
+
+	if (pFile != NULL)
+	{ // ファイルが開けた場合
+
+		// ファイルに数値を書き出す
+		fwrite(&m_aRanking[0], sizeof(long), NUM_RANKING, pFile);
+
+		// ファイルを閉じる
+		fclose(pFile);
+	}
+	else
+	{ // ファイルが開けなかった場合
+
+		// エラーメッセージボックス
+		MessageBox(NULL, "ランキングファイルの書き出しに失敗！", "警告！", MB_ICONWARNING);
+	}
+}
+
+//============================================================
+//	読込処理
+//============================================================
+void CRankingManager::Load(void)
+{
+	// ポインタを宣言
+	FILE *pFile;	// ファイルポインタ
+
+	// バイナリファイルを読み込み方式で開く
+	pFile = fopen(RANKING_BIN, "rb");
+
+	if (pFile != NULL)
+	{ // ファイルが開けた場合
+
+		// ファイルの数値を読み込む
+		fread(&m_aRanking[0], sizeof(long), NUM_RANKING, pFile);
+
+		// ファイルを閉じる
+		fclose(pFile);
+	}
+	else
+	{ // ファイルが開けなかった場合
+
+		// エラーメッセージボックス
+		MessageBox(NULL, "ランキングファイルの読み込みに失敗！", "警告！", MB_ICONWARNING);
+
+		// バイナリファイルを書き出し方式で開く
+		pFile = fopen(RANKING_BIN, "wb");
+
+		if (pFile != NULL)
+		{ // ファイルが開けた場合
+
+			// 変数配列を宣言
+			long nMaxTime = CTimerManager::GetMaxTime();	// 最大タイム
+
+			for (int nCntRank = 0; nCntRank < NUM_RANKING; nCntRank++)
+			{ // ランキングの上位表示数分繰り返す
+
+				// ランキング情報をクリア
+				m_aRanking[nCntRank] = nMaxTime;
+			}
+
+			// ファイルに数値を書き出す
+			fwrite(&m_aRanking[0], sizeof(long), NUM_RANKING, pFile);
+
+			// ファイルを閉じる
+			fclose(pFile);
+		}
+		else
+		{ // ファイルが開けなかった場合
+
+			// エラーメッセージボックス
+			MessageBox(NULL, "ランキングファイルの書き出しに失敗！", "警告！", MB_ICONWARNING);
+		}
 	}
 }

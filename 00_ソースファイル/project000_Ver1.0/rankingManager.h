@@ -62,11 +62,12 @@ public:
 	~CRankingManager();
 
 	// メンバ関数
-	HRESULT Init(void);		// 初期化
-	HRESULT Uninit(void);	// 終了
-	void Update(void);		// 更新
+	HRESULT Init(void);			// 初期化
+	HRESULT Uninit(void);		// 終了
+	void Update(void);			// 更新
 
 	// 静的メンバ関数
+	static void Set(const long nValue);		// 設定
 	static CRankingManager *Create(void);	// 生成
 	static HRESULT Release(CRankingManager *&prRankingManager);	// 破棄
 
@@ -74,25 +75,28 @@ private:
 	// メンバ関数
 	void UpdateFade(void);		// フェードインの更新
 	void RevisionFade(void);	// フェードインの補正
-
 	void InitLogo(void);		// ランキングロゴ表示の初期化
 	void UpdateLogo(void);		// ランキングロゴ表示の更新
 	void RevisionLogo(void);	// ランキングロゴ表示の補正
-
 	void InitRank(void);		// 順位表示の初期化
 	void UpdateRank(void);		// 順位表示の更新
 	void RevisionRank(void);	// 順位表示の補正
-
 	void InitTime(void);		// クリアタイム表示の初期化
 	void UpdateTime(void);		// クリアタイム表示の更新
 	void RevisionTime(void);	// クリアタイム表示の補正
-
-	void UpdateTransition(void);	// 遷移決定
-	void SkipStaging(void);			// 演出スキップ
+	void UpdateTransition(void);			// 遷移決定
+	void SkipStaging(void);					// 演出スキップ
 	bool UpdateDrawWait(const int nWait);	// 表示待機
+
+	// 静的メンバ関数
+	static void Sort(const long nValue);		// ソート
+	static void ChangeColor(const long nValue);	// 新スコアの色変更
+	static void Save(void);		// 保存
+	static void Load(void);		// 読込
 
 	// 静的メンバ変数
 	static const char *mc_apTextureFile[];	// テクスチャ定数
+	static long m_aRanking[NUM_RANKING];	// ランキング情報
 
 	// メンバ変数
 	CTimerManager *m_apTime[NUM_RANKING];	// クリアタイムの情報

@@ -16,10 +16,12 @@
 #include "camera.h"
 #include "texture.h"
 #include "collision.h"
+#include "fade.h"
 
 #include "multiModel.h"
 #include "shadow.h"
 #include "timerManager.h"
+#include "rankingManager.h"
 #include "stage.h"
 #include "field.h"
 #include "building.h"
@@ -91,7 +93,7 @@ namespace
 		const float	MIN_MOVE	= 1.5f;		// 移動量の最低速度
 		const float	SUB_MOVE	= 0.004f;	// 壁走り時の速度減算量
 		const float	COLL_SIZE	= 100.0f;	// 壁走りの判定大きさ
-		const float	BOOST_RATE	= 0.625f;	// 加速できる位置割合
+		const float	BOOST_RATE	= 0.45f;	// 加速できる位置割合
 	}
 
 	// プレイヤー他クラス情報
@@ -334,6 +336,13 @@ void CPlayer::SetState(const int nState)
 
 		// 引数の状態を設定
 		m_state = (EState)nState;
+
+		if (m_state == CPlayer::STATE_CLEAR)
+		{ // クリア状態になった場合
+
+			// タイム計測を終了
+			CSceneGame::GetTimerManager()->End();
+		}
 	}
 }
 
@@ -1319,34 +1328,38 @@ bool CPlayer::UpdateFadeIn(const float fSub)
 //============================================================
 void CPlayer::ResultTransition(const CRetentionManager::EResult result, const int nWait)
 {
-	// ポインタを宣言
-	CRetentionManager *m_pRetention = CManager::GetInstance()->GetRetentionManager();	// データ保存マネージャー
-	if (m_pRetention == NULL)
-	{ // データ保存マネージャーが使用されていない場合
+	if (CManager::GetInstance()->GetFade()->GetState() == CFade::FADE_NONE)
+	{ // フェードしていない場合
 
-		// 処理を抜ける
-		assert(false);
+		// ポインタを宣言
+		CRetentionManager *m_pRetention = CManager::GetInstance()->GetRetentionManager();	// データ保存マネージャー
+		assert(m_pRetention != NULL);
+
+		CTimerManager *m_pTimer = CSceneGame::GetTimerManager();	// タイマーマネージャー
+		assert(m_pTimer != NULL);
+
+		// 変数を宣言
+		long nElapsed = m_pTimer->GetLimit() - m_pTimer->Get();	// 経過時間
+
+		if (result == CRetentionManager::RESULT_CLEAR)
+		{ // クリアしていた場合
+
+			// ランキングに設定
+			CRankingManager::Set(nElapsed);
+		}
+
+		// クリア状況を設定
+		m_pRetention->SetResult(result);
+
+		// 経過時間を設定
+		m_pRetention->SetTime(nElapsed);
+
+		// タイムの計測を終了
+		m_pTimer->End();
+
+		// シーンの設定
+		CManager::GetInstance()->SetScene(CScene::MODE_RESULT, nWait);	// リザルト画面
 	}
-
-	CTimerManager *m_pTimer = CSceneGame::GetTimerManager();	// タイマーマネージャー
-	if (m_pTimer == NULL)
-	{ // タイマーマネージャーが使用されていない場合
-
-		// 処理を抜ける
-		assert(false);
-	}
-
-	// クリア状況を設定
-	m_pRetention->SetResult(result);
-
-	// 経過時間を設定
-	m_pRetention->SetTime(m_pTimer->GetLimit() - m_pTimer->Get());
-
-	// タイムの計測を終了
-	m_pTimer->End();
-
-	// シーンの設定
-	CManager::GetInstance()->SetScene(CScene::MODE_RESULT, nWait);	// リザルト画面
 }
 
 //============================================================

@@ -26,11 +26,11 @@
 
 #if _DEBUG
 
-#define TIME_LIMIT	(0)	// 制限時間
+#define TIME_LIMIT	(240)	// 制限時間
 
 #else
 
-#define TIME_LIMIT	(180)	// 制限時間
+#define TIME_LIMIT	(240)	// 制限時間
 
 #endif
 
@@ -226,7 +226,7 @@ void CSceneGame::Update(void)
 		CScene::GetPlayer()->SetSpawn();
 	}
 
-#if 0
+#if 1
 	else if (CManager::GetInstance()->GetKeyboard()->IsTrigger(DIK_F7))
 	{
 		// リザルトに遷移
@@ -250,7 +250,7 @@ void CSceneGame::Update(void)
 	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "[F5]：カメラ操作のON/OFF\n");
 	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "[F6]：プレイヤースポーン\n");
 
-#if 0
+#if 1
 	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "[F7]：成功リザルト遷移\n");
 	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "[F8]：失敗リザルト遷移\n");
 #endif
