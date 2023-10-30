@@ -9,11 +9,18 @@
 //************************************************************
 #include "gameManager.h"
 #include "manager.h"
+#include "scene.h"
+#include "sceneGame.h"
+#include "camera.h"
+#include "player.h"
+#include "timerManager.h"
+#include "phoneManager.h"
 #include "editStageManager.h"
 
 //************************************************************
 //	Ã“Iƒƒ“ƒo•Ï”éŒ¾
 //************************************************************
+CPhoneManager *CGameManager::m_pPhone = NULL;			// ƒXƒ}ƒzƒ}ƒl[ƒWƒƒ[‚Ìî•ñ
 CEditStageManager *CGameManager::m_pEditStage = NULL;	// ƒGƒfƒBƒbƒgƒXƒe[ƒW‚Ìî•ñ
 
 //************************************************************
@@ -24,7 +31,8 @@ CEditStageManager *CGameManager::m_pEditStage = NULL;	// ƒGƒfƒBƒbƒgƒXƒe[ƒW‚Ìî•
 //============================================================
 CGameManager::CGameManager()
 {
-
+	// ƒƒ“ƒo•Ï”‚ğƒNƒŠƒA
+	m_state = STATE_NONE;	// ó‘Ô
 }
 
 //============================================================
@@ -40,6 +48,23 @@ CGameManager::~CGameManager()
 //============================================================
 HRESULT CGameManager::Init(void)
 {
+	// ƒƒ“ƒo•Ï”‚ğ‰Šú‰»
+	m_state = STATE_INIT_PHONE;	// ó‘Ô
+
+	if (m_pPhone == NULL)
+	{ // ƒXƒ}ƒzƒ}ƒl[ƒWƒƒ[‚ªg—p‚³‚ê‚Ä‚¢‚È‚¢ê‡
+
+		// ƒXƒ}ƒzƒ}ƒl[ƒWƒƒ[‚Ì¶¬
+		m_pPhone = CPhoneManager::Create();
+		if (m_pPhone == NULL)
+		{ // ¶¬‚É¸”s‚µ‚½ê‡
+
+			// ¸”s‚ğ•Ô‚·
+			return E_FAIL;
+		}
+	}
+	else { assert(false); }	// g—pÏ‚İ
+
 #if _DEBUG
 
 	if (m_pEditStage == NULL)
@@ -67,6 +92,14 @@ HRESULT CGameManager::Init(void)
 //============================================================
 void CGameManager::Uninit(void)
 {
+	if (m_pPhone != NULL)
+	{ // ƒXƒ}ƒzƒ}ƒl[ƒWƒƒ[‚ªg—p‚³‚ê‚Ä‚¢‚éê‡
+
+		// ƒXƒ}ƒzƒ}ƒl[ƒWƒƒ[‚Ì”jŠü
+		CPhoneManager::Release(m_pPhone);
+	}
+	else { assert(false); }	// ”ñg—p’†
+
 	if (m_pEditStage != NULL)
 	{ // ƒGƒfƒBƒbƒgƒXƒe[ƒW‚ªg—p‚³‚ê‚Ä‚¢‚éê‡
 
@@ -80,12 +113,82 @@ void CGameManager::Uninit(void)
 //============================================================
 void CGameManager::Update(void)
 {
+	switch (m_state)
+	{ // ó‘Ô‚²‚Æ‚Ìˆ—
+	case STATE_NONE:
+
+		// –³‚µ
+
+		break;
+
+	case STATE_INIT_PHONE:
+
+		// ƒXƒ}ƒz‚ğŒ©n‚ß‚é‚æ‚¤‚Éİ’è
+		m_pPhone->SetLook();
+
+		// ƒXƒ}ƒz•\¦ó‘Ô‚ğİ’è
+		m_state = STATE_PHONE;
+
+		// ˆ—‚ğ”²‚¯‚¸‚É‚±‚Ì‚Ü‚ÜƒXƒ}ƒz•\¦ó‘Ô‚ÖˆÚs
+
+	case STATE_PHONE:
+
+		if (m_pPhone != NULL)
+		{ // ƒXƒ}ƒzƒ}ƒl[ƒWƒƒ[‚ªg—p‚³‚ê‚Ä‚¢‚éê‡
+
+			// ƒXƒ}ƒzƒ}ƒl[ƒWƒƒ[‚ÌXV
+			m_pPhone->Update();
+		}
+		else { assert(false); }	// ”ñg—p’†
+
+		if (m_pPhone->GetState() == CPhoneManager::STATE_END)
+		{ // ƒXƒ}ƒz‚Ì•\¦‚ªI—¹‚µ‚½ê‡
+
+			// ’Êí‰Šú‰»ó‘Ô‚ğİ’è
+			m_state = STATE_INIT_NORMAL;
+		}
+
+		break;
+
+	case STATE_INIT_NORMAL:
+
+		// •`‰æ‚Ì•`‰æ‚ğON‚É‚·‚é
+		CScene::GetPlayer()->SetEnableDraw(true);
+
+		// ƒ^ƒCƒ€‚ğŒv‘ªŠJn
+		CSceneGame::GetTimerManager()->Start();	// Œv‘ª‚ğŠJn
+
+		// ’Êíó‘Ô‚ğİ’è
+		m_state = STATE_NORMAL;
+
+		// ˆ—‚ğ”²‚¯‚¸‚É‚±‚Ì‚Ü‚Ü’Êíó‘Ô‚ÖˆÚs
+
+	case STATE_NORMAL:
+
+		// –³‚µ
+
+		break;
+
+	default:	// —áŠOˆ—
+		assert(false);
+		break;
+	}
+
 	if (m_pEditStage != NULL)
 	{ // ƒGƒfƒBƒbƒgƒXƒe[ƒW‚ªg—p‚³‚ê‚Ä‚¢‚éê‡
 
 		// ƒGƒfƒBƒbƒgƒXƒe[ƒW‚ÌXV
 		m_pEditStage->Update();
 	}
+}
+
+//============================================================
+//	ó‘Ôæ“¾ˆ—
+//============================================================
+CGameManager::EState CGameManager::GetState(void) const
+{
+	// ó‘Ô‚ğ•Ô‚·
+	return m_state;
 }
 
 //============================================================
@@ -144,6 +247,15 @@ HRESULT CGameManager::Release(CGameManager *&prGameManager)
 		return S_OK;
 	}
 	else { assert(false); return E_FAIL; }	// ”ñg—p’†
+}
+
+//============================================================
+//	ƒXƒ}ƒzƒ}ƒl[ƒWƒƒ[æ“¾ˆ—
+//============================================================
+CPhoneManager *CGameManager::GetPhone(void)
+{
+	// ƒXƒ}ƒzƒ}ƒl[ƒWƒƒ[‚Ìî•ñ‚ğ•Ô‚·
+	return m_pPhone;
 }
 
 //============================================================

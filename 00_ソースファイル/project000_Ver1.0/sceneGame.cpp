@@ -137,9 +137,7 @@ HRESULT CSceneGame::Init(void)
 
 	// プレイヤーを出現
 	CScene::GetPlayer()->SetSpawn();
-
-	// タイムを計測開始
-	m_pTimerManager->Start();	// 計測を開始
+	CScene::GetPlayer()->SetEnableDraw(false);	// 描画はOFFにする
 
 	// UIの描画状況を設定
 	SetEnableDrawUI(m_bDrawUI);
@@ -261,51 +259,56 @@ void CSceneGame::Update(void)
 
 #endif
 
-	if (m_pTimerManager != NULL)
+	if (m_pGameManager != NULL)
 	{ // 使用中の場合
 
-		// タイマーマネージャーの更新
-		m_pTimerManager->Update();
+		// ゲームマネージャーの更新
+		m_pGameManager->Update();
 	}
 	else { assert(false); }	// 非使用中
 
-	if (m_pPause != NULL)
-	{ // 使用中の場合
+	if (m_pGameManager->GetState() == CGameManager::STATE_NORMAL)
+	{ // ゲームマネージャーが通常状態の場合
 
-		// ポーズの更新
-		m_pPause->Update();
-	}
-	else { assert(false); }	// 非使用中
-
-	if (!m_pPause->IsPause())
-	{ // ポーズ中ではない場合
-
-		if (m_pGameManager != NULL)
+		if (m_pTimerManager != NULL)
 		{ // 使用中の場合
 
-			// ゲームマネージャーの更新
-			m_pGameManager->Update();
+			// タイマーマネージャーの更新
+			m_pTimerManager->Update();
 		}
 		else { assert(false); }	// 非使用中
 
-		// シーンの更新
-		CScene::Update();
-	}
+		if (m_pPause != NULL)
+		{ // 使用中の場合
+
+			// ポーズの更新
+			m_pPause->Update();
+		}
+		else { assert(false); }	// 非使用中
+
+		if (!m_pPause->IsPause())
+		{ // ポーズ中ではない場合
+
+			// シーンの更新
+			CScene::Update();
+		}
 
 #if _DEBUG
 
-	else
-	{ // ポーズ中の場合
+		else
+		{ // ポーズ中の場合
 
-		if (CManager::GetInstance()->GetCamera()->GetState() == CCamera::STATE_CONTROL)
-		{ // カメラが操作状態の場合
+			if (CManager::GetInstance()->GetCamera()->GetState() == CCamera::STATE_CONTROL)
+			{ // カメラが操作状態の場合
 
-			// カメラの更新
-			CManager::GetInstance()->GetCamera()->Update();
+				// カメラの更新
+				CManager::GetInstance()->GetCamera()->Update();
+			}
 		}
-	}
 
-#endif
+#endif	// _DEBUG
+
+	}
 }
 
 //============================================================
