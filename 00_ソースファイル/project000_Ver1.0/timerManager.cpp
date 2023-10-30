@@ -192,24 +192,11 @@ void CTimerManager::Update(void)
 				else
 				{  // タイムが 0以下の場合
 
-					// ポインタを宣言
-					CPlayer *pPlayer = CScene::GetPlayer();	// プレイヤー情報
-					if (pPlayer == NULL)
-					{ // プレイヤーが存在しない場合
-
-						// 処理を抜ける
-						assert(false);
-						return;
-					}
-
 					// 現在の計測ミリ秒を設定
 					m_dwTime = 0;
 
 					// 計測を終了する
 					End();
-
-					// プレイヤーをダメージ状態にする
-					pPlayer->SetState(CPlayer::STATE_DAMAGE);
 				}
 			}
 		}

@@ -113,6 +113,12 @@ void CGameManager::Uninit(void)
 //============================================================
 void CGameManager::Update(void)
 {
+	// ポインタを宣言
+	CTimerManager *pTimer = CSceneGame::GetTimerManager();	// タイマーマネージャー
+	assert(pTimer != NULL);
+	CPlayer *pPlayer = CScene::GetPlayer();	// プレイヤー
+	assert(pPlayer != NULL);
+
 	switch (m_state)
 	{ // 状態ごとの処理
 	case STATE_NONE:
@@ -124,12 +130,12 @@ void CGameManager::Update(void)
 	case STATE_INIT_PHONE:
 
 		// スマホを見始めるように設定
-		m_pPhone->SetLook();
+		m_pPhone->SetLook(CPhoneManager::TYPE_START);
 
 		// スマホ表示状態を設定
 		m_state = STATE_PHONE;
 
-		// 処理を抜けずにこのままスマホ表示状態へ移行
+		// 処理を抜けずにこのまま遅刻表示状態へ移行
 
 	case STATE_PHONE:
 
@@ -142,7 +148,7 @@ void CGameManager::Update(void)
 		else { assert(false); }	// 非使用中
 
 		if (m_pPhone->GetState() == CPhoneManager::STATE_END)
-		{ // スマホの表示が終了した場合
+		{ // 遅刻の表示が終了した場合
 
 			// 通常初期化状態を設定
 			m_state = STATE_INIT_NORMAL;
@@ -165,7 +171,41 @@ void CGameManager::Update(void)
 
 	case STATE_NORMAL:
 
-		// 無し
+		if (pTimer->GetState() == CTimerManager::STATE_END)
+		{ // 計測終了した場合
+
+			// クリア失敗表示の初期化状態を設定
+			m_state = STATE_INIT_END;
+		}
+
+		break;
+
+	case STATE_INIT_END:
+
+		// スマホを見始めるように設定
+		m_pPhone->SetLook(CPhoneManager::TYPE_END);
+
+		// クリア失敗の表示状態を設定
+		m_state = STATE_END;
+
+		// 処理を抜けずにこのままクリア失敗の表示状態へ移行
+
+	case STATE_END:
+
+		if (m_pPhone != NULL)
+		{ // スマホマネージャーが使用されている場合
+
+			// スマホマネージャーの更新
+			m_pPhone->Update();
+		}
+		else { assert(false); }	// 非使用中
+
+		if (m_pPhone->GetState() == CPhoneManager::STATE_END)
+		{ // クリア失敗の表示が終了した場合
+
+			// プレイヤーをクリア失敗状態にする
+			pPlayer->SetState(CPlayer::STATE_OVER);
+		}
 
 		break;
 
@@ -180,6 +220,22 @@ void CGameManager::Update(void)
 		// エディットステージの更新
 		m_pEditStage->Update();
 	}
+}
+
+//============================================================
+//	状態の設定処理
+//============================================================
+void CGameManager::SetState(const EState state)
+{
+	if (state == STATE_INIT_PHONE
+	||  state == STATE_INIT_NORMAL
+	||  state == STATE_INIT_END)
+	{ // 初期化状態の場合
+
+		// 状態を設定
+		m_state = state;
+	}
+	else { assert(false); }	// 初期化状態以外
 }
 
 //============================================================

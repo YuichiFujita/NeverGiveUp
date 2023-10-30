@@ -16,9 +16,15 @@
 #include "main.h"
 
 //************************************************************
+//	マクロ定義
+//************************************************************
+#define NUM_MESSAGE	(3)	// 受信メッセージ数
+
+//************************************************************
 //	前方宣言
 //************************************************************
 class CObject2D;	// オブジェクト2Dクラス
+class CAnim2D;		// アニメーション2Dクラス
 
 //************************************************************
 //	クラス定義
@@ -28,23 +34,36 @@ class CPhoneManager
 {
 public:
 	// テクスチャ列挙
-	enum TEXTURE
+	enum ETexture
 	{
 		TEXTURE_PHONE = 0,	// スマホのテクスチャ
-		TEXTURE_CONTROL,	// 操作表示のテクスチャ
+		TEXTURE_STRESS,		// 強調のテクスチャ
 		TEXTURE_MAX			// この列挙型の総数
 	};
 
-	// 状態列挙
-	enum STATE
+	// 種類列挙
+	enum EType
 	{
-		STATE_NONE = 0,		// 何もしない状態
-		STATE_FADEIN,		// フェードイン状態
-		STATE_PHONE_TAKE,	// スマホの取り出し状態
-		STATE_WAIT,			// 待機状態
-		STATE_PHONE_RETURN,	// スマホのしまい状態
-		STATE_END,			// 終了状態
-		STATE_MAX			// この列挙型の総数
+		TYPE_START = 0,	// 開始
+		TYPE_END,		// 終了
+		TYPE_MAX		// この列挙型の総数
+	};
+
+	// 状態列挙
+	enum EState
+	{
+		STATE_NONE = 0,				// 何もしない状態
+		STATE_FADEIN,				// フェードイン状態
+		STATE_PHONE_TAKE,			// スマホの取り出し状態
+		STATE_PHONE_SCALE_WAIT,		// スマホの拡大待機状態
+		STATE_PHONE_SCALE,			// スマホの拡大状態
+		STATE_MESSAGE,				// メッセージ受信状態
+		STATE_FACE_WAIT,			// 表情の拡大待機状態
+		STATE_FACE,					// 表情の拡大状態
+		STATE_PHONE_RETURN_WAIT,	// スマホのしまい待機状態
+		STATE_PHONE_RETURN,			// スマホのしまい状態
+		STATE_END,					// 終了状態
+		STATE_MAX					// この列挙型の総数
 	};
 
 	// コンストラクタ
@@ -57,12 +76,11 @@ public:
 	HRESULT Init(void);	// 初期化
 	void Uninit(void);	// 終了
 	void Update(void);	// 更新
-	void SetLook(void);	// スマホ表示開始
-	void SetState(const STATE state);			// 状態設定
-	STATE GetState(void) const;					// 状態取得
-	void SetEnableDisp(const bool bDisp);		// 表示設定
-	bool IsDisp(void) const;					// 表示取得
-	//void SetMessage(const EMassage massage);	// メッセージ設定
+	void SetLook(const EType type);			// スマホ表示開始
+	void SetState(const EState state);		// 状態設定
+	EState GetState(void) const;			// 状態取得
+	void SetEnableDisp(const bool bDisp);	// 表示設定
+	bool IsDisp(void) const;				// 表示取得
 
 	// 静的メンバ関数
 	static CPhoneManager *Create(void);	// 生成
@@ -72,18 +90,29 @@ private:
 	// メンバ関数
 	void UpdateFade(void);			// フェードイン
 	void UpdatePhoneTake(void);		// スマホ取出
-	void UpdateWait(void);			// 待機
+	void UpdatePhoneScale(void);	// スマホ拡大
+	void UpdateMessage(void);		// メッセージ受信
+	void UpdateFace(void);			// 表情拡大
 	void UpdatePhoneReturn(void);	// スマホ収納
+	void SetPositionRelative(void);	// メッセージ相対位置設定
+	bool UpdateDispWait(const int nWait);	// 表示待機
 
 	// 静的メンバ変数
-	static const char *mc_apTextureFile[];	// テクスチャ定数
+	static const char *mc_apTextureFile[];			// テクスチャ定数
+	static const char *mc_apMessageTextureFile[];	// メッセージテクスチャ定数
+	static const char *mc_apFaceTextureFile[];		// 表情テクスチャ定数
 
 	// メンバ変数
+	CAnim2D *m_apMessage[NUM_MESSAGE];	// メッセージの情報
+	CObject2D *m_pFace;		// 表情の情報
+	CObject2D *m_pStress;	// 強調の情報
 	CObject2D *m_pPhone;	// スマホの情報
 	CObject2D *m_pFade;		// フェードの情報
-	STATE m_state;			// 状態
+	EState m_state;			// 状態
 	int m_nCounterState;	// 状態管理カウンター
+	int m_nCounterDisp;		// 表示管理カウンター
 	float m_fMove;			// スマホの移動量
+	float m_fScale;			// スマホの拡大率
 	bool m_bDisp;			// 表示状況
 };
 

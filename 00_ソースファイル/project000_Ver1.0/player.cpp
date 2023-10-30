@@ -10,6 +10,7 @@
 #include "player.h"
 #include "manager.h"
 #include "sceneGame.h"
+#include "gameManager.h"
 #include "renderer.h"
 #include "input.h"
 #include "sound.h"
@@ -38,7 +39,8 @@ namespace
 {
 	const char* SETUP_TXT = "data\\TXT\\player.txt";	// プレイヤーセットアップテキスト
 
-	const int PRIORITY = 3;	// プレイヤーの優先順位
+	const int PRIORITY = 3;		// プレイヤーの優先順位
+	const int CNT_WAIT = 40;	// リザルト遷移時の余韻フレーム
 
 	// プレイヤー基本情報
 	namespace basic
@@ -260,17 +262,9 @@ void CPlayer::Update(void)
 		break;
 
 	case STATE_CLEAR:
-
-		// リザルト遷移
-		ResultTransition(CRetentionManager::RESULT_CLEAR, 40);	// TODO：余韻定数化
-
 		break;
 
 	case STATE_OVER:
-
-		// リザルト遷移
-		ResultTransition(CRetentionManager::RESULT_FAILED, 40);	// TODO：余韻定数化
-
 		break;
 
 	default:
@@ -338,10 +332,26 @@ void CPlayer::SetState(const int nState)
 		m_state = (EState)nState;
 
 		if (m_state == CPlayer::STATE_CLEAR)
-		{ // クリア状態になった場合
+		{ // ゲームクリア状態になった場合
 
-			// タイム計測を終了
-			CSceneGame::GetTimerManager()->End();
+			// ポインタを宣言
+			CTimerManager *pTimer = CSceneGame::GetTimerManager();	// タイマーマネージャー
+			assert(pTimer != NULL);
+
+			// タイムの計測を終了
+			pTimer->End();
+
+			// ランキングに設定
+			CRankingManager::Set(pTimer->GetLimit() - pTimer->Get());
+
+			// 成功でリザルト遷移
+			ResultTransition(CRetentionManager::RESULT_CLEAR);
+		}
+		else if (m_state == CPlayer::STATE_OVER)
+		{ // ゲームオーバー状態になった場合
+
+			// 失敗でリザルト遷移
+			ResultTransition(CRetentionManager::RESULT_FAILED);
 		}
 	}
 }
@@ -1326,7 +1336,7 @@ bool CPlayer::UpdateFadeIn(const float fSub)
 //============================================================
 //	リザルト遷移処理
 //============================================================
-void CPlayer::ResultTransition(const CRetentionManager::EResult result, const int nWait)
+void CPlayer::ResultTransition(const CRetentionManager::EResult result)
 {
 	if (CManager::GetInstance()->GetFade()->GetState() == CFade::FADE_NONE)
 	{ // フェードしていない場合
@@ -1335,30 +1345,17 @@ void CPlayer::ResultTransition(const CRetentionManager::EResult result, const in
 		CRetentionManager *m_pRetention = CManager::GetInstance()->GetRetentionManager();	// データ保存マネージャー
 		assert(m_pRetention != NULL);
 
-		CTimerManager *m_pTimer = CSceneGame::GetTimerManager();	// タイマーマネージャー
-		assert(m_pTimer != NULL);
-
-		// 変数を宣言
-		long nElapsed = m_pTimer->GetLimit() - m_pTimer->Get();	// 経過時間
-
-		if (result == CRetentionManager::RESULT_CLEAR)
-		{ // クリアしていた場合
-
-			// ランキングに設定
-			CRankingManager::Set(nElapsed);
-		}
+		CTimerManager *pTimer = CSceneGame::GetTimerManager();	// タイマーマネージャー
+		assert(pTimer != NULL);
 
 		// クリア状況を設定
 		m_pRetention->SetResult(result);
 
 		// 経過時間を設定
-		m_pRetention->SetTime(nElapsed);
-
-		// タイムの計測を終了
-		m_pTimer->End();
+		m_pRetention->SetTime(pTimer->GetLimit() - pTimer->Get());
 
 		// シーンの設定
-		CManager::GetInstance()->SetScene(CScene::MODE_RESULT, nWait);	// リザルト画面
+		CManager::GetInstance()->SetScene(CScene::MODE_RESULT, CNT_WAIT);	// リザルト画面
 	}
 }
 

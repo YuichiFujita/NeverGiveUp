@@ -142,7 +142,7 @@ private:
 	bool UpdateFadeOut(const float fAdd);	// フェードアウト状態時の更新
 	bool UpdateFadeIn(const float fSub);	// フェードイン状態時の更新
 
-	void ResultTransition(const CRetentionManager::EResult result, const int nWait);	// リザルト遷移
+	void ResultTransition(const CRetentionManager::EResult result);	// リザルト遷移
 	EDirection FourDirection(const float fRot, const float fTolerance);	// 四方向変換
 	void CollisionRotationBuilding(D3DXVECTOR3& rPos);					// 向き変更の当たり判定
 	bool ResponseSingleBuilding(const EAxis axis, D3DXVECTOR3& rPos);	// ビルとの一軸ごとの当たり判定

@@ -32,10 +32,12 @@ public:
 	enum EState
 	{
 		STATE_NONE = 0,		// 何もしない状態
-		STATE_INIT_PHONE,	// スマホ表示初期化状態
-		STATE_PHONE,		// スマホ表示状態
+		STATE_INIT_PHONE,	// 遅刻表示初期化状態
+		STATE_PHONE,		// 遅刻表示状態
 		STATE_INIT_NORMAL,	// 通常初期化状態
 		STATE_NORMAL,		// 通常状態
+		STATE_INIT_END,		// クリア失敗表示の初期化状態
+		STATE_END,			// クリア失敗表示の状態
 		STATE_MAX			// この列挙型の総数
 	};
 
@@ -49,7 +51,8 @@ public:
 	HRESULT Init(void);	// 初期化
 	void Uninit(void);	// 終了
 	void Update(void);	// 更新
-	EState GetState(void) const;	// 状態取得
+	void SetState(const EState state);	// 状態設定
+	EState GetState(void) const;		// 状態取得
 
 	// 静的メンバ関数
 	static CGameManager *Create(void);	// 生成
