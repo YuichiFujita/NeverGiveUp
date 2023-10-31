@@ -23,19 +23,22 @@ const CSound::SSoundInfo CSound::mc_aSoundInfo[LABEL_MAX] =	// サウンド情報
 	{ "data\\SE\\decision000.wav",  0 },	// 決定音00
 	{ "data\\SE\\decision001.wav",  0 },	// 決定音01
 	{ "data\\SE\\decision002.wav",  0 },	// 決定音02
-	{ "data\\SE\\paper000.wav",  0 },		// 便箋めくり音
+	{ "data\\SE\\vibration000.wav",  0 },	// スマホバイブ音
+	{ "data\\SE\\message000.wav",  0 },		// メッセージ音
 	{ "data\\SE\\spawn000.wav",  0 },		// 生成音
+	{ "data\\SE\\save000.wav",  0 },		// セーブ音
+	{ "data\\SE\\walk000.wav",  0 },		// 歩行音（ビル）
+	{ "data\\SE\\walk001.wav",  0 },		// 歩行音（障害物）
 	{ "data\\SE\\playerShot000.wav",  0 },	// プレイヤー射撃音 (泡)
 	{ "data\\SE\\enemyShot000.wav",  0 },	// 敵射撃音 (銃)
 	{ "data\\SE\\enemyShot001.wav",  0 },	// 敵射撃音 (大砲)
-	{ "data\\SE\\stick000.wav",  0 },		// 泡着弾音
+	{ "data\\SE\\stick000.wav",  0 },		// くっつき音
 	{ "data\\SE\\hit000.wav",  0 },			// 弾着弾音
 	{ "data\\SE\\break000.wav",  0 },		// 破壊音
 	{ "data\\SE\\hurricane000.wav",  0 },	// ハリケーン巻き込まれ音
 	{ "data\\SE\\fly000.wav",  0 },			// 浮遊音
 	{ "data\\SE\\stomp000.wav",  0 },		// 植物踏みつけ音
 	{ "data\\SE\\warning000.wav",  0 },		// 警告音
-	{ "data\\SE\\levelup000.wav",  0 },		// レベルアップ音
 };
 
 //************************************************************

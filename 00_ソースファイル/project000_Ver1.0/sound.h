@@ -40,19 +40,22 @@ public:
 		LABEL_SE_DECISION_000,	// 決定音00
 		LABEL_SE_DECISION_001,	// 決定音01
 		LABEL_SE_DECISION_002,	// 決定音02
-		LABEL_SE_PAPER,			// 便箋めくり音
+		LABEL_SE_VIBRATION,		// スマホバイブ音
+		LABEL_SE_MESSAGE,		// メッセージ音
 		LABEL_SE_SPAWN,			// 生成音
+		LABEL_SE_SAVE,			// セーブ音
+		LABEL_SE_WALK_BUILD,	// 歩行音（ビル）
+		LABEL_SE_WALK_OBS,		// 歩行音（障害物）
 		LABEL_SE_PLAYER_SHOT,	// プレイヤー射撃音 (泡)
 		LABEL_SE_ENEMY_SHOT000,	// 敵射撃音 (銃)
 		LABEL_SE_ENEMY_SHOT001,	// 敵射撃音 (大砲)
-		LABEL_SE_STICK,			// 泡着弾音
+		LABEL_SE_STICK,			// くっつき音
 		LABEL_SE_HIT,			// 弾着弾音
 		LABEL_SE_BREAK,			// 破壊音
 		LABEL_SE_HURRICANE,		// ハリケーン巻き込まれ音
 		LABEL_SE_FLY,			// 浮遊音
 		LABEL_SE_STOMP,			// 植物踏みつけ音
 		LABEL_SE_WARNING,		// 警告音
-		LABEL_SE_LEVELUP,		// レベルアップ音
 		LABEL_MAX,				// この列挙型の総数
 	};
 

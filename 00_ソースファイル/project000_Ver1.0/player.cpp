@@ -160,6 +160,7 @@ CPlayer::CPlayer() : CObjectChara(CObject::LABEL_PLAYER, PRIORITY)
 	m_oldPos			= VEC3_ZERO;	// 過去位置
 	m_move				= VEC3_ZERO;	// 移動量
 	m_destRot			= VEC3_ZERO;	// 目標向き
+	m_land				= LAND_NONE;	// 着地物
 	m_state				= STATE_NONE;	// 状態
 	m_nCounterState		= 0;			// 状態管理カウンター
 	m_nCounterSlide		= 0;			// スライディング管理カウンター
@@ -193,6 +194,7 @@ HRESULT CPlayer::Init(void)
 	m_oldPos			= VEC3_ZERO;	// 過去位置
 	m_move				= VEC3_ZERO;	// 移動量
 	m_destRot			= VEC3_ZERO;	// 目標向き
+	m_land				= LAND_NONE;	// 着地物
 	m_state				= STATE_NONE;	// 状態
 	m_nCounterState		= 0;			// 状態管理カウンター
 	m_nCounterSlide		= 0;			// スライディング管理カウンター
@@ -367,6 +369,9 @@ void CPlayer::Hit(void)
 
 			// 待機モーションを設定
 			SetMotion(MOTION_IDOL);
+
+			// サウンドの再生
+			CManager::GetInstance()->GetSound()->Play(CSound::LABEL_SE_HIT);	// ヒット音
 		}
 	}
 }
@@ -595,6 +600,9 @@ void CPlayer::SetSpawn(void)
 
 	// 追従カメラの目標位置の設定
 	CManager::GetInstance()->GetCamera()->SetDestFollow();
+
+	// サウンドの再生
+	CManager::GetInstance()->GetSound()->Play(CSound::LABEL_SE_SPAWN);	// 生成音
 }
 
 //============================================================
@@ -835,14 +843,21 @@ void CPlayer::UpdateClear(void)
 	// 変数を宣言
 	D3DXVECTOR3 posClear = m_pClear->GetVec3Position();	// クリア表示位置
 
-	// 横位置を右に移動
-	posClear.x += clear::MOVE_POS;
+	if (posClear.x < clear::STOP_POS)
+	{ // 位置が停止位置を未満の場合
 
-	if (posClear.x > clear::STOP_POS)
-	{ // 位置が停止位置を超えた場合
+		// 横位置を右に移動
+		posClear.x += clear::MOVE_POS;
 
-		// 停止位置に補正
-		posClear.x = clear::STOP_POS;
+		if (posClear.x > clear::STOP_POS)
+		{ // 位置が停止位置を超えた場合
+
+			// 停止位置に補正
+			posClear.x = clear::STOP_POS;
+
+			// サウンドの再生
+			CManager::GetInstance()->GetSound()->Play(CSound::LABEL_SE_DECISION_001);	// 決定音01
+		}
 	}
 
 	// クリア表示位置を反映
@@ -1263,6 +1278,9 @@ bool CPlayer::UpdateLanding(D3DXVECTOR3& rPos)
 
 		// ジャンプしていない状態にする
 		m_bJump = false;
+
+		// 着地物をビルに設定
+		m_land = LAND_BUILDING;
 	}
 
 	// 障害物の当たり判定・着地判定
@@ -1274,6 +1292,9 @@ bool CPlayer::UpdateLanding(D3DXVECTOR3& rPos)
 
 		// ジャンプしていない状態にする
 		m_bJump = false;
+
+		// 着地物を障害物に設定
+		m_land = LAND_OBSTACLE;
 	}
 
 	// 地面・制限位置の着地判定
@@ -1286,6 +1307,9 @@ bool CPlayer::UpdateLanding(D3DXVECTOR3& rPos)
 
 		// ジャンプしていない状態にする
 		m_bJump = false;
+
+		// 着地物をその他に設定
+		m_land = LAND_OTHER;
 	}
 
 	if (!bLand)
@@ -1298,6 +1322,9 @@ bool CPlayer::UpdateLanding(D3DXVECTOR3& rPos)
 			// 落下モーションを設定
 			SetMotion(MOTION_FALL);
 		}
+
+		// 着地物をしていないに設定
+		m_land = LAND_NONE;
 	}
 
 	// 着地状況を返す
@@ -1354,9 +1381,35 @@ void CPlayer::UpdateMotion(int nMotion)
 	// オブジェクトキャラクターの更新
 	CObjectChara::Update();
 
-	// モーションの遷移
 	switch (GetMotionType())
 	{ // モーションの種類ごとの処理
+	case MOTION_MOVE:		// 移動モーション
+
+		if (GetMotionPose() % 4 == 0 && GetMotionCounter() == 0)
+		{ // 足がついたタイミングの場合
+
+			switch (m_land)
+			{ // 着地物ごとの処理
+			case LAND_OBSTACLE:
+
+				// サウンドの再生
+				CManager::GetInstance()->GetSound()->Play(CSound::LABEL_SE_WALK_OBS);	// 歩行音（障害物）
+
+				// TODO：一度地面から離れてから一番高かった位置を保持し、量に応じて足音を出すか決める処理作る
+
+				break;
+
+			default:
+
+				// サウンドの再生
+				CManager::GetInstance()->GetSound()->Play(CSound::LABEL_SE_WALK_BUILD);	// 歩行音（ビル）
+
+				break;
+			}
+		}
+
+		break;
+
 	case MOTION_JUMP:		// ジャンプモーション
 
 		if (!m_bJump)

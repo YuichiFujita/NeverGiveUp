@@ -86,6 +86,16 @@ public:
 		STATE_MAX		// この列挙型の総数
 	};
 
+	// 着地列挙
+	enum ELand
+	{
+		LAND_NONE = 0,	// 着地していない
+		LAND_BUILDING,	// ビル着地
+		LAND_OBSTACLE,	// 障害物着地
+		LAND_OTHER,		// その他着地
+		LAND_MAX		// この列挙型の総数
+	};
+
 	// 軸列挙
 	enum EAxis
 	{
@@ -176,6 +186,7 @@ private:
 	D3DXVECTOR3	m_oldPos;		// 過去位置
 	D3DXVECTOR3	m_move;			// 移動量
 	D3DXVECTOR3	m_destRot;		// 目標向き
+	ELand	m_land;				// 着地物
 	EState	m_state;			// 状態
 	int		m_nCounterState;	// 状態管理カウンター
 	int		m_nCounterSlide;	// スライディング管理カウンター

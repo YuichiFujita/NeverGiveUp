@@ -711,11 +711,11 @@ void CPhoneManager::UpdateFade(void)
 		// フェードのα値を補正
 		colFade.a = fade::STOP_ALPHA;
 
-		// 便箋の取り出し状態にする
+		// スマホの取り出し状態にする
 		m_state = STATE_PHONE_TAKE;
 
 		// サウンドの再生
-		CManager::GetInstance()->GetSound()->Play(CSound::LABEL_SE_PAPER);	// 便箋めくり音
+		CManager::GetInstance()->GetSound()->Play(CSound::LABEL_SE_VIBRATION);	// スマホバイブ音
 	}
 
 	// フェードの色を反映
@@ -778,9 +778,6 @@ void CPhoneManager::UpdatePhoneScale(void)
 
 		// メッセージ受信状態を設定
 		m_state = STATE_MESSAGE;
-
-		// サウンドの再生
-		CManager::GetInstance()->GetSound()->Play(CSound::LABEL_SE_DECISION_001);	// 決定音01
 	}
 }
 
@@ -800,6 +797,9 @@ void CPhoneManager::UpdateMessage(void)
 
 		// メッセージを表示
 		m_apMessage[m_nCounterDisp]->SetEnableDraw(true);
+
+		// サウンドの再生
+		CManager::GetInstance()->GetSound()->Play(CSound::LABEL_SE_MESSAGE);	// メッセージ音
 
 		// 表示管理カウンターを加算
 		m_nCounterDisp++;
@@ -842,7 +842,7 @@ void CPhoneManager::UpdateFace(void)
 		m_state = STATE_PHONE_RETURN_WAIT;
 
 		// サウンドの再生
-		CManager::GetInstance()->GetSound()->Play(CSound::LABEL_SE_DECISION_001);	// 決定音01
+		CManager::GetInstance()->GetSound()->Play(CSound::LABEL_SE_STICK);	// くっつき音
 	}
 }
 
@@ -974,6 +974,9 @@ void CPhoneManager::UpdateStaging(void)
 
 		// 終了待機状態を設定
 		m_state = STATE_END_WAIT;
+
+		// サウンドの再生
+		CManager::GetInstance()->GetSound()->Play(CSound::LABEL_SE_DECISION_001);	// 決定音01
 	}
 
 	// 演出位置を反映

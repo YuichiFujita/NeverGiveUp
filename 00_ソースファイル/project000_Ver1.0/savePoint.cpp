@@ -10,6 +10,7 @@
 #include "savePoint.h"
 #include "manager.h"
 #include "renderer.h"
+#include "sound.h"
 #include "texture.h"
 #include "collision.h"
 #include "scene.h"
@@ -323,6 +324,9 @@ void CSavePoint::CollisionPlayer(void)
 
 					// マテリアルを発光緑に差し替え
 					SetMaterial(material::GlowGreen(), CHANGE_MAT_ID);
+
+					// サウンドの再生
+					CManager::GetInstance()->GetSound()->Play(CSound::LABEL_SE_SAVE);	// セーブ音
 				}
 			}
 		}

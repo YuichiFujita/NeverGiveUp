@@ -82,6 +82,8 @@ public:
 	void SetEnableUpdate(const bool bUpdate);				// 更新状況設定
 	void SetModel(CMultiModel **ppModel, const int nNum);	// モデル情報設定
 	int  GetType(void) const;			// 種類取得
+	int  GetPose(void) const;			// ポーズ番号取得
+	int  GetCounter(void) const;		// モーションカウンター取得
 	bool IsFinish(void) const;			// 終了取得
 	bool IsLoop(const int nType) const;	// ループ取得
 

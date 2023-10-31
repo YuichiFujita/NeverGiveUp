@@ -69,6 +69,8 @@ public:
 	CMultiModel *GetMultiModel(const int nID) const;				// マルチモデル取得
 
 	int  GetMotionType(void) const;				// モーション種類取得
+	int  GetMotionPose(void) const;				// モーションポーズ番号取得
+	int  GetMotionCounter(void) const;			// モーションカウンター取得
 	bool IsMotionFinish(void) const;			// モーション終了取得
 	bool IsMotionLoop(const int nType) const;	// モーションループ取得
 	void SetMaterial(const D3DXMATERIAL& rMat);	// マテリアル設定
