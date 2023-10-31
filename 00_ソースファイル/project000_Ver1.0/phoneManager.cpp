@@ -89,12 +89,12 @@ namespace
 	// 演出基本情報
 	namespace staging
 	{
-		const D3DXVECTOR3 POS	= D3DXVECTOR3(-320.0f, 100.0f, 0.0f);	// 演出の位置
-		const D3DXVECTOR3 SIZE	= D3DXVECTOR3(588.0f, 143.0f, 0.0f);	// 演出の大きさ
+		const D3DXVECTOR3 POS	= D3DXVECTOR3(-420.0f, 620.0f, 0.0f);	// 演出の位置
+		const D3DXVECTOR3 SIZE	= D3DXVECTOR3(823.0f, 200.0f, 0.0f);	// 演出の大きさ
 
 		const int	CNT_WAIT_END = 95;	// 終了の待機フレーム
-		const float	MOVE_POS = 72.0f;	// 移動量
-		const float	STOP_POS = 320.0f;	// 停止位置
+		const float	MOVE_POS = 82.0f;	// 移動量
+		const float	STOP_POS = 450.0f;	// 停止位置
 	}
 }
 

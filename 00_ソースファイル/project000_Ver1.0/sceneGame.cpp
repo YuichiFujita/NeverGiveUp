@@ -26,7 +26,7 @@
 
 #if _DEBUG
 
-#define TIME_LIMIT	(0)	// §ŒÀŠÔ
+#define TIME_LIMIT	(240)	// §ŒÀŠÔ
 
 #else
 

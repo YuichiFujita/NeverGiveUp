@@ -105,11 +105,11 @@ namespace
 	// クリア表示情報
 	namespace clear
 	{
-		const D3DXVECTOR3 POS	= D3DXVECTOR3(-320.0f, 620.0f, 0.0f);	// クリア表示の位置
-		const D3DXVECTOR3 SIZE	= D3DXVECTOR3(588.0f, 143.0f, 0.0f);	// クリア表示の大きさ
+		const D3DXVECTOR3 POS	= D3DXVECTOR3(-420.0f, 620.0f, 0.0f);	// クリア表示の位置
+		const D3DXVECTOR3 SIZE	= D3DXVECTOR3(823.0f, 200.0f, 0.0f);	// クリア表示の大きさ
 
-		const float MOVE_POS = 72.0f;	// 移動量
-		const float STOP_POS = 320.0f;	// 停止位置
+		const float MOVE_POS = 82.0f;	// 移動量
+		const float STOP_POS = 450.0f;	// 停止位置
 	}
 
 	// プレイヤー他クラス情報
