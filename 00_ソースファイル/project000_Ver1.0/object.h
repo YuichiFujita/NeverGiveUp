@@ -98,6 +98,8 @@ public:
 	virtual void BindTexture(const char *pTexturePass);	// テクスチャ割当 (パス)
 	virtual void BindModel(const int nModelID);			// モデル割当 (インデックス)
 	virtual void BindModel(const char *pModelPass);		// モデル割当 (パス)
+	virtual void SetIndex(const int nIndex);			// インデックス設定
+	virtual int GetIndex(void) const;					// インデックス取得
 	virtual void SetState(const int nState);			// 状態設定
 	virtual int GetState(void) const;					// 状態取得
 	virtual void SetType(const int nType);				// 種類設定
@@ -151,13 +153,13 @@ public:
 	ELabel	GetLabel(void) const;			// ラベル取得
 	int		GetPriority(void) const;		// 優先順位取得
 
-	DWORD	GetID(void) const;		// ユニークID取得
-	bool	IsUpdate(void) const;	// 更新状況取得
-	bool	IsDraw(void) const;		// 描画状況取得
-	bool	IsDeath(void) const;	// 死亡フラグ取得
-	CObject	*GetObject(void);		// オブジェクト取得
-	CObject	*GetPrev(void) const;	// 前オブジェクト取得
-	CObject	*GetNext(void) const;	// 次オブジェクト取得
+	DWORD	GetUniqueID(void) const;	// ユニークID取得
+	bool	IsUpdate(void) const;		// 更新状況取得
+	bool	IsDraw(void) const;			// 描画状況取得
+	bool	IsDeath(void) const;		// 死亡フラグ取得
+	CObject	*GetObject(void);			// オブジェクト取得
+	CObject	*GetPrev(void) const;		// 前オブジェクト取得
+	CObject	*GetNext(void) const;		// 次オブジェクト取得
 
 protected:
 	// メンバ関数

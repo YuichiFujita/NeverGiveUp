@@ -165,6 +165,15 @@ void CSavePoint::Draw(void)
 }
 
 //============================================================
+//	自身のセーブポイントインデックス取得処理
+//============================================================
+int CSavePoint::GetIndex(void) const
+{
+	// 自身のセーブポイントインデックスを返す
+	return m_nThisSaveID;
+}
+
+//============================================================
 //	半径取得処理
 //============================================================
 float CSavePoint::GetRadius(void) const
@@ -230,6 +239,15 @@ int CSavePoint::GetNumAll(void)
 }
 
 //============================================================
+//	セーブポイントインデックス取得処理
+//============================================================
+int CSavePoint::GetSavePointID(void)
+{
+	// 自身のセーブポイントインデックスを返す
+	return m_pCurrentSave->GetIndex();
+}
+
+//============================================================
 //	セーブポイント情報取得処理
 //============================================================
 CSavePoint::SInfo CSavePoint::GetSavePointInfo(void)
@@ -255,8 +273,9 @@ CSavePoint::SInfo CSavePoint::GetSavePointInfo(void)
 //============================================================
 void CSavePoint::CollisionPlayer(void)
 {
-	if (CManager::GetInstance()->GetMode() == CScene::MODE_GAME)
-	{ // ゲームモードの場合
+	if (CManager::GetInstance()->GetMode() == CScene::MODE_GAME
+	||  CManager::GetInstance()->GetMode() == CScene::MODE_TUTORIAL)
+	{ // チュートリアル・ゲームモードの場合
 
 		// ポインタを宣言
 		CPlayer *pPlayer = CScene::GetPlayer();	// プレイヤー情報

@@ -56,6 +56,7 @@ public:
 	void Uninit(void) override;		// 終了
 	void Update(void) override;		// 更新
 	void Draw(void) override;		// 描画
+	int GetIndex(void) const override;		// 自身のセーブポイントインデックス取得
 	float GetRadius(void) const override;	// 半径取得
 
 	// 静的メンバ関数
@@ -64,7 +65,8 @@ public:
 		const D3DXVECTOR3& rPos,	// 位置
 		const D3DXVECTOR3& rRot		// 向き
 	);
-	static int GetNumAll(void);	// 総数取得
+	static int GetNumAll(void);		// 総数取得
+	static int GetSavePointID(void);	// セーブポイントインデックス取得
 	static SInfo GetSavePointInfo(void);	// セーブポイント情報取得
 
 private:

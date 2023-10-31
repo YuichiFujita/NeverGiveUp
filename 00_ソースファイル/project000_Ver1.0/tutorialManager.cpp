@@ -14,18 +14,31 @@
 #include "camera.h"
 #include "texture.h"
 #include "object2D.h"
+#include "savePoint.h"
 
 //************************************************************
-//	マクロ定義
+//	定数宣言
 //************************************************************
-#define TUTORIAL_PRIO	(14)	// チュートリアルの優先順位
+namespace
+{
+	const int PRIORITY = 14;	// チュートリアルの優先順位
+
+	namespace lesson
+	{
+		const D3DXVECTOR3 POS	= D3DXVECTOR3(640.0f, 580.0f, 0.0f);	// レッスン表示の位置
+		const D3DXVECTOR3 SIZE	= D3DXVECTOR3(1000.0f, 270.0f, 0.0f);	// レッスン表示の位置
+	}
+}
 
 //************************************************************
 //	静的メンバ変数宣言
 //************************************************************
 const char *CTutorialManager::mc_apTextureFile[] =	// テクスチャ定数
 {
-	"data\\TEXTURE\\tutorial000.png",	// 説明テクスチャ
+	"data\\TEXTURE\\lesson000.png",	// ジャンプ説明テクスチャ
+	"data\\TEXTURE\\lesson001.png",	// スライディング説明テクスチャ
+	"data\\TEXTURE\\lesson002.png",	// 壁走り説明テクスチャ
+	"data\\TEXTURE\\lesson003.png",	// 壁ジャンプ説明テクスチャ
 };
 
 //************************************************************
@@ -40,7 +53,6 @@ CTutorialManager::CTutorialManager()
 	m_pExplain	= NULL;			// 説明表示の情報
 	m_state		= STATE_NONE;	// 状態
 	m_nCounterState = 0;		// 状態管理カウンター
-	m_nCounterExplain = 0;		// 説明管理カウンター
 }
 
 //============================================================
@@ -56,20 +68,16 @@ CTutorialManager::~CTutorialManager()
 //============================================================
 HRESULT CTutorialManager::Init(void)
 {
-	// ポインタを宣言
-	CTexture *pTexture = CManager::GetInstance()->GetTexture();	// テクスチャへのポインタ
-
 	// メンバ変数を初期化
-	m_pExplain	= NULL;					// 説明表示の情報
-	m_state		= STATE_NORMAL;			// 状態
-	m_nCounterState = 0;				// 状態管理カウンター
-	m_nCounterExplain = EXPLAIN_NORMAL;	// 説明管理カウンター
+	m_pExplain	= NULL;			// 説明表示の情報
+	m_state		= STATE_NORMAL;	// 状態
+	m_nCounterState = 0;		// 状態管理カウンター
 
-	// 選択背景の生成
+	// 説明表示の生成
 	m_pExplain = CObject2D::Create
 	( // 引数
-		SCREEN_CENT,	// 位置
-		SCREEN_SIZE		// 大きさ
+		lesson::POS,	// 位置
+		lesson::SIZE	// 大きさ
 	);
 	if (m_pExplain == NULL)
 	{ // 生成に失敗した場合
@@ -80,10 +88,7 @@ HRESULT CTutorialManager::Init(void)
 	}
 
 	// 優先順位を設定
-	m_pExplain->SetPriority(TUTORIAL_PRIO);
-
-	// 説明テクスチャを登録・割当
-	m_pExplain->BindTexture(pTexture->Regist(mc_apTextureFile[m_nCounterExplain]));
+	m_pExplain->SetPriority(PRIORITY);
 
 	// 成功を返す
 	return S_OK;
@@ -128,6 +133,9 @@ void CTutorialManager::Update(void)
 		assert(false);
 		break;
 	}
+
+	// 説明テクスチャを登録・割当
+	m_pExplain->BindTexture(mc_apTextureFile[CSavePoint::GetSavePointID()]);
 
 	// 説明表示の更新
 	m_pExplain->Update();

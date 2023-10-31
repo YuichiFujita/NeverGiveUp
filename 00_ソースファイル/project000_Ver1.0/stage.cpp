@@ -24,9 +24,16 @@
 #include "goalPoint.h"
 
 //************************************************************
-//	マクロ定義
+//	定数宣言
 //************************************************************
-#define STAGE_SETUP_TXT	"data\\TXT\\stage.txt"	// セットアップテキスト相対パス
+namespace
+{
+	const char* SETUP_TXT[] =	// ステージセットアップテキスト
+	{
+		"data\\TXT\\stageTutorial.txt",
+		"data\\TXT\\stageTutorial.txt",
+	};
+}
 
 //************************************************************
 //	親クラス [CStage] のメンバ関数
@@ -337,7 +344,7 @@ float CStage::GetFieldPositionHeight(const D3DXVECTOR3&rPos)
 //============================================================
 //	生成処理
 //============================================================
-CStage *CStage::Create(void)
+CStage *CStage::Create(const ELoad load)
 {
 	// ポインタを宣言
 	CStage *pStage = NULL;		// ステージ生成用
@@ -363,7 +370,7 @@ CStage *CStage::Create(void)
 		}
 
 		// セットアップの読込
-		if (FAILED(LoadSetup(pStage)))
+		if (FAILED(LoadSetup(pStage, load)))
 		{ // 読み込みに失敗した場合
 
 			// 失敗を返す
@@ -401,7 +408,7 @@ HRESULT CStage::Release(CStage *&prStage)
 //============================================================
 //	セットアップ処理
 //============================================================
-HRESULT CStage::LoadSetup(CStage *pStage)
+HRESULT CStage::LoadSetup(CStage *pStage, const ELoad load)
 {
 	// 変数を宣言
 	int nEnd = 0;	// テキスト読み込み終了の確認用
@@ -413,7 +420,7 @@ HRESULT CStage::LoadSetup(CStage *pStage)
 	FILE *pFile;	// ファイルポインタ
 
 	// ファイルを読み込み形式で開く
-	pFile = fopen(STAGE_SETUP_TXT, "r");
+	pFile = fopen(SETUP_TXT[load], "r");
 
 	if (pFile != NULL)
 	{ // ファイルが開けた場合

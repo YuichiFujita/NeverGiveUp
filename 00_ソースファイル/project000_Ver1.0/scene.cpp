@@ -52,8 +52,11 @@ CScene::~CScene()
 //============================================================
 HRESULT CScene::Init(void)
 {
+	// 変数を宣言
+	CStage::ELoad load = (m_mode == MODE_TUTORIAL) ? CStage::LOAD_TUTORIAL : CStage::LOAD_GAME;	// 読込ステージ
+
 	// ステージの生成
-	m_pStage = CStage::Create();
+	m_pStage = CStage::Create(load);
 	if (m_pStage == NULL)
 	{ // 非使用中の場合
 

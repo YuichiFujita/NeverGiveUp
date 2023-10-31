@@ -30,7 +30,10 @@ public:
 	// 説明列挙
 	enum EExplain
 	{
-		EXPLAIN_NORMAL = 0,	// 説明テクスチャ
+		EXPLAIN_JUMP = 0,	// ジャンプ説明テクスチャ
+		EXPLAIN_SLIDE,		// スライディング説明テクスチャ
+		EXPLAIN_WALLDASH,	// 壁走り説明テクスチャ
+		EXPLAIN_WALLJUMP,	// 壁ジャンプ説明テクスチャ
 		EXPLAIN_MAX			// この列挙型の総数
 	};
 
@@ -65,7 +68,6 @@ private:
 	CObject2D *m_pExplain;	// 説明表示の情報
 	EState m_state;			// 状態
 	int m_nCounterState;	// 状態管理カウンター
-	int m_nCounterExplain;	// 説明管理カウンター
 };
 
 #endif	// _TUTORIAL_MANAGER_H_

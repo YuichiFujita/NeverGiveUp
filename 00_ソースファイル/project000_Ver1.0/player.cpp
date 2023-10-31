@@ -99,7 +99,7 @@ namespace
 		const float	MIN_MOVE	= 1.5f;		// 移動量の最低速度
 		const float	SUB_MOVE	= 0.004f;	// 壁走り時の速度減算量
 		const float	COLL_SIZE	= 100.0f;	// 壁走りの判定大きさ
-		const float	BOOST_RATE	= 0.45f;	// 加速できる位置割合
+		const float	BOOST_RATE	= 0.0f;		// 加速できる位置割合
 	}
 
 	// クリア表示情報
@@ -710,15 +710,6 @@ CPlayer::EMotion CPlayer::UpdateDamage(void)
 		return MOTION_IDOL;
 	}
 
-	CTimerManager *pTimer = CSceneGame::GetTimerManager();	// タイマー情報
-	if (pTimer == NULL)
-	{ // タイマーが使用されていない場合
-
-		// 処理を抜ける
-		assert(false);
-		return MOTION_IDOL;
-	}
-
 	// 向きを加算
 	rotPlayer += basic::DMG_ADDROT;
 
@@ -741,21 +732,8 @@ CPlayer::EMotion CPlayer::UpdateDamage(void)
 	if (UpdateFadeIn(basic::DMG_SUB_ALPHA))
 	{ // 透明になり切った場合
 
-		if (pTimer->GetState() != CTimerManager::STATE_END)
-		{ // タイマーが計測中の場合
-
-			// 出現の設定
-			SetSpawn();
-		}
-		else
-		{ // タイマーが計測中ではない場合
-
-			// 自動描画をOFF
-			SetEnableDraw(false);
-
-			// ゲームオーバー状態にする
-			SetState(STATE_OVER);
-		}
+		// 出現の設定
+		SetSpawn();
 	}
 
 	// 現在のモーションを返す
