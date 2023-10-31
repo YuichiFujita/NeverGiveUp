@@ -23,6 +23,7 @@
 //************************************************************
 class CShadow;		// 影クラス
 class CGoalPoint;	// ゴールポイントクラス
+class CObject2D;	// オブジェクト2Dクラス
 
 //************************************************************
 //	クラス定義
@@ -31,6 +32,13 @@ class CGoalPoint;	// ゴールポイントクラス
 class CPlayer : public CObjectChara
 {
 public:
+	// テクスチャ列挙
+	enum ETexture
+	{
+		TEXTURE_CLEAR = 0,	// クリア表示
+		TEXTURE_MAX			// この列挙型の総数
+	};
+
 	// モデル列挙
 	enum EModel
 	{
@@ -134,6 +142,7 @@ private:
 	EMotion UpdateNormal(void);	// 通常状態時の更新
 	EMotion UpdateDamage(void);	// ダメージ状態時の更新
 	EMotion UpdateUnion(void);	// 合流状態時の更新
+	void UpdateClear(void);	// ゲームクリア状態時の更新
 
 	void UpdateOldPosition(void);			// 過去位置の更新
 	EMotion UpdateMove(D3DXVECTOR3& rPos);	// 移動量・目標向きの更新
@@ -157,11 +166,13 @@ private:
 	bool CollisionBuilding(D3DXVECTOR3& rPos);	// ビルとの当たり判定
 
 	// 静的メンバ変数
+	static const char *mc_apTextureFile[];	// テクスチャ定数
 	static const char *mc_apModelFile[];	// モデル定数
 
 	// メンバ変数
 	CShadow *m_pShadow;			// 影の情報
 	CGoalPoint *m_pGoal;		// ゴールの情報
+	CObject2D *m_pClear;		// クリア表示の情報
 	D3DXVECTOR3	m_oldPos;		// 過去位置
 	D3DXVECTOR3	m_move;			// 移動量
 	D3DXVECTOR3	m_destRot;		// 目標向き

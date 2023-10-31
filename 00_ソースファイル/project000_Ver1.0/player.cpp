@@ -21,6 +21,7 @@
 
 #include "multiModel.h"
 #include "shadow.h"
+#include "object2D.h"
 #include "timerManager.h"
 #include "rankingManager.h"
 #include "stage.h"
@@ -56,7 +57,7 @@ namespace
 		const float	BLOW_SIDE	= 10.0f;	// 吹っ飛び時の横移動量
 		const float	BLOW_UP		= 30.0f;	// 吹っ飛び時の縦移動量
 		const float	ADD_MOVE	= 0.08f;	// 非アクション時の速度加算量
-		const float	MIN_VARY	= 0.01f;	// 向きと目標向きの違う量の許容値
+		const float	MIN_VARY	= 0.001f;	// 向きと目標向きの違う量の許容値
 
 		const float	JUMPPAD_MOVE	= 50.0f;	// ジャンプパッドの上移動量
 		const float	NOR_JUMP_REV	= 0.16f;	// 通常状態時の空中の移動量の減衰係数
@@ -101,6 +102,16 @@ namespace
 		const float	BOOST_RATE	= 0.45f;	// 加速できる位置割合
 	}
 
+	// クリア表示情報
+	namespace clear
+	{
+		const D3DXVECTOR3 POS	= D3DXVECTOR3(-320.0f, 620.0f, 0.0f);	// クリア表示の位置
+		const D3DXVECTOR3 SIZE	= D3DXVECTOR3(980.0f*0.6f, 238.0f*0.6f, 0.0f);	// クリア表示の大きさ
+
+		const float MOVE_POS = 72.0f;	// 移動量
+		const float STOP_POS = 320.0f;	// 停止位置
+	}
+
 	// プレイヤー他クラス情報
 	namespace other
 	{
@@ -111,6 +122,10 @@ namespace
 //************************************************************
 //	静的メンバ変数宣言
 //************************************************************
+const char *CPlayer::mc_apTextureFile[] =	// テクスチャ定数
+{
+	"data\\TEXTURE\\clear000.png",	// クリア表示テクスチャ
+};
 const char *CPlayer::mc_apModelFile[] =	// モデル定数
 {
 	"data\\MODEL\\PLAYER\\00_waist.x",	// 腰
@@ -140,6 +155,8 @@ CPlayer::CPlayer() : CObjectChara(CObject::LABEL_PLAYER, PRIORITY)
 {
 	// メンバ変数をクリア
 	m_pShadow			= NULL;			// 影の情報
+	m_pGoal				= NULL;			// ゴールの情報
+	m_pClear			= NULL;			// クリア表示の情報
 	m_oldPos			= VEC3_ZERO;	// 過去位置
 	m_move				= VEC3_ZERO;	// 移動量
 	m_destRot			= VEC3_ZERO;	// 目標向き
@@ -171,6 +188,8 @@ HRESULT CPlayer::Init(void)
 {
 	// メンバ変数を初期化
 	m_pShadow			= NULL;			// 影の情報
+	m_pGoal				= NULL;			// ゴールの情報
+	m_pClear			= NULL;			// クリア表示の情報
 	m_oldPos			= VEC3_ZERO;	// 過去位置
 	m_move				= VEC3_ZERO;	// 移動量
 	m_destRot			= VEC3_ZERO;	// 目標向き
@@ -211,6 +230,19 @@ HRESULT CPlayer::Init(void)
 		return E_FAIL;
 	}
 
+	// クリア表示の生成
+	m_pClear = CObject2D::Create(clear::POS, clear::SIZE);
+	if (m_pClear == NULL)
+	{ // 非使用中の場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
+
+	// テクスチャを読込・割当
+	m_pClear->BindTexture(mc_apTextureFile[TEXTURE_CLEAR]);
+
 	// 成功を返す
 	return S_OK;
 }
@@ -222,6 +254,9 @@ void CPlayer::Uninit(void)
 {
 	// 影の終了
 	m_pShadow->Uninit();
+
+	// クリア表示の終了
+	m_pClear->Uninit();
 
 	// オブジェクトキャラクターの終了
 	CObjectChara::Uninit();
@@ -269,7 +304,13 @@ void CPlayer::Update(void)
 		// 合流状態時の更新
 		currentMotion = UpdateUnion();
 
+		break;
+
 	case STATE_CLEAR:
+
+		// ゲームクリア状態時の更新
+		UpdateClear();
+
 		break;
 
 	case STATE_OVER:
@@ -282,6 +323,9 @@ void CPlayer::Update(void)
 
 	// 影の更新
 	m_pShadow->Update();
+
+	// クリア表示の更新
+	m_pClear->Update();
 
 	// モーション・オブジェクトキャラクターの更新
 	UpdateMotion(currentMotion);
@@ -803,6 +847,25 @@ CPlayer::EMotion CPlayer::UpdateUnion(void)
 
 	// 現在のモーションを返す
 	return currentMotion;
+}
+
+//============================================================
+//	ゲームクリア状態時の更新処理
+//============================================================
+void CPlayer::UpdateClear(void)
+{
+	// 変数を宣言
+	D3DXVECTOR3 posClear = m_pClear->GetVec3Position();	// クリア表示位置
+
+	posClear.x += clear::MOVE_POS;
+
+	if (posClear.x > clear::STOP_POS)
+	{
+		posClear.x = clear::STOP_POS;
+	}
+
+	// クリア表示位置を反映
+	m_pClear->SetVec3Position(posClear);
 }
 
 //============================================================
