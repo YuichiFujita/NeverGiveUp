@@ -27,6 +27,13 @@ class CObject2D;	// オブジェクト2Dクラス
 class CTutorialManager
 {
 public:
+	// テクスチャ列挙
+	enum ETexture
+	{
+		TEXTURE_CONTROL = 0,	// 操作方法テクスチャ
+		TEXTURE_MAX				// この列挙型の総数
+	};
+
 	// 説明列挙
 	enum EExplain
 	{
@@ -35,14 +42,6 @@ public:
 		EXPLAIN_WALLDASH,	// 壁走り説明テクスチャ
 		EXPLAIN_WALLJUMP,	// 壁ジャンプ説明テクスチャ
 		EXPLAIN_MAX			// この列挙型の総数
-	};
-
-	// 状態列挙
-	enum EState
-	{
-		STATE_NONE = 0,	// 何もしない状態
-		STATE_NORMAL,	// 通常状態
-		STATE_MAX		// この列挙型の総数
 	};
 
 	// コンストラクタ
@@ -63,11 +62,11 @@ public:
 private:
 	// 静的メンバ変数
 	static const char *mc_apTextureFile[];	// テクスチャ定数
+	static const char *mc_apLessonTextureFile[];	// レッスンテクスチャ定数
 
 	// メンバ変数
 	CObject2D *m_pExplain;	// 説明表示の情報
-	EState m_state;			// 状態
-	int m_nCounterState;	// 状態管理カウンター
+	CObject2D *m_pControl;	// 操作説明の情報
 };
 
 #endif	// _TUTORIAL_MANAGER_H_

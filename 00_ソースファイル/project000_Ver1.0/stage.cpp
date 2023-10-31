@@ -30,8 +30,8 @@ namespace
 {
 	const char* SETUP_TXT[] =	// ステージセットアップテキスト
 	{
-		"data\\TXT\\stageTutorial.txt",
-		"data\\TXT\\stageTutorial.txt",
+		"data\\TXT\\stageGame.txt",		// ゲームステージ
+		"data\\TXT\\stageTutorial.txt",	// チュートリアルステージ
 	};
 }
 
