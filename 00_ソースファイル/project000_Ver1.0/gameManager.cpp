@@ -171,8 +171,8 @@ void CGameManager::Update(void)
 
 	case STATE_NORMAL:
 
-		if (pTimer->GetState() == CTimerManager::STATE_END)
-		{ // 計測終了した場合
+		if (pTimer->GetState() == CTimerManager::STATE_END && pTimer->Get() <= 0)
+		{ // 計測終了している且つ、残り時間が 0以下の場合
 
 			// クリア失敗表示の初期化状態を設定
 			m_state = STATE_INIT_END;

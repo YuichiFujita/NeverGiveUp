@@ -17,6 +17,11 @@
 #include "object.h"
 
 //************************************************************
+//	前方宣言
+//************************************************************
+class CFriend;	// 友達クラス
+
+//************************************************************
 //	クラス定義
 //************************************************************
 // ゴールポイントクラス
@@ -38,6 +43,8 @@ public:
 	D3DXVECTOR3 GetVec3Position(void) const override;		// 位置取得
 	void SetVec3Sizing(const D3DXVECTOR3& rSize) override;	// 判定大きさ設定
 	D3DXVECTOR3 GetVec3Sizing(void) const override;			// 判定大きさ取得
+	void SetEnableUpdate(const bool bUpdate) override;		// 更新状況設定
+	void SetEnableDraw(const bool bDraw) override;			// 描画状況設定
 
 	// 静的メンバ関数
 	static CGoalPoint *Create	// 生成
@@ -46,11 +53,15 @@ public:
 		const D3DXVECTOR3& rSize	// 大きさ
 	);
 
+	// メンバ関数
+	D3DXVECTOR3 GetVec3FriendPosition(void) const;	// 友達位置取得
+
 private:
 	// メンバ関数
 	void CollisionPlayer(void);	// プレイヤーとの当たり判定
 
 	// メンバ変数
+	CFriend *m_pFriend;	// 友達の情報
 	D3DXVECTOR3 m_pos;	// 位置
 	D3DXVECTOR3 m_size;	// 大きさ
 };

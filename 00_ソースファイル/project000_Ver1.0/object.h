@@ -59,6 +59,7 @@ public:
 		LABEL_UI,			// UI
 		LABEL_NUMBER,		// 数字
 		LABEL_PLAYER,		// プレイヤー
+		LABEL_FRIEND,		// 友達
 		LABEL_BUILDING,		// ビル
 		LABEL_WINDOW,		// 窓
 		LABEL_SIGNBOARD,	// 看板

@@ -4084,6 +4084,11 @@ STAGE_SAVEPOINTSET
 		ROT = 0.00 -1.57 0.00
 	END_SAVEPOINTSET
 
+	SAVEPOINTSET
+		POS = -2160.00 1120.00 6600.00
+		ROT = 0.00 0.00 0.00
+	END_SAVEPOINTSET
+
 END_STAGE_SAVEPOINTSET
 
 #------------------------------------------------------------------------------

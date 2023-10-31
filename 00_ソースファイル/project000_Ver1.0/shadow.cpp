@@ -274,6 +274,15 @@ D3DXVECTOR3 CShadow::SetDrawPosition(void)
 	D3DXVECTOR3 posShadow = VEC3_ZERO;	// 影位置
 	float fPosHeight = 0.0f;	// ビルの上座標
 
+	// ポインタを宣言
+	CStage *pStage = CScene::GetStage();	// ステージの情報
+	if (pStage == NULL)
+	{ // ステージが存在しない場合
+
+		// 関数を抜ける
+		return VEC3_ZERO;
+	}
+
 	// 影の位置を求める
 	posShadow = posParent;	// 親オブジェクトの座標代入
 
@@ -289,17 +298,17 @@ D3DXVECTOR3 CShadow::SetDrawPosition(void)
 		// 高さをビルの上に設定
 		posShadow.y = fPosHeight + PLUS_POSY;
 	}
-	else if (CScene::GetStage()->IsFieldPositionRange(posParent))
+	else if (pStage->IsFieldPositionRange(posParent))
 	{ // 地面の範囲内の場合
 
 		// 高さを地面に設定
-		posShadow.y = CScene::GetStage()->GetFieldPositionHeight(posParent) + PLUS_POSY;
+		posShadow.y = pStage->GetFieldPositionHeight(posParent) + PLUS_POSY;
 	}
 	else
 	{ // 全ての範囲外の場合
 
 		// 高さを制限位置に設定
-		posShadow.y = CScene::GetStage()->GetStageLimit().fField + PLUS_POSY;
+		posShadow.y = pStage->GetStageLimit().fField + PLUS_POSY;
 	}
 
 	// 影位置を返す

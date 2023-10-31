@@ -28,6 +28,8 @@
 #include "building.h"
 #include "obstacle.h"
 #include "savePoint.h"
+#include "goalPoint.h"
+#include "friend.h"
 
 #include "effect3D.h"
 #include "particle3D.h"
@@ -260,6 +262,11 @@ void CPlayer::Update(void)
 		currentMotion = UpdateDamage();
 
 		break;
+
+	case STATE_UNION:
+
+		// 合流状態時の更新
+		currentMotion = UpdateUnion();
 
 	case STATE_CLEAR:
 		break;
@@ -546,6 +553,15 @@ void CPlayer::SetSpawn(void)
 }
 
 //============================================================
+//	ゴールの設定処理
+//============================================================
+void CPlayer::SetGoal(CGoalPoint *pGoal)
+{
+	// 引数のゴールを設定
+	m_pGoal = pGoal;
+}
+
+//============================================================
 //	スポーン状態時の更新処理
 //============================================================
 CPlayer::EMotion CPlayer::UpdateSpawn(void)
@@ -696,6 +712,91 @@ CPlayer::EMotion CPlayer::UpdateDamage(void)
 			SetState(STATE_OVER);
 		}
 	}
+
+	// 現在のモーションを返す
+	return currentMotion;
+}
+
+//============================================================
+//	合流状態時の更新処理
+//============================================================
+CPlayer::EMotion CPlayer::UpdateUnion(void)
+{
+	// ポインタを宣言
+	CStage *pStage = CScene::GetStage();	// ステージ情報
+	if (pStage == NULL)
+	{ // ステージが使用されていない場合
+
+		// 処理を抜ける
+		assert(false);
+		return MOTION_IDOL;
+	}
+
+	if (m_pGoal == NULL)
+	{ // ゴールが設定されていない場合
+
+		// 処理を抜ける
+		assert(false);
+		return MOTION_IDOL;
+	}
+
+	// 変数を宣言
+	D3DXVECTOR3 sizePlayer = VEC3_ZERO;							// プレイヤー大きさ
+	D3DXVECTOR3 posPlayer = GetVec3Position();					// プレイヤー位置
+	D3DXVECTOR3 rotPlayer = GetVec3Rotation();					// プレイヤー向き
+	D3DXVECTOR3 sizeGoal = m_pGoal->GetVec3Sizing();			// ゴール大きさ
+	D3DXVECTOR3 posGoal = m_pGoal->GetVec3Position();			// ゴール位置
+	D3DXVECTOR3 posFriend = m_pGoal->GetVec3FriendPosition();	// 友達位置
+	EMotion currentMotion = MOTION_WAVEHAND;					// 現在のモーション
+
+	if (m_bJump)
+	{ // ジャンプ中の場合
+
+		// 移動操作
+		currentMotion = UpdateMove(posPlayer);
+	}
+	else
+	{ // ジャンプ中ではない場合
+
+		// 目標向きを設定
+		m_destRot.y = atan2f(posPlayer.x - posFriend.x, posPlayer.z - posFriend.z);
+
+#if 0
+		// カメラの更新をOFFに設定
+		CManager::GetInstance()->GetCamera()->SetEnableUpdate(false);
+#else
+		// カメラをズーム状態に設定
+		CManager::GetInstance()->GetCamera()->SetState(CCamera::STATE_ZOOM);
+#endif
+	}
+
+	// 重力の更新
+	UpdateGravity();
+
+	// 着地判定
+	UpdateLanding(posPlayer);
+
+	// 向き更新
+	UpdateRotation(rotPlayer);
+
+	// ゴール範囲内の補正
+	collision::InBoxPillar(posPlayer, posGoal, sizePlayer, sizePlayer, sizeGoal, sizeGoal);
+
+	// ステージ範囲外の補正
+	pStage->LimitPosition(posPlayer, basic::RADIUS);
+
+	// 位置を反映
+	SetVec3Position(posPlayer);
+
+	// 向きを反映
+	SetVec3Rotation(rotPlayer);
+
+	// デバッグ表示
+	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "[プレイヤー移動速度]：%f\n", m_fMove);
+	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "[プレイヤー移動量]：%f %f %f\n", m_move.x, m_move.y, m_move.z);
+	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, (m_bJump) ? "[ジャンプ]：ON\n" : "[ジャンプ]：OFF\n");
+	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, (m_bSlide) ? "[スライディング]：ON\n" : "[スライディング]：OFF\n");
+	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, (m_bWallDash) ? "[壁走り]：ON\n" : "[壁走り]：OFF\n");
 
 	// 現在のモーションを返す
 	return currentMotion;

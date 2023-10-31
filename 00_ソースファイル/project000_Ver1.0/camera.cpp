@@ -60,6 +60,13 @@ namespace
 		const float LOOK_ADD_POSY		= 50.0f;	// プレイヤー位置からの上への加算量
 	}
 
+	// ズームカメラ情報
+	namespace zoom
+	{
+		const float DEST_DIS = 640.0f;	// ズームカメラの目標距離
+		const float REV_DIS = 0.006f;	// カメラ距離の補正係数
+	}
+
 	// 操作カメラ情報
 	namespace control
 	{
@@ -208,6 +215,13 @@ void CCamera::Update(void)
 
 			// カメラの更新 (追従)
 			Follow();
+
+			break;
+
+		case STATE_ZOOM:	// ズーム状態
+
+			// カメラの更新 (ズーム)
+			Zoom();
 
 			break;
 
@@ -638,6 +652,64 @@ void CCamera::Follow(void)
 		m_aCamera[TYPE_MAIN].posV.y += diffPosV.y * follow::REV_POS;
 		m_aCamera[TYPE_MAIN].posV.z += diffPosV.z * follow::REV_POS;
 	}
+}
+
+//============================================================
+//	カメラの更新処理 (ズーム)
+//============================================================
+void CCamera::Zoom(void)
+{
+	// 変数を宣言
+	D3DXVECTOR3 posPlayer = CScene::GetPlayer()->GetVec3Position();	// プレイヤー位置
+	D3DXVECTOR3 rotPlayer = CScene::GetPlayer()->GetVec3Rotation();	// プレイヤー向き
+	D3DXVECTOR3 posLook  = VEC3_ZERO;	// 位置
+	D3DXVECTOR3 diffPosV = VEC3_ZERO;	// 視点の差分位置
+	D3DXVECTOR3 diffPosR = VEC3_ZERO;	// 注視点の差分位置
+	float fDiffDis = 0.0f;	// 差分距離
+
+	// カメラの見る位置を調整
+	posLook.x = posPlayer.x + sinf(rotPlayer.y + D3DX_PI) * follow::LOOK_ADD_FORWARD;
+	posLook.y = posPlayer.y + follow::LOOK_ADD_POSY;
+	posLook.z = posPlayer.z + cosf(rotPlayer.y + D3DX_PI) * follow::LOOK_ADD_FORWARD;
+
+	//----------------------------------------------------
+	//	距離の更新
+	//----------------------------------------------------
+	// 目標距離を設定
+	m_aCamera[TYPE_MAIN].fDestDis = zoom::DEST_DIS;
+
+	// 差分距離を計算
+	fDiffDis = m_aCamera[TYPE_MAIN].fDestDis - m_aCamera[TYPE_MAIN].fDis;
+
+	// 距離を設定
+	m_aCamera[TYPE_MAIN].fDis += fDiffDis * zoom::REV_DIS;
+
+	//----------------------------------------------------
+	//	位置の更新
+	//----------------------------------------------------
+	// 注視点の更新
+	m_aCamera[TYPE_MAIN].destPosR = posLook;
+
+	// 視点の更新
+	m_aCamera[TYPE_MAIN].destPosV.x = m_aCamera[TYPE_MAIN].destPosR.x + ((-m_aCamera[TYPE_MAIN].fDis * sinf(m_aCamera[TYPE_MAIN].rot.x)) * sinf(m_aCamera[TYPE_MAIN].rot.y));
+	m_aCamera[TYPE_MAIN].destPosV.y = m_aCamera[TYPE_MAIN].destPosR.y + ((-m_aCamera[TYPE_MAIN].fDis * cosf(m_aCamera[TYPE_MAIN].rot.x)));
+	m_aCamera[TYPE_MAIN].destPosV.z = m_aCamera[TYPE_MAIN].destPosR.z + ((-m_aCamera[TYPE_MAIN].fDis * sinf(m_aCamera[TYPE_MAIN].rot.x)) * cosf(m_aCamera[TYPE_MAIN].rot.y));
+
+	// 注視点の差分位置を計算
+	diffPosR = m_aCamera[TYPE_MAIN].destPosR - m_aCamera[TYPE_MAIN].posR;
+
+	// 視点の差分位置を計算
+	diffPosV = m_aCamera[TYPE_MAIN].destPosV - m_aCamera[TYPE_MAIN].posV;
+
+	// 注視点の現在位置を更新
+	m_aCamera[TYPE_MAIN].posR.x += diffPosR.x * follow::REV_POS;
+	m_aCamera[TYPE_MAIN].posR.y += diffPosR.y * follow::REV_POS;
+	m_aCamera[TYPE_MAIN].posR.z += diffPosR.z * follow::REV_POS;
+
+	// 視点の現在位置を更新
+	m_aCamera[TYPE_MAIN].posV.x += diffPosV.x * follow::REV_POS;
+	m_aCamera[TYPE_MAIN].posV.y += diffPosV.y * follow::REV_POS;
+	m_aCamera[TYPE_MAIN].posV.z += diffPosV.z * follow::REV_POS;
 }
 
 //============================================================

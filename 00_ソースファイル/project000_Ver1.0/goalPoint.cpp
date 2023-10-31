@@ -13,6 +13,7 @@
 #include "texture.h"
 #include "collision.h"
 #include "scene.h"
+#include "friend.h"
 #include "player.h"
 
 //************************************************************
@@ -21,6 +22,7 @@
 namespace
 {
 	const int PRIORITY = 1;	// ゴールポイントの優先順位
+	const D3DXVECTOR3 ADDPOS_FRIEND = D3DXVECTOR3(320.0f, 0.0f, -120.0f);	// 友達位置のゴール位置からの加算量
 }
 
 //************************************************************
@@ -32,6 +34,7 @@ namespace
 CGoalPoint::CGoalPoint() : CObject(CObject::LABEL_GOALPOINT, PRIORITY)
 {
 	// メンバ変数をクリア
+	m_pFriend = NULL;	// 友達の情報
 	m_pos = VEC3_ZERO;	// 位置
 	m_size = VEC3_ZERO;	// 大きさ
 }
@@ -50,8 +53,19 @@ CGoalPoint::~CGoalPoint()
 HRESULT CGoalPoint::Init(void)
 {
 	// メンバ変数を初期化
+	m_pFriend = NULL;	// 友達の情報
 	m_pos = VEC3_ZERO;	// 位置
 	m_size = VEC3_ZERO;	// 大きさ
+
+	// 友達の生成
+	m_pFriend = CFriend::Create();
+	if (m_pFriend == NULL)
+	{ // 生成に失敗した場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
 
 	// 成功を返す
 	return S_OK;
@@ -62,6 +76,9 @@ HRESULT CGoalPoint::Init(void)
 //============================================================
 void CGoalPoint::Uninit(void)
 {
+	// 友達の終了
+	m_pFriend->Uninit();
+
 	// ゴールポイントを破棄
 	Release();
 }
@@ -90,6 +107,9 @@ void CGoalPoint::SetVec3Position(const D3DXVECTOR3& rPos)
 {
 	// 引数の位置を設定
 	m_pos = rPos;
+
+	// 友達の位置を設定
+	m_pFriend->SetVec3Position(m_pos + ADDPOS_FRIEND);
 }
 
 //============================================================
@@ -117,6 +137,26 @@ D3DXVECTOR3 CGoalPoint::GetVec3Sizing(void) const
 {
 	// 大きさを返す
 	return m_size;
+}
+
+//============================================================
+//	更新状況の設定処理
+//============================================================
+void CGoalPoint::SetEnableUpdate(const bool bUpdate)
+{
+	// 引数の更新状況を設定
+	CObject::SetEnableDraw(bUpdate);	// 自身
+	m_pFriend->SetEnableDraw(bUpdate);	// 友達
+}
+
+//============================================================
+//	描画状況の設定処理
+//============================================================
+void CGoalPoint::SetEnableDraw(const bool bDraw)
+{
+	// 引数の描画状況を設定
+	CObject::SetEnableDraw(bDraw);		// 自身
+	m_pFriend->SetEnableDraw(bDraw);	// 友達
 }
 
 //============================================================
@@ -167,6 +207,15 @@ CGoalPoint *CGoalPoint::Create	// 生成
 }
 
 //============================================================
+//	友達位置取得処理
+//============================================================
+D3DXVECTOR3 CGoalPoint::GetVec3FriendPosition(void) const
+{
+	// 友達の位置を返す
+	return m_pFriend->GetVec3Position();
+}
+
+//============================================================
 //	プレイヤーとの当たり判定
 //============================================================
 void CGoalPoint::CollisionPlayer(void)
@@ -208,8 +257,14 @@ void CGoalPoint::CollisionPlayer(void)
 			if (bHit)
 			{ // プレイヤーが判定内の場合
 
-				// プレイヤーをクリア成功状態にする
-				pPlayer->SetState(CPlayer::STATE_CLEAR);
+				// プレイヤーを合流状態にする
+				pPlayer->SetState(CPlayer::STATE_UNION);
+
+				// プレイヤーのゴールを自身に設定
+				pPlayer->SetGoal(this);
+
+				// 友達の状態を合流状態に設定
+				m_pFriend->SetState(CFriend::STATE_UNION);
 			}
 		}
 	}

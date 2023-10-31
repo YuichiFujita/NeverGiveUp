@@ -37,6 +37,7 @@ public:
 		STATE_CONTROL,	// 操作状態
 		STATE_ROTATE,	// 回転状態
 		STATE_FOLLOW,	// 追従状態
+		STATE_ZOOM,		// ズーム状態
 		STATE_MAX		// この列挙型の総数
 	};
 
@@ -94,6 +95,7 @@ private:
 	// メンバ関数
 	void Rotate(void);		// カメラの更新 (回転)
 	void Follow(void);		// カメラの更新 (追従)
+	void Zoom(void);		// カメラの更新 (ズーム)
 	void Control(void);		// カメラの更新 (操作)
 	void Move(void);		// 位置の更新 (操作)
 	void Distance(void);	// 距離の更新 (操作)

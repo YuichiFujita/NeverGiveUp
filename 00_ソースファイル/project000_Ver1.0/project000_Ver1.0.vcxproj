@@ -171,6 +171,7 @@
     <ClCompile Include="effect3D.cpp" />
     <ClCompile Include="fade.cpp" />
     <ClCompile Include="field.cpp" />
+    <ClCompile Include="friend.cpp" />
     <ClCompile Include="gameManager.cpp" />
     <ClCompile Include="goalPoint.cpp" />
     <ClCompile Include="input.cpp" />
@@ -254,6 +255,7 @@
     <ClInclude Include="effect3D.h" />
     <ClInclude Include="fade.h" />
     <ClInclude Include="field.h" />
+    <ClInclude Include="friend.h" />
     <ClInclude Include="gameManager.h" />
     <ClInclude Include="goalPoint.h" />
     <ClInclude Include="input.h" />
