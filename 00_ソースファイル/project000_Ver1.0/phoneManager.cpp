@@ -85,6 +85,17 @@ namespace
 		const float	ADD_SCALE = 0.1f;		// 表情の拡大率加算量
 		const float CHANGE_ALPHA = 0.025f;	// 表情のα値変更量
 	}
+
+	// 演出基本情報
+	namespace staging
+	{
+		const D3DXVECTOR3 POS	= D3DXVECTOR3(-320.0f, 100.0f, 0.0f);	// 演出の位置
+		const D3DXVECTOR3 SIZE	= D3DXVECTOR3(588.0f, 143.0f, 0.0f);	// 演出の大きさ
+
+		const int	CNT_WAIT_END = 95;	// 終了の待機フレーム
+		const float	MOVE_POS = 72.0f;	// 移動量
+		const float	STOP_POS = 320.0f;	// 停止位置
+	}
 }
 
 //************************************************************
@@ -105,6 +116,11 @@ const char *CPhoneManager::mc_apFaceTextureFile[] =	// 表情テクスチャ定数
 	"data\\TEXTURE\\face000.png",	// 開始時の表情テクスチャ
 	"data\\TEXTURE\\face001.png",	// 終了時の表情テクスチャ
 };
+const char *CPhoneManager::mc_apStagingTextureFile[] =	// 演出テクスチャ定数
+{
+	"data\\TEXTURE\\staging000.png",	// 開始時の演出テクスチャ
+	"data\\TEXTURE\\staging001.png",	// 終了時の演出テクスチャ
+};
 
 //************************************************************
 //	親クラス [CPhoneManager] のメンバ関数
@@ -116,6 +132,7 @@ CPhoneManager::CPhoneManager()
 {
 	// メンバ変数をクリア
 	memset(&m_apMessage[0], 0, sizeof(m_apMessage));	// メッセージの情報
+	m_pStaging	= NULL;			// 演出の情報
 	m_pFace		= NULL;			// 表情の情報
 	m_pStress	= NULL;			// 強調の情報
 	m_pPhone	= NULL;			// スマホの情報
@@ -143,6 +160,7 @@ HRESULT CPhoneManager::Init(void)
 {
 	// メンバ変数を初期化
 	memset(&m_apMessage[0], 0, sizeof(m_apMessage));	// メッセージの情報
+	m_pStaging	= NULL;			// 演出の情報
 	m_pFace		= NULL;			// 表情の情報
 	m_pStress	= NULL;			// 強調の情報
 	m_pPhone	= NULL;			// スマホの情報
@@ -290,6 +308,26 @@ HRESULT CPhoneManager::Init(void)
 	// 自動描画をOFFに設定
 	m_pFace->SetEnableDraw(false);
 
+	//--------------------------------------------------------
+	//	演出の生成・設定
+	//--------------------------------------------------------
+	// 演出の生成
+	m_pStaging = CObject2D::Create
+	( // 引数
+		staging::POS,	// 位置
+		staging::SIZE	// 大きさ
+	);
+	if (m_pStaging == NULL)
+	{ // 生成に失敗した場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
+
+	// 優先順位を設定
+	m_pStaging->SetPriority(PRIORITY);
+
 	// 成功を返す
 	return S_OK;
 }
@@ -305,6 +343,9 @@ void CPhoneManager::Uninit(void)
 		// メッセージの終了
 		m_apMessage[nCntPhone]->Uninit();
 	}
+
+	// 演出の終了
+	m_pStaging->Uninit();
 
 	// 表情の終了
 	m_pFace->Uninit();
@@ -324,6 +365,9 @@ void CPhoneManager::Uninit(void)
 //============================================================
 void CPhoneManager::Update(void)
 {
+	// スマホ演出スキップ
+	SkipPhoneStaging();
+
 	switch (m_state)
 	{ // 状態ごとの処理
 	case STATE_NONE:	// 何もしない状態
@@ -351,6 +395,9 @@ void CPhoneManager::Update(void)
 
 		if (UpdateDispWait(phone::CNT_WAIT_SCALE))
 		{ // 待機完了した場合
+
+			// 拡大率を初期化
+			m_fScale = 1.0f;
 
 			// スマホの拡大状態を設定
 			m_state = STATE_PHONE_SCALE;
@@ -415,6 +462,30 @@ void CPhoneManager::Update(void)
 
 		break;
 
+	case STATE_STAGING:	// 演出の表示状態
+
+		// 演出表示の更新
+		UpdateStaging();
+
+		break;
+
+	case STATE_END_WAIT:	// 終了待機状態
+
+		if (UpdateDispWait(staging::CNT_WAIT_END))
+		{ // 待機完了した場合
+
+			// 終了状態を設定
+			m_state = STATE_END;
+
+			// 演出の自動描画をOFFにする
+			m_pStaging->SetEnableDraw(false);
+
+			// 表示をOFFにする
+			SetEnableDisp(false);
+		}
+
+		break;
+
 	case STATE_END:	// 終了状態
 
 		// 無し
@@ -432,6 +503,9 @@ void CPhoneManager::Update(void)
 		// メッセージの更新
 		m_apMessage[nCntPhone]->Update();
 	}
+
+	// 演出の更新
+	m_pStaging->Update();
 
 	// 表情の更新
 	m_pFace->Update();
@@ -467,6 +541,9 @@ void CPhoneManager::SetLook(const EType type)
 	// 表情のテクスチャを登録・割当
 	m_pFace->BindTexture(mc_apFaceTextureFile[type]);
 
+	// 演出のテクスチャを登録・割当
+	m_pStaging->BindTexture(mc_apStagingTextureFile[type]);
+
 	//--------------------------------------------------------
 	//	情報の初期化
 	//--------------------------------------------------------
@@ -476,6 +553,12 @@ void CPhoneManager::SetLook(const EType type)
 
 		m_apMessage[nCntPhone]->SetEnableDraw(false);
 	}
+
+	// 演出の自動描画をONにする
+	m_pStaging->SetEnableDraw(true);
+
+	// 演出の位置を初期化
+	m_pStaging->SetVec3Position(staging::POS);
 
 	// スマホの位置・大きさを初期化
 	m_pPhone->SetVec3Position(phone::POS);
@@ -492,6 +575,7 @@ void CPhoneManager::SetLook(const EType type)
 	m_pFace->SetColor(XCOL_WHITE);		// 表情
 
 	// 情報を初期化
+	m_fScale = 1.0f;		// 拡大率
 	m_fMove = 0.0f;			// スマホの移動量
 	m_nCounterState = 0;	// 状態管理カウンター
 	m_nCounterDisp = 0;		// 表示管理カウンター
@@ -532,6 +616,8 @@ void CPhoneManager::SetEnableDisp(const bool bDisp)
 	// 描画状況を表示状況と一致させる
 	m_pFade->SetEnableDraw(bDisp);
 	m_pPhone->SetEnableDraw(bDisp);
+	m_pStress->SetEnableDraw(bDisp);
+	m_pFace->SetEnableDraw(bDisp);
 
 	// メッセージの自動描画をOFFに設定
 	for (int nCntPhone = 0; nCntPhone < NUM_MESSAGE; nCntPhone++)
@@ -857,8 +943,8 @@ void CPhoneManager::UpdatePhoneReturn(void)
 		&&  colStress.a <= 0.0f)
 		{ // α値が下がり切っている場合
 
-			// 終了状態を設定
-			m_state = STATE_END;
+			// 演出の表示状態を設定
+			m_state = STATE_STAGING;
 
 			// 表示をOFFにする
 			SetEnableDisp(false);
@@ -867,6 +953,56 @@ void CPhoneManager::UpdatePhoneReturn(void)
 
 	// スマホの位置を反映
 	m_pPhone->SetVec3Position(posPhone);
+}
+
+//============================================================
+//	演出表示の更新処理
+//============================================================
+void CPhoneManager::UpdateStaging(void)
+{
+	// 変数を宣言
+	D3DXVECTOR3 posStaging = m_pStaging->GetVec3Position();	// 演出位置
+
+	// 横位置を右に移動
+	posStaging.x += staging::MOVE_POS;
+
+	if (posStaging.x > staging::STOP_POS)
+	{ // 位置が停止位置を超えた場合
+
+		// 停止位置に補正
+		posStaging.x = staging::STOP_POS;
+
+		// 終了待機状態を設定
+		m_state = STATE_END_WAIT;
+	}
+
+	// 演出位置を反映
+	m_pStaging->SetVec3Position(posStaging);
+}
+
+//============================================================
+//	スマホ演出スキップ処理
+//============================================================
+void CPhoneManager::SkipPhoneStaging(void)
+{
+	// ポインタを宣言
+	CInputKeyboard	*pKeyboard	= CManager::GetInstance()->GetKeyboard();	// キーボード
+	CInputPad		*pPad		= CManager::GetInstance()->GetPad();		// パッド
+
+	if (pKeyboard->IsTrigger(DIK_RETURN)  || pKeyboard->IsTrigger(DIK_SPACE)
+	||  pPad->IsTrigger(CInputPad::KEY_A) || pPad->IsTrigger(CInputPad::KEY_B)
+	||  pPad->IsTrigger(CInputPad::KEY_X) || pPad->IsTrigger(CInputPad::KEY_Y))
+	{
+		if (m_state != STATE_END && m_state != STATE_END_WAIT && m_state != STATE_STAGING)
+		{ // スキップ以降の状態ではない場合
+
+			// 演出の表示状態を設定
+			m_state = STATE_STAGING;
+
+			// 表示をOFFにする
+			SetEnableDisp(false);
+		}
+	}
 }
 
 //============================================================

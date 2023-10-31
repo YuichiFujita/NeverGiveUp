@@ -106,7 +106,7 @@ namespace
 	namespace clear
 	{
 		const D3DXVECTOR3 POS	= D3DXVECTOR3(-320.0f, 620.0f, 0.0f);	// クリア表示の位置
-		const D3DXVECTOR3 SIZE	= D3DXVECTOR3(980.0f*0.6f, 238.0f*0.6f, 0.0f);	// クリア表示の大きさ
+		const D3DXVECTOR3 SIZE	= D3DXVECTOR3(588.0f, 143.0f, 0.0f);	// クリア表示の大きさ
 
 		const float MOVE_POS = 72.0f;	// 移動量
 		const float STOP_POS = 320.0f;	// 停止位置
@@ -857,10 +857,13 @@ void CPlayer::UpdateClear(void)
 	// 変数を宣言
 	D3DXVECTOR3 posClear = m_pClear->GetVec3Position();	// クリア表示位置
 
+	// 横位置を右に移動
 	posClear.x += clear::MOVE_POS;
 
 	if (posClear.x > clear::STOP_POS)
-	{
+	{ // 位置が停止位置を超えた場合
+
+		// 停止位置に補正
 		posClear.x = clear::STOP_POS;
 	}
 

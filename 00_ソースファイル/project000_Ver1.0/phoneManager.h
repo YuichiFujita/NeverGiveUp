@@ -62,6 +62,8 @@ public:
 		STATE_FACE,					// 表情の拡大状態
 		STATE_PHONE_RETURN_WAIT,	// スマホのしまい待機状態
 		STATE_PHONE_RETURN,			// スマホのしまい状態
+		STATE_STAGING,				// 演出の表示状態
+		STATE_END_WAIT,				// 終了待機状態
 		STATE_END,					// 終了状態
 		STATE_MAX					// この列挙型の総数
 	};
@@ -94,6 +96,8 @@ private:
 	void UpdateMessage(void);		// メッセージ受信
 	void UpdateFace(void);			// 表情拡大
 	void UpdatePhoneReturn(void);	// スマホ収納
+	void UpdateStaging(void);		// 演出表示
+	void SkipPhoneStaging(void);	// スマホ演出スキップ
 	void SetPositionRelative(void);	// メッセージ相対位置設定
 	bool UpdateDispWait(const int nWait);	// 表示待機
 
@@ -101,9 +105,11 @@ private:
 	static const char *mc_apTextureFile[];			// テクスチャ定数
 	static const char *mc_apMessageTextureFile[];	// メッセージテクスチャ定数
 	static const char *mc_apFaceTextureFile[];		// 表情テクスチャ定数
+	static const char *mc_apStagingTextureFile[];	// 演出テクスチャ定数
 
 	// メンバ変数
 	CAnim2D *m_apMessage[NUM_MESSAGE];	// メッセージの情報
+	CObject2D *m_pStaging;	// 演出の情報
 	CObject2D *m_pFace;		// 表情の情報
 	CObject2D *m_pStress;	// 強調の情報
 	CObject2D *m_pPhone;	// スマホの情報
