@@ -30,6 +30,13 @@ class CShadow;	// 影クラス
 class CFriend : public CObjectChara
 {
 public:
+	// テクスチャ列挙
+	enum ETexture
+	{
+		TEXTURE_HAPPY = 0,	// 嬉しい感情
+		TEXTURE_MAX			// この列挙型の総数
+	};
+
 	// モデル列挙
 	enum EModel
 	{
@@ -94,9 +101,10 @@ public:
 	float GetRadius(void) const override;		// 半径取得
 	float GetHeight(void) const override;		// 縦幅取得
 
-	void SetEnableUpdate(const bool bUpdate) override;	// 更新状況設定
-	void SetEnableDraw(const bool bDraw) override;		// 描画状況設定
-	D3DXMATRIX GetMtxWorld(void) const override;		// マトリックス取得
+	void SetVec3Position(const D3DXVECTOR3& rPos) override;	// 位置設定
+	void SetEnableUpdate(const bool bUpdate) override;		// 更新状況設定
+	void SetEnableDraw(const bool bDraw) override;			// 描画状況設定
+	D3DXMATRIX GetMtxWorld(void) const override;			// マトリックス取得
 
 	// 静的メンバ関数
 	static CFriend *Create(void);	// 生成
@@ -118,6 +126,7 @@ private:
 	bool CollisionBuilding(D3DXVECTOR3& rPos);	// ビルとの当たり判定
 
 	// 静的メンバ変数
+	static const char *mc_apTextureFile[];	// テクスチャ定数
 	static const char *mc_apModelFile[];	// モデル定数
 
 	// メンバ変数

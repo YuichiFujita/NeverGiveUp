@@ -41,8 +41,8 @@ namespace
 {
 	const char* SETUP_TXT = "data\\TXT\\player.txt";	// プレイヤーセットアップテキスト
 
-	const int PRIORITY = 3;		// プレイヤーの優先順位
-	const int CNT_WAIT = 40;	// リザルト遷移時の余韻フレーム
+	const int PRIORITY = 3;	// プレイヤーの優先順位
+	const int CNT_WAIT[CRetentionManager::RESULT_MAX] = { 0, 40, 220 };	// リザルト遷移時の余韻フレーム
 
 	// プレイヤー基本情報
 	namespace basic
@@ -56,6 +56,7 @@ namespace
 		const float	BLOW_SIDE	= 10.0f;	// 吹っ飛び時の横移動量
 		const float	BLOW_UP		= 30.0f;	// 吹っ飛び時の縦移動量
 		const float	ADD_MOVE	= 0.08f;	// 非アクション時の速度加算量
+		const float	MIN_VARY	= 0.01f;	// 向きと目標向きの違う量の許容値
 
 		const float	JUMPPAD_MOVE	= 50.0f;	// ジャンプパッドの上移動量
 		const float	NOR_JUMP_REV	= 0.16f;	// 通常状態時の空中の移動量の減衰係数
@@ -232,7 +233,7 @@ void CPlayer::Uninit(void)
 void CPlayer::Update(void)
 {
 	// 変数を宣言
-	EMotion currentMotion = MOTION_IDOL;	// 現在のモーション
+	EMotion currentMotion = MOTION_WAVEHAND;	// 現在のモーション
 
 	// 過去位置の更新
 	UpdateOldPosition();
@@ -761,13 +762,15 @@ CPlayer::EMotion CPlayer::UpdateUnion(void)
 		// 目標向きを設定
 		m_destRot.y = atan2f(posPlayer.x - posFriend.x, posPlayer.z - posFriend.z);
 
-#if 0
-		// カメラの更新をOFFに設定
-		CManager::GetInstance()->GetCamera()->SetEnableUpdate(false);
-#else
 		// カメラをズーム状態に設定
 		CManager::GetInstance()->GetCamera()->SetState(CCamera::STATE_ZOOM);
-#endif
+
+		if (fabsf(rotPlayer.y - m_destRot.y) <= basic::MIN_VARY)
+		{ // 向きがある程度一致した場合
+
+			// ゲームクリア状態にする
+			SetState(STATE_CLEAR);
+		}
 	}
 
 	// 重力の更新
@@ -1456,7 +1459,7 @@ void CPlayer::ResultTransition(const CRetentionManager::EResult result)
 		m_pRetention->SetTime(pTimer->GetLimit() - pTimer->Get());
 
 		// シーンの設定
-		CManager::GetInstance()->SetScene(CScene::MODE_RESULT, CNT_WAIT);	// リザルト画面
+		CManager::GetInstance()->SetScene(CScene::MODE_RESULT, CNT_WAIT[result]);	// リザルト画面
 	}
 }
 

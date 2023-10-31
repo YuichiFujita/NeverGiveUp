@@ -20,6 +20,7 @@
 #include "fade.h"
 
 #include "multiModel.h"
+#include "objectBillboard.h"
 #include "shadow.h"
 #include "stage.h"
 #include "player.h"
@@ -39,37 +40,34 @@ namespace
 	// 友達基本情報
 	namespace basic
 	{
-		const float	MOVE		= 2.8f;		// 移動量
-		const float	JUMP		= 21.0f;	// ジャンプ上昇量
 		const float	GRAVITY		= 1.0f;		// 重力
 		const float	RADIUS		= 20.0f;	// 半径
 		const float	HEIGHT		= 100.0f;	// 縦幅
 		const float	REV_ROTA	= 0.03f;	// 向き変更の補正係数
-		const float	BLOW_SIDE	= 10.0f;	// 吹っ飛び時の横移動量
-		const float	BLOW_UP		= 30.0f;	// 吹っ飛び時の縦移動量
-		const float	ADD_MOVE	= 0.08f;	// 非アクション時の速度加算量
+		const float	MIN_VARY	= 0.2f;		// 向きと目標向きの違う量の許容値
 
-		const float	JUMPPAD_MOVE	= 50.0f;	// ジャンプパッドの上移動量
 		const float	NOR_JUMP_REV	= 0.16f;	// 通常状態時の空中の移動量の減衰係数
 		const float	NOR_LAND_REV	= 0.16f;	// 通常状態時の地上の移動量の減衰係数
-		const float	DMG_JUMP_REV	= 0.015f;	// ダメージ状態時の空中の移動量の減衰係数
-		const float	DMG_LAND_REV	= 0.25f;	// ダメージ状態時の地上の移動量の減衰係数
-		const float DMG_SUB_ALPHA	= 0.025f;	// ダメージ状態時の透明度の減算量
-		const float	SPAWN_ADD_ALPHA	= 0.03f;	// スポーン状態時の透明度の加算量
 
-		const D3DXVECTOR3 DMG_ADDROT = D3DXVECTOR3(0.04f, 0.0f, -0.02f);	// ダメージ状態時の友達回転量
+		
 	}
 
 	// 友達他クラス情報
 	namespace other
 	{
-		const D3DXVECTOR3 SHADOW_SIZE = D3DXVECTOR3(80.0f, 0.0f, 80.0f);	// 影の大きさ
+		const D3DXVECTOR3 EMOTION_PLUSPOS = D3DXVECTOR3(0.0f, 160.0f, 0.0f);	// 感情吹き出しの位置加算量
+		const D3DXVECTOR3 EMOTION_SIZE = D3DXVECTOR3(120.0f, 120.0f, 0.0f);		// 感情吹き出しの大きさ
+		const D3DXVECTOR3 SHADOW_SIZE = D3DXVECTOR3(80.0f, 0.0f, 80.0f);		// 影の大きさ
 	}
 }
 
 //************************************************************
 //	静的メンバ変数宣言
 //************************************************************
+const char *CFriend::mc_apTextureFile[] =	// テクスチャ定数
+{
+	"data\\TEXTURE\\emotion000.png",	// 嬉しい感情テクスチャ
+};
 const char *CFriend::mc_apModelFile[] =	// モデル定数
 {
 	"data\\MODEL\\FRIEND\\00_waist.x",	// 腰
@@ -146,6 +144,22 @@ HRESULT CFriend::Init(void)
 	// モデル情報の設定
 	SetModelInfo();
 
+	// 感情吹き出しの生成
+	m_pEmotion = CObjectBillboard::Create(VEC3_ZERO, other::EMOTION_SIZE);
+	if (m_pEmotion == NULL)
+	{ // 非使用中の場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
+
+	// テクスチャを読込・割当
+	m_pEmotion->BindTexture(mc_apTextureFile[TEXTURE_HAPPY]);
+
+	// 自動描画をOFFにする
+	m_pEmotion->SetEnableDraw(false);
+
 	// 影の生成
 	m_pShadow = CShadow::Create(CShadow::TEXTURE_NORMAL, other::SHADOW_SIZE, this);
 	if (m_pShadow == NULL)
@@ -165,6 +179,9 @@ HRESULT CFriend::Init(void)
 //============================================================
 void CFriend::Uninit(void)
 {
+	// 感情吹き出しの終了
+	m_pEmotion->Uninit();
+
 	// 影の終了
 	m_pShadow->Uninit();
 
@@ -206,6 +223,9 @@ void CFriend::Update(void)
 		assert(false);
 		break;
 	}
+
+	// 感情吹き出しの更新
+	m_pEmotion->Update();
 
 	// 影の更新
 	m_pShadow->Update();
@@ -257,6 +277,16 @@ float CFriend::GetHeight(void) const
 {
 	// 縦幅を返す
 	return basic::HEIGHT;
+}
+
+//============================================================
+//	位置の設定処理
+//============================================================
+void CFriend::SetVec3Position(const D3DXVECTOR3& rPos)
+{
+	// 引数の位置を設定
+	CObjectChara::SetVec3Position(rPos);	// 自身
+	m_pEmotion->SetVec3Position(rPos + other::EMOTION_PLUSPOS);	// 感情吹き出し
 }
 
 //============================================================
@@ -413,6 +443,13 @@ CFriend::EMotion CFriend::UpdateUnion(void)
 	// 目標向きを設定
 	m_destRot.y = atan2f(posFriend.x - posPlayer.x, posFriend.z - posPlayer.z);
 
+	if (fabsf(rotFriend.y - m_destRot.y) <= basic::MIN_VARY)
+	{ // 向きがある程度一致した場合
+
+		// 自動描画をONにする
+		m_pEmotion->SetEnableDraw(true);
+	}
+
 	// 重力の更新
 	UpdateGravity();
 
@@ -552,20 +589,6 @@ void CFriend::UpdateMotion(int nMotion)
 
 	// オブジェクトキャラクターの更新
 	CObjectChara::Update();
-
-#if 0
-	// モーションの遷移
-	switch (GetMotionType())
-	{ // モーションの種類ごとの処理
-	case MOTION_JUMP:		// ジャンプモーション
-
-		// 現在のモーションの設定
-		SetMotion(nMotion);
-
-		// 処理を抜ける
-		break;
-	}
-#endif
 }
 
 //============================================================
