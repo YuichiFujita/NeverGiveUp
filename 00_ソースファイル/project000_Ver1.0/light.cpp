@@ -47,11 +47,13 @@ HRESULT CLight::Init(void)
 	aDiffuse[0] = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 	aDiffuse[1] = D3DXCOLOR(0.7f, 0.7f, 0.7f, 1.0f);
 	aDiffuse[2] = D3DXCOLOR(0.6f, 0.6f, 0.6f, 1.0f);
+	aDiffuse[3] = D3DXCOLOR(0.4f, 0.4f, 0.4f, 1.0f);
 
 	// 方向ベクトルを設定
-	aVecDir[0] = D3DXVECTOR3( 0.22f, -0.97f,  0.44f);
+	aVecDir[0] = D3DXVECTOR3( 0.22f, -0.97f,  0.54f);
 	aVecDir[1] = D3DXVECTOR3(-0.38f,  0.78f, -0.54f);
 	aVecDir[2] = D3DXVECTOR3( 0.89f, -0.21f,  0.44f);
+	aVecDir[3] = D3DXVECTOR3(-0.96f,  0.15f, -0.44f);
 
 	// メンバ変数を初期化
 	for (int nCntLight = 0; nCntLight < MAX_LIGHT; nCntLight++)
