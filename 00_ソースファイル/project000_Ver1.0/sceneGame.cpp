@@ -34,7 +34,7 @@
 
 #endif
 
-#define TIME_POS		(D3DXVECTOR3(40.0f, 50.0f, 0.0f))	// タイマー位置
+#define TIME_POS		(D3DXVECTOR3(710.0f, 50.0f, 0.0f))	// タイマー位置
 #define TIME_VAL_SIZE	(D3DXVECTOR3(72.0f, 96.0f, 0.0f))	// タイマー数字大きさ
 #define TIME_PART_SIZE	(D3DXVECTOR3(42.0f, 96.0f, 0.0f))	// タイマー区切り大きさ
 #define TIME_VAL_SPACE	(D3DXVECTOR3(TIME_VAL_SIZE.x  * 0.85f, 0.0f, 0.0f))	// タイマー数字空白
@@ -105,6 +105,9 @@ HRESULT CSceneGame::Init(void)
 		assert(false);
 		return E_FAIL;
 	}
+
+	// ロゴの自動描画をONにする
+	m_pTimerManager->SetEnableLogoDraw(true);
 
 	// シーンの初期化
 	CScene::Init();		// ステージ・プレイヤーの生成

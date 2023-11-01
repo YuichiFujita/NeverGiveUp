@@ -22,6 +22,10 @@
 
 #define TIME_NUMMIN	(DWORD)(0)			// 最少タイム
 #define TIME_NUMMAX	(DWORD)(99 * 60000)	// 最大タイム
+#define TIME_NUMRED	(DWORD)(1 * 60000)	// 赤くなるタイム
+
+#define ADDPOS_LOGO	(D3DXVECTOR3(-330.0f, 0.0f, 0.0f))	// ロゴの位置加算量
+#define SIZE_LOGO	(D3DXVECTOR3(1234.0f * 0.5f, 238.0f * 0.5f, 0.0f))	// ロゴの大きさ
 
 //************************************************************
 //	静的メンバ変数宣言
@@ -29,6 +33,7 @@
 const char *CTimerManager::mc_apTextureFile[] =	// テクスチャ定数
 {
 	"data\\TEXTURE\\timer000.png",	// 区切り表示
+	"data\\TEXTURE\\timer001.png",	// ロゴ表示
 };
 
 //************************************************************
@@ -42,6 +47,7 @@ CTimerManager::CTimerManager()
 	// メンバ変数をクリア
 	memset(&m_apValue[0], 0, sizeof(m_apValue));	// 数値の情報
 	memset(&m_apPart[0], 0, sizeof(m_apPart));		// 区切りの情報
+	m_pLogo				= NULL;			// ロゴの情報
 	m_pos				= VEC3_ZERO;	// 位置
 	m_sizeValue			= VEC3_ZERO;	// 数字の大きさ
 	m_sizePart			= VEC3_ZERO;	// 区切りの大きさ
@@ -76,6 +82,7 @@ HRESULT CTimerManager::Init(void)
 	// メンバ変数を初期化
 	memset(&m_apValue[0], 0, sizeof(m_apValue));	// 数値の情報
 	memset(&m_apPart[0], 0, sizeof(m_apPart));		// 区切りの情報
+	m_pLogo				= NULL;			// ロゴの情報
 	m_pos				= VEC3_ZERO;	// 位置
 	m_sizeValue			= VEC3_ZERO;	// 数字の大きさ
 	m_sizePart			= VEC3_ZERO;	// 区切りの大きさ
@@ -121,11 +128,30 @@ HRESULT CTimerManager::Init(void)
 		}
 
 		// テクスチャを登録・割当
-		m_apPart[nCntTimer]->BindTexture(pTexture->Regist(mc_apTextureFile[TEXTURE_NORMAL]));
+		m_apPart[nCntTimer]->BindTexture(pTexture->Regist(mc_apTextureFile[TEXTURE_PART]));
 
 		// 優先順位を設定
 		m_apPart[nCntTimer]->SetPriority(TIMER_PRIO);
 	}
+
+	// ロゴの生成
+	m_pLogo = CObject2D::Create(VEC3_ZERO, SIZE_LOGO);
+	if (m_pLogo == NULL)
+	{ // 生成に失敗した場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
+
+	// テクスチャを登録・割当
+	m_pLogo->BindTexture(pTexture->Regist(mc_apTextureFile[TEXTURE_LOGO]));
+
+	// 優先順位を設定
+	m_pLogo->SetPriority(TIMER_PRIO);
+
+	// 自動描画をOFFにする
+	m_pLogo->SetEnableDraw(false);
 
 	// 成功を返す
 	return S_OK;
@@ -151,6 +177,9 @@ void CTimerManager::Uninit(void)
 		// 区切りの終了
 		m_apPart[nCntTimer]->Uninit();
 	}
+
+	// ロゴの終了
+	m_pLogo->Uninit();
 }
 
 //============================================================
@@ -188,6 +217,13 @@ void CTimerManager::Update(void)
 
 					// 現在の計測ミリ秒を設定
 					m_dwTime = nTime;
+
+					if (m_dwTime <= TIME_NUMRED)
+					{ // タイマーが残り一分の場合
+
+						// 色を赤に設定
+						SetColor(XCOL_RED);
+					}
 				}
 				else
 				{  // タイムが 0以下の場合
@@ -236,6 +272,9 @@ void CTimerManager::Update(void)
 		// 区切りの更新
 		m_apPart[nCntTimer]->Update();
 	}
+
+	// ロゴの更新
+	m_pLogo->Update();
 
 	// デバッグ表示
 	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "タイマー：[%d:%d:%d]\n", m_dwTime / 60000, (m_dwTime / 1000) % 60, m_dwTime % 1000);
@@ -957,6 +996,20 @@ void CTimerManager::SetEnableDraw(const bool bDraw)
 }
 
 //============================================================
+//	ロゴの描画状況の設定処理
+//============================================================
+void CTimerManager::SetEnableLogoDraw(const bool bDraw)
+{
+	if (m_pLogo != NULL)
+	{ // ロゴが使用されている場合
+
+		// 引数をロゴの描画状況に設定		
+		m_pLogo->SetEnableDraw(bDraw);
+	}
+	else { assert(false); }	// 非使用中
+}
+
+//============================================================
 //	位置取得処理
 //============================================================
 D3DXVECTOR3 CTimerManager::GetPosition(void) const
@@ -1056,6 +1109,14 @@ void CTimerManager::SetDrawValue(void)
 				posPoly += spaceValue;
 			}
 		}
+	}
+	else { assert(false); }	// 非使用中
+
+	if (m_pLogo != NULL)
+	{ // ロゴが使用されている場合
+
+		// ロゴの位置を設定		
+		m_pLogo->SetVec3Position(m_pos + ADDPOS_LOGO);
 	}
 	else { assert(false); }	// 非使用中
 }

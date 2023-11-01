@@ -42,7 +42,8 @@ public:
 	// テクスチャ列挙
 	typedef enum
 	{
-		TEXTURE_NORMAL = 0,	// 区切り表示のテクスチャ
+		TEXTURE_PART = 0,	// 区切り表示のテクスチャ
+		TEXTURE_LOGO,		// ロゴ表示のテクスチャ
 		TEXTURE_MAX			// この列挙型の総数
 	}TEXTURE;
 
@@ -99,6 +100,7 @@ public:
 	void SetPriority(const int nPriority);				// 優先順位設定
 	void SetEnableUpdate(const bool bUpdate);			// 更新状況設定
 	void SetEnableDraw(const bool bDraw);				// 描画状況設定
+	void SetEnableLogoDraw(const bool bDraw);			// ロゴ描画状況設定
 	D3DXVECTOR3 GetPosition(void) const;				// 位置取得
 	D3DXVECTOR3 GetScalingValue(void) const;			// 区切りの大きさ取得
 	D3DXVECTOR3 GetScalingPart(void) const;				// 数字の大きさ取得
@@ -131,6 +133,7 @@ private:
 	// メンバ変数
 	CValue *m_apValue[MAX_TIMER];	// 数値の情報
 	CObject2D *m_apPart[MAX_PART];	// 区切りの情報
+	CObject2D *m_pLogo;				// ロゴの情報
 	D3DXVECTOR3 m_pos;				// 位置
 	D3DXVECTOR3 m_sizeValue;		// 数字の大きさ
 	D3DXVECTOR3 m_sizePart;			// 区切りの大きさ
