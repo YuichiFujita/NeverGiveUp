@@ -20,6 +20,7 @@
 #include "fade.h"
 
 #include "multiModel.h"
+#include "objectOrbit.h"
 #include "shadow.h"
 #include "object2D.h"
 #include "timerManager.h"
@@ -115,6 +116,10 @@ namespace
 	// プレイヤー他クラス情報
 	namespace other
 	{
+		const int ORBIT_PARTS[]		= { CPlayer::MODEL_ARMDL, CPlayer::MODEL_ARMDR, CPlayer::MODEL_LEGDL, CPlayer::MODEL_LEGDR };	// 軌跡を出すパーツのインデックス
+		const int ORBIT_PART		= 20;	// 軌跡の分割数
+		const D3DXCOLOR ORBIT_COL	= D3DXCOLOR(0.0f, 0.9f, 1.0f, 0.8f);	// 軌跡の色
+
 		const D3DXVECTOR3 SHADOW_SIZE = D3DXVECTOR3(80.0f, 0.0f, 80.0f);	// 影の大きさ
 	}
 }
@@ -154,6 +159,7 @@ const char *CPlayer::mc_apModelFile[] =	// モデル定数
 CPlayer::CPlayer() : CObjectChara(CObject::LABEL_PLAYER, PRIORITY)
 {
 	// メンバ変数をクリア
+	memset(&m_apOrbit[0], 0, sizeof(m_apOrbit));	// 軌跡の情報
 	m_pShadow			= NULL;			// 影の情報
 	m_pGoal				= NULL;			// ゴールの情報
 	m_pClear			= NULL;			// クリア表示の情報
@@ -188,6 +194,7 @@ CPlayer::~CPlayer()
 HRESULT CPlayer::Init(void)
 {
 	// メンバ変数を初期化
+	memset(&m_apOrbit[0], 0, sizeof(m_apOrbit));	// 軌跡の情報
 	m_pShadow			= NULL;			// 影の情報
 	m_pGoal				= NULL;			// ゴールの情報
 	m_pClear			= NULL;			// クリア表示の情報
@@ -222,6 +229,29 @@ HRESULT CPlayer::Init(void)
 	// モデル情報の設定
 	SetModelInfo();
 
+	for (int nCntPlayer = 0; nCntPlayer < NUM_ORBIT; nCntPlayer++)
+	{ // 軌跡の生成数分繰り返す
+
+		// 軌跡の生成
+		m_apOrbit[nCntPlayer] = CObjectOrbit::Create
+		( // 引数
+			GetMultiModel(other::ORBIT_PARTS[nCntPlayer])->GetPtrMtxWorld(),	// 親マトリックス	
+			other::ORBIT_COL,	// 色
+			(CObjectOrbit::EOffset)nCntPlayer,	// オフセット
+			other::ORBIT_PART	// 分割数
+		);
+		if (m_apOrbit[nCntPlayer] == NULL)
+		{ // 非使用中の場合
+
+			// 失敗を返す
+			assert(false);
+			return E_FAIL;
+		}
+
+		// 自動描画をOFFに設定
+		m_apOrbit[nCntPlayer]->SetEnableDraw(false);
+	}
+
 	// 影の生成
 	m_pShadow = CShadow::Create(CShadow::TEXTURE_NORMAL, other::SHADOW_SIZE, this);
 	if (m_pShadow == NULL)
@@ -254,6 +284,13 @@ HRESULT CPlayer::Init(void)
 //============================================================
 void CPlayer::Uninit(void)
 {
+	for (int nCntPlayer = 0; nCntPlayer < NUM_ORBIT; nCntPlayer++)
+	{ // 軌跡の生成数分繰り返す
+
+		// 軌跡の終了
+		m_apOrbit[nCntPlayer]->Uninit();
+	}
+
 	// 影の終了
 	m_pShadow->Uninit();
 
@@ -323,6 +360,13 @@ void CPlayer::Update(void)
 		break;
 	}
 
+	for (int nCntPlayer = 0; nCntPlayer < NUM_ORBIT; nCntPlayer++)
+	{ // 軌跡の生成数分繰り返す
+
+		// 軌跡の更新
+		m_apOrbit[nCntPlayer]->Update();
+	}
+
 	// 影の更新
 	m_pShadow->Update();
 
@@ -340,6 +384,13 @@ void CPlayer::Draw(void)
 {
 	// オブジェクトキャラクターの描画
 	CObjectChara::Draw();
+
+	for (int nCntPlayer = 0; nCntPlayer < NUM_ORBIT; nCntPlayer++)
+	{ // 軌跡の生成数分繰り返す
+
+		// 軌跡の描画
+		m_apOrbit[nCntPlayer]->Draw();
+	}
 }
 
 //============================================================
@@ -382,7 +433,8 @@ void CPlayer::Hit(void)
 void CPlayer::SetState(const int nState)
 {
 	if (m_state != CPlayer::STATE_CLEAR
-	&&  m_state != CPlayer::STATE_OVER)
+	&&  m_state != CPlayer::STATE_OVER
+	&&  m_state != CPlayer::STATE_UNION)
 	{ // ゲーム終了に関する状態ではない場合
 
 		// 引数の状態を設定
@@ -409,6 +461,16 @@ void CPlayer::SetState(const int nState)
 
 			// 失敗でリザルト遷移
 			ResultTransition(CRetentionManager::RESULT_FAILED);
+		}
+		else if (m_state == CPlayer::STATE_UNION)
+		{ // 合流状態になった場合
+
+			for (int nCntPlayer = 0; nCntPlayer < NUM_ORBIT; nCntPlayer++)
+			{ // 軌跡の生成数分繰り返す
+
+				// 軌跡を消失状態に設定
+				m_apOrbit[nCntPlayer]->SetState(CObjectOrbit::STATE_VANISH);
+			}
 		}
 	}
 }
@@ -594,6 +656,13 @@ void CPlayer::SetSpawn(void)
 
 	// 透明度を透明に再設定
 	SetAlpha(0.0f);
+
+	for (int nCntPlayer = 0; nCntPlayer < NUM_ORBIT; nCntPlayer++)
+	{ // 軌跡の生成数分繰り返す
+
+		// 軌跡を通常状態に再設定
+		m_apOrbit[nCntPlayer]->SetState(CObjectOrbit::STATE_NORMAL);
+	}
 
 	// プレイヤー自身の描画を再開
 	CObject::SetEnableDraw(true);
@@ -1012,6 +1081,9 @@ void CPlayer::UpdateWallDash(D3DXVECTOR3& rPos)
 
 				// 壁走りモーションを設定
 				SetMotion(MOTION_WALLDASH);
+
+				// サウンドの再生
+				CManager::GetInstance()->GetSound()->Play(CSound::LABEL_SE_SLIDE);	// スライディング音
 			}
 		}
 	}
@@ -1069,6 +1141,9 @@ void CPlayer::UpdateWallDash(D3DXVECTOR3& rPos)
 
 						// ジャンプモーションを設定
 						SetMotion(MOTION_JUMP);
+
+						// サウンドの再生
+						CManager::GetInstance()->GetSound()->Play(CSound::LABEL_SE_JUMP);	// ジャンプ音
 					}
 				}
 			}
@@ -1114,6 +1189,9 @@ void CPlayer::UpdateJump(void)
 
 			// ジャンプモーションを設定
 			SetMotion(MOTION_JUMP);
+
+			// サウンドの再生
+			CManager::GetInstance()->GetSound()->Play(CSound::LABEL_SE_JUMP);	// ジャンプ音
 		}
 	}
 }
@@ -1161,6 +1239,9 @@ void CPlayer::UpdateSliding(void)
 
 					// スライディングモーションを設定
 					SetMotion(MOTION_SLIDE);
+
+					// サウンドの再生
+					CManager::GetInstance()->GetSound()->Play(CSound::LABEL_SE_SLIDE);	// スライディング音
 				}
 			}
 		}
@@ -2206,6 +2287,9 @@ void CPlayer::CollisionObstacle(D3DXVECTOR3& rPos)
 
 							// ジャンプしている状態にする
 							m_bJump = true;
+
+							// サウンドの再生
+							CManager::GetInstance()->GetSound()->Play(CSound::LABEL_SE_JUMPPAD);	// ジャンプパッド音
 						}
 
 						break;

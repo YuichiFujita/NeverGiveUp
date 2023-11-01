@@ -19,8 +19,14 @@
 #include "retentionManager.h"
 
 //************************************************************
+//	マクロ定義
+//************************************************************
+#define NUM_ORBIT	(4)	// 軌跡の生成数
+
+//************************************************************
 //	前方宣言
 //************************************************************
+class CObjectOrbit;	// 軌跡クラス
 class CShadow;		// 影クラス
 class CGoalPoint;	// ゴールポイントクラス
 class CObject2D;	// オブジェクト2Dクラス
@@ -180,6 +186,7 @@ private:
 	static const char *mc_apModelFile[];	// モデル定数
 
 	// メンバ変数
+	CObjectOrbit *m_apOrbit[NUM_ORBIT];	// 軌跡の情報
 	CShadow *m_pShadow;			// 影の情報
 	CGoalPoint *m_pGoal;		// ゴールの情報
 	CObject2D *m_pClear;		// クリア表示の情報

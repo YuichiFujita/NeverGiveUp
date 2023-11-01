@@ -29,16 +29,11 @@ const CSound::SSoundInfo CSound::mc_aSoundInfo[LABEL_MAX] =	// サウンド情報
 	{ "data\\SE\\save000.wav",  0 },		// セーブ音
 	{ "data\\SE\\walk000.wav",  0 },		// 歩行音（ビル）
 	{ "data\\SE\\walk001.wav",  0 },		// 歩行音（障害物）
-	{ "data\\SE\\playerShot000.wav",  0 },	// プレイヤー射撃音 (泡)
-	{ "data\\SE\\enemyShot000.wav",  0 },	// 敵射撃音 (銃)
-	{ "data\\SE\\enemyShot001.wav",  0 },	// 敵射撃音 (大砲)
+	{ "data\\SE\\jump000.wav",  0 },		// ジャンプ
+	{ "data\\SE\\slideing000.wav",  0 },	// スライディング
+	{ "data\\SE\\jumppad000.wav",  0 },		// ジャンプパッド
 	{ "data\\SE\\stick000.wav",  0 },		// くっつき音
-	{ "data\\SE\\hit000.wav",  0 },			// 弾着弾音
-	{ "data\\SE\\break000.wav",  0 },		// 破壊音
-	{ "data\\SE\\hurricane000.wav",  0 },	// ハリケーン巻き込まれ音
-	{ "data\\SE\\fly000.wav",  0 },			// 浮遊音
-	{ "data\\SE\\stomp000.wav",  0 },		// 植物踏みつけ音
-	{ "data\\SE\\warning000.wav",  0 },		// 警告音
+	{ "data\\SE\\hit000.wav",  0 },			// ぶつかり音
 };
 
 //************************************************************

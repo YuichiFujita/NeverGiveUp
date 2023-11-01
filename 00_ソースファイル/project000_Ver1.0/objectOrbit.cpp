@@ -20,9 +20,10 @@
 //************************************************************
 const D3DXVECTOR3 CObjectOrbit::mc_aOffset[][MAX_OFFSET]	// オフセットの位置加減量
 {
-	{ D3DXVECTOR3(0.0f, -50.0f, 0.0f),	D3DXVECTOR3(0.0f, 50.0f, 0.0f) },	// 通常オフセット
-	{ D3DXVECTOR3(0.0f, 0.0f, -15.0f),	D3DXVECTOR3(0.0f, 0.0f, 15.0f) },	// 杖オフセット
-	{ D3DXVECTOR3(0.0f, 0.0f, -20.0f),	D3DXVECTOR3(0.0f, 0.0f, 20.0f) },	// 風オフセット
+	{ D3DXVECTOR3(0.0f, 0.0f, 0.0f),	D3DXVECTOR3(-6.0f, 0.0f, 0.0f) },	// 左下腕オフセット
+	{ D3DXVECTOR3(0.0f, 0.0f, 0.0f),	D3DXVECTOR3(6.0f, 0.0f, 0.0f) },	// 右下腕オフセット
+	{ D3DXVECTOR3(0.0f, 0.0f, 0.0f),	D3DXVECTOR3(0.0f, 6.0f, 0.0f) },	// 左脛オフセット
+	{ D3DXVECTOR3(0.0f, 0.0f, 0.0f),	D3DXVECTOR3(0.0f, -6.0f, 0.0f) },	// 右脛オフセット
 };
 
 //************************************************************

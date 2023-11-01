@@ -33,9 +33,10 @@ public:
 	// オフセット列挙
 	enum EOffset
 	{
-		OFFSET_NORMAL = 0,	// 通常オフセット
-		OFFSET_ROD,			// 杖オフセット
-		OFFSET_WIND,		// 風オフセット
+		OFFSET_ARMDL = 0,	// 左下腕オフセット
+		OFFSET_ARMDR,		// 右下腕オフセット
+		OFFSET_LEGDL,		// 左脛オフセット
+		OFFSET_LEGDR,		// 右脛オフセット
 		OFFSET_MAX			// この列挙型の総数
 	};
 

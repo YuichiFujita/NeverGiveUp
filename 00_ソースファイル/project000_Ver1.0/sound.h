@@ -46,16 +46,11 @@ public:
 		LABEL_SE_SAVE,			// セーブ音
 		LABEL_SE_WALK_BUILD,	// 歩行音（ビル）
 		LABEL_SE_WALK_OBS,		// 歩行音（障害物）
-		LABEL_SE_PLAYER_SHOT,	// プレイヤー射撃音 (泡)
-		LABEL_SE_ENEMY_SHOT000,	// 敵射撃音 (銃)
-		LABEL_SE_ENEMY_SHOT001,	// 敵射撃音 (大砲)
+		LABEL_SE_JUMP,			// ジャンプ
+		LABEL_SE_SLIDE,			// スライディング
+		LABEL_SE_JUMPPAD,		// ジャンプパッド
 		LABEL_SE_STICK,			// くっつき音
-		LABEL_SE_HIT,			// 弾着弾音
-		LABEL_SE_BREAK,			// 破壊音
-		LABEL_SE_HURRICANE,		// ハリケーン巻き込まれ音
-		LABEL_SE_FLY,			// 浮遊音
-		LABEL_SE_STOMP,			// 植物踏みつけ音
-		LABEL_SE_WARNING,		// 警告音
+		LABEL_SE_HIT,			// ぶつかり音
 		LABEL_MAX,				// この列挙型の総数
 	};
 
