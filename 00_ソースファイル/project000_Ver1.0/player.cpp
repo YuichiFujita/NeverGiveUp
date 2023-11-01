@@ -116,6 +116,19 @@ namespace
 		const float STOP_POS = 450.0f;	// 停止位置
 	}
 
+	// エフェクト情報
+	namespace effect
+	{
+		const float	SMOKE_RADIUS	= 30.0f;	// 煙の半径
+		const int	SMOKE_LIFE		= 20;		// 煙の寿命
+	}
+
+	// パーティクル情報
+	namespace particle
+	{
+		const D3DXCOLOR	COL_HEAL = D3DXCOLOR(0.0f, 1.0f, 1.0f, 1.0f);	// 回復パーティクルの色
+	}
+
 	// プレイヤー他クラス情報
 	namespace other
 	{
@@ -408,6 +421,7 @@ void CPlayer::Draw(void)
 void CPlayer::Hit(void)
 {
 	// 変数を宣言
+	D3DXVECTOR3 posPlayer = GetVec3Position();	// プレイヤー位置
 	D3DXVECTOR3 rotPlayer = GetVec3Rotation();	// プレイヤー向き
 
 	if (IsDeath() != true)
@@ -429,6 +443,9 @@ void CPlayer::Hit(void)
 
 			// 待機モーションを設定
 			SetMotion(MOTION_IDOL);
+
+			// 爆発パーティクルを生成
+			CParticle3D::Create(CParticle3D::TYPE_SMALL_EXPLOSION, D3DXVECTOR3(posPlayer.x, posPlayer.y + basic::HEIGHT * 0.5f, posPlayer.z));
 
 			// サウンドの再生
 			CManager::GetInstance()->GetSound()->Play(CSound::LABEL_SE_HIT);	// ヒット音
@@ -684,6 +701,9 @@ void CPlayer::SetSpawn(void)
 	// プレイヤー自身の描画を再開
 	CObject::SetEnableDraw(true);
 
+	// 回復パーティクルを生成
+	CParticle3D::Create(CParticle3D::TYPE_HEAL, SavePointInfo.pos, particle::COL_HEAL);
+
 	// 追従カメラの目標位置の設定
 	CManager::GetInstance()->GetCamera()->SetDestFollow();
 
@@ -772,6 +792,9 @@ CPlayer::EMotion CPlayer::UpdateNormal(void)
 
 	// 向きを反映
 	SetVec3Rotation(rotPlayer);
+
+	// エフェクトの更新
+	UpdateEffect(posPlayer);
 
 	// デバッグ表示
 	CManager::GetInstance()->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "[プレイヤー移動速度]：%f\n", m_fMove);
@@ -1463,6 +1486,19 @@ void CPlayer::UpdateRotation(D3DXVECTOR3& rRot)
 
 	// 向きの正規化
 	useful::NormalizeRot(rRot.y);
+}
+
+//============================================================
+//	エフェクトの更新処理
+//============================================================
+void CPlayer::UpdateEffect(D3DXVECTOR3& rPos)
+{
+	if (m_bSlide || m_bWallDash)
+	{ // スライディングまたは壁走りの場合
+
+		// 煙を生成
+		CEffect3D::Create(rPos, effect::SMOKE_RADIUS, CEffect3D::TYPE_SMOKE, effect::SMOKE_LIFE, D3DXVECTOR3((float)(rand() % 2), (float)(rand() % 4), (float)(rand() % 2)), VEC3_ZERO, XCOL_WHITE, -(float)(rand() % 12), false);
+	}
 }
 
 //============================================================

@@ -15,6 +15,7 @@
 #include "collision.h"
 #include "scene.h"
 #include "player.h"
+#include "particle3D.h"
 
 //************************************************************
 //	定数宣言
@@ -26,6 +27,12 @@ namespace
 	const int	RESET_MAT_CNT	= 45;		// マテリアル変更の再設定までのフレーム
 	const float	COL_RADIUS		= 80.0f;	// 当たり判定の半径
 	const float	COL_HEIGHT		= 280.0f;	// 当たり判定の縦幅
+
+	// パーティクル情報
+	namespace particle
+	{
+		const D3DXCOLOR	COL_HEAL = D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f);	// 回復パーティクルの色
+	}
 }
 
 //************************************************************
@@ -324,6 +331,9 @@ void CSavePoint::CollisionPlayer(void)
 
 					// マテリアルを発光緑に差し替え
 					SetMaterial(material::GlowGreen(), CHANGE_MAT_ID);
+
+					// 回復パーティクルを生成
+					CParticle3D::Create(CParticle3D::TYPE_HEAL, posSave, particle::COL_HEAL);
 
 					// サウンドの再生
 					CManager::GetInstance()->GetSound()->Play(CSound::LABEL_SE_SAVE);	// セーブ音

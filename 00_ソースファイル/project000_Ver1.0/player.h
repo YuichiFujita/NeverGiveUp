@@ -168,6 +168,7 @@ private:
 	void UpdateGravity(void);				// 重力の更新
 	bool UpdateLanding(D3DXVECTOR3& rPos);	// 着地状況の更新
 	void UpdateRotation(D3DXVECTOR3& rRot);	// 向きの更新
+	void UpdateEffect(D3DXVECTOR3& rPos);	// エフェクトの更新
 	void UpdateMotion(int nMotion);			// モーション・オブジェクトキャラクターの更新
 	bool UpdateFadeOut(const float fAdd);	// フェードアウト状態時の更新
 	bool UpdateFadeIn(const float fSub);	// フェードイン状態時の更新
