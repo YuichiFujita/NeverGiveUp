@@ -166,6 +166,7 @@ public:
 		TYPE_DAMAGE,		// ダメージ
 		TYPE_BIG_DAMAGE,	// 大ダメージ
 		TYPE_DEATH,			// 死亡
+		TYPE_WALLDASH,		// 壁走り
 		TYPE_MAX			// この列挙型の総数
 	};
 

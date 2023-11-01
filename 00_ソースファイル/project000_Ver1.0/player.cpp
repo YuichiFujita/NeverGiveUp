@@ -645,7 +645,16 @@ void CPlayer::SetSpawn(void)
 	// 情報を初期化
 	SetState(STATE_SPAWN);		// スポーン状態の設定
 	SetMotion(MOTION_IDOL);		// 待機モーションを設定
-	m_nCounterState = 0;		// カウンターを初期化
+
+	// カウンターを初期化
+	m_nCounterState = 0;	// 状態管理カウンター
+	m_nCounterSlide = 0;	// スライディング管理カウンター
+	m_nCounterWallDash = 0;	// 壁走り管理カウンター
+	m_nCounterLand = 0;		// 着地管理カウンター
+	m_nCounterJump = 0;		// ジャンプ管理カウンター
+
+	// 真偽を初期化
+	m_bJumpControl = false;		// ジャンプ操作を初期化
 	m_bSlideControl = false;	// スライディング操作を初期化
 	m_bWallDashControl = false;	// 壁走り操作を初期化
 
@@ -1084,8 +1093,6 @@ void CPlayer::UpdateWallDash(D3DXVECTOR3& rPos)
 					if (fRate >= walldash::BOOST_RATE)
 					{ // 加速できるプレイヤーの位置割合以上だった場合
 
-						// TODO：壁走り中振動
-
 						// 縦移動量を加算
 						m_move.y += walldash::PLUSMOVE_UP;
 
@@ -1113,6 +1120,9 @@ void CPlayer::UpdateWallDash(D3DXVECTOR3& rPos)
 			// 壁走り操作が行われた情報を初期化
 			m_bWallDashControl = false;
 		}
+
+		// バイブの設定
+		pPad->SetVibration(CInputPad::TYPE_WALLDASH);
 	}
 }
 
