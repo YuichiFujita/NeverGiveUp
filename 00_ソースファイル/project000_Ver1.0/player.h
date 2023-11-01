@@ -198,6 +198,7 @@ private:
 	int		m_nCounterState;	// 状態管理カウンター
 	int		m_nCounterSlide;	// スライディング管理カウンター
 	int		m_nCounterWallDash;	// 壁走り管理カウンター
+	int		m_nCounterLand;		// 着地管理カウンター
 	float	m_fMove;			// 移動量
 	float	m_fPlusMove;		// プラス移動量
 	bool	m_bJump;			// ジャンプ状況

@@ -59,6 +59,7 @@ namespace
 		const float	BLOW_UP		= 30.0f;	// 吹っ飛び時の縦移動量
 		const float	ADD_MOVE	= 0.08f;	// 非アクション時の速度加算量
 		const float	MIN_VARY	= 0.001f;	// 向きと目標向きの違う量の許容値
+		const int	LAND_SE_CNT = 10;		// 着地時にSEを鳴らす耐空フレーム
 
 		const float	JUMPPAD_MOVE	= 50.0f;	// ジャンプパッドの上移動量
 		const float	NOR_JUMP_REV	= 0.16f;	// 通常状態時の空中の移動量の減衰係数
@@ -171,6 +172,7 @@ CPlayer::CPlayer() : CObjectChara(CObject::LABEL_PLAYER, PRIORITY)
 	m_nCounterState		= 0;			// 状態管理カウンター
 	m_nCounterSlide		= 0;			// スライディング管理カウンター
 	m_nCounterWallDash	= 0;			// 壁走り管理カウンター
+	m_nCounterLand		= 0;			// 着地管理カウンター
 	m_fMove				= 0.0f;			// 移動量
 	m_fPlusMove			= 0.0f;			// プラス移動量
 	m_bJump				= false;		// ジャンプ状況
@@ -206,6 +208,7 @@ HRESULT CPlayer::Init(void)
 	m_nCounterState		= 0;			// 状態管理カウンター
 	m_nCounterSlide		= 0;			// スライディング管理カウンター
 	m_nCounterWallDash	= 0;			// 壁走り管理カウンター
+	m_nCounterLand		= 0;			// 着地管理カウンター
 	m_fMove				= basic::MOVE;	// 移動量
 	m_fPlusMove			= 0.0f;			// プラス移動量
 	m_bJump				= true;			// ジャンプ状況
@@ -433,8 +436,7 @@ void CPlayer::Hit(void)
 void CPlayer::SetState(const int nState)
 {
 	if (m_state != CPlayer::STATE_CLEAR
-	&&  m_state != CPlayer::STATE_OVER
-	&&  m_state != CPlayer::STATE_UNION)
+	&&  m_state != CPlayer::STATE_OVER)
 	{ // ゲーム終了に関する状態ではない場合
 
 		// 引数の状態を設定
@@ -1173,13 +1175,19 @@ void CPlayer::UpdateJump(void)
 	CInputPad		*pPad		= CManager::GetInstance()->GetPad();		// パッド
 	CInputMouse		*pMouse		= CManager::GetInstance()->GetMouse();		// マウス
 
-	if (!m_bJump && !m_bSlide && !m_bWallDash)
-	{ // ジャンプとスライディングと壁走りをしていない場合
+	if (!m_bJump && !m_bWallDash)
+	{ // ジャンプと壁走りをしていない場合
 
 		if (pKeyboard->IsTrigger(DIK_W)
 		||  pPad->IsTrigger(CInputPad::KEY_B)
 		||  pMouse->IsTrigger(CInputMouse::KEY_LEFT))
 		{ // ジャンプの操作が行われた場合
+
+			// カウンターを初期化
+			m_nCounterSlide = 0;
+
+			// スライディングしていない状態にする
+			m_bSlide = false;
 
 			// 上移動量
 			m_move.y += basic::JUMP;
@@ -1404,8 +1412,38 @@ bool CPlayer::UpdateLanding(D3DXVECTOR3& rPos)
 			SetMotion(MOTION_FALL);
 		}
 
+		// 着地カウンターを加算
+		m_nCounterLand++;
+
 		// 着地物をしていないに設定
 		m_land = LAND_NONE;
+	}
+	else
+	{ // 着地した場合
+
+		if (m_nCounterLand >= basic::LAND_SE_CNT)
+		{ // 着地カウンターが一定値以上の場合
+
+			switch (m_land)
+			{ // 着地物ごとの処理
+			case LAND_OBSTACLE:
+
+				// サウンドの再生
+				CManager::GetInstance()->GetSound()->Play(CSound::LABEL_SE_WALK_OBS);	// 歩行音（障害物）
+
+				break;
+
+			default:
+
+				// サウンドの再生
+				CManager::GetInstance()->GetSound()->Play(CSound::LABEL_SE_WALK_BUILD);	// 歩行音（ビル）
+
+				break;
+			}
+		}
+
+		// 着地カウンターを初期化
+		m_nCounterLand = 0;
 	}
 
 	// 着地状況を返す
@@ -1475,8 +1513,6 @@ void CPlayer::UpdateMotion(int nMotion)
 
 				// サウンドの再生
 				CManager::GetInstance()->GetSound()->Play(CSound::LABEL_SE_WALK_OBS);	// 歩行音（障害物）
-
-				// TODO：一度地面から離れてから一番高かった位置を保持し、量に応じて足音を出すか決める処理作る
 
 				break;
 
