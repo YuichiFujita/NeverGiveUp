@@ -161,7 +161,7 @@ private:
 	void UpdateClear(void);	// ゲームクリア状態時の更新
 
 	void UpdateOldPosition(void);			// 過去位置の更新
-	EMotion UpdateMove(D3DXVECTOR3& rPos);	// 移動量・目標向きの更新
+	EMotion UpdateMove(D3DXVECTOR3& rPos);	// 移動量・壁走りの更新
 	void UpdateWallDash(D3DXVECTOR3& rPos);	// 壁走りの更新
 	void UpdateJump(void);					// ジャンプの更新
 	void UpdateSliding(void);				// スライディングの更新
@@ -199,9 +199,11 @@ private:
 	int		m_nCounterSlide;	// スライディング管理カウンター
 	int		m_nCounterWallDash;	// 壁走り管理カウンター
 	int		m_nCounterLand;		// 着地管理カウンター
+	int		m_nCounterJump;		// ジャンプ管理カウンター
 	float	m_fMove;			// 移動量
 	float	m_fPlusMove;		// プラス移動量
 	bool	m_bJump;			// ジャンプ状況
+	bool	m_bJumpControl;		// ジャンプ操作状況
 	bool	m_bSlide;			// スライディング状況
 	bool	m_bSlideControl;	// スライディング操作状況
 	bool	m_bWallDash;		// 壁走り状況

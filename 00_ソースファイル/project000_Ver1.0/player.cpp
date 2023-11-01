@@ -59,7 +59,9 @@ namespace
 		const float	BLOW_UP		= 30.0f;	// 吹っ飛び時の縦移動量
 		const float	ADD_MOVE	= 0.08f;	// 非アクション時の速度加算量
 		const float	MIN_VARY	= 0.001f;	// 向きと目標向きの違う量の許容値
-		const int	LAND_SE_CNT = 10;		// 着地時にSEを鳴らす耐空フレーム
+
+		const int	LAND_SE_CNT = 10;			// 着地時にSEを鳴らす耐空フレーム
+		const int	JUMP_SAVECONTROL_CNT = 10;	// ジャンプ操作を保持するフレーム
 
 		const float	JUMPPAD_MOVE	= 50.0f;	// ジャンプパッドの上移動量
 		const float	NOR_JUMP_REV	= 0.16f;	// 通常状態時の空中の移動量の減衰係数
@@ -173,9 +175,11 @@ CPlayer::CPlayer() : CObjectChara(CObject::LABEL_PLAYER, PRIORITY)
 	m_nCounterSlide		= 0;			// スライディング管理カウンター
 	m_nCounterWallDash	= 0;			// 壁走り管理カウンター
 	m_nCounterLand		= 0;			// 着地管理カウンター
+	m_nCounterJump		= 0;			// ジャンプ管理カウンター
 	m_fMove				= 0.0f;			// 移動量
 	m_fPlusMove			= 0.0f;			// プラス移動量
 	m_bJump				= false;		// ジャンプ状況
+	m_bJumpControl		= false;		// ジャンプ操作状況
 	m_bSlide			= false;		// スライディング状況
 	m_bSlideControl		= false;		// スライディング操作状況
 	m_bWallDash			= false;		// 壁走り状況
@@ -209,9 +213,11 @@ HRESULT CPlayer::Init(void)
 	m_nCounterSlide		= 0;			// スライディング管理カウンター
 	m_nCounterWallDash	= 0;			// 壁走り管理カウンター
 	m_nCounterLand		= 0;			// 着地管理カウンター
+	m_nCounterJump		= 0;			// ジャンプ管理カウンター
 	m_fMove				= basic::MOVE;	// 移動量
 	m_fPlusMove			= 0.0f;			// プラス移動量
 	m_bJump				= true;			// ジャンプ状況
+	m_bJumpControl		= false;		// ジャンプ操作状況
 	m_bSlide			= false;		// スライディング状況
 	m_bSlideControl		= false;		// スライディング操作状況
 	m_bWallDash			= false;		// 壁走り状況
@@ -945,63 +951,10 @@ void CPlayer::UpdateOldPosition(void)
 }
 
 //============================================================
-//	移動量・目標向きの更新処理
+//	移動量・壁走りの更新処理
 //============================================================
 CPlayer::EMotion CPlayer::UpdateMove(D3DXVECTOR3& rPos)
 {
-#if 0
-	// ポインタを宣言
-	CInputKeyboard	*pKeyboard	= CManager::GetInstance()->GetKeyboard();	// キーボード
-
-	// 壁走りの更新
-	UpdateWallDash(rPos);
-	m_move.y = 0.0f;
-
-	if (pKeyboard->IsPress(DIK_W))
-	{ // 奥移動の操作が行われた場合
-
-		// 移動量を更新
-		m_move.x -= sinf(0.0f) * 2.0f;
-		m_move.z -= cosf(0.0f) * 2.0f;
-	}
-	else if (pKeyboard->IsPress(DIK_S))
-	{ // 手前移動の操作が行われた場合
-
-		// 移動量を更新
-		m_move.x += sinf(0.0f) * 2.0f;
-		m_move.z += cosf(0.0f) * 2.0f;
-	}
-	else if (pKeyboard->IsPress(DIK_A))
-	{ // 左移動の操作が行われた場合
-
-		// 移動量を更新
-		m_move.x -= sinf((D3DX_PI * 0.5f)) * 2.0f;
-		m_move.z -= cosf((D3DX_PI * 0.5f)) * 2.0f;
-	}
-	else if (pKeyboard->IsPress(DIK_D))
-	{ // 右移動の操作が行われた場合
-
-		// 移動量を更新
-		m_move.x += sinf((D3DX_PI * 0.5f)) * 2.0f;
-		m_move.z += cosf((D3DX_PI * 0.5f)) * 2.0f;
-	}
-	else if (pKeyboard->IsPress(DIK_E))
-	{ // 左移動の操作が行われた場合
-
-		// 移動量を更新
-		m_move.y -= 6.0f;
-	}
-	else if (pKeyboard->IsPress(DIK_Q))
-	{ // 右移動の操作が行われた場合
-
-		// 移動量を更新
-		m_move.y += 6.0f;
-	}
-
-	// 目標向きを更新
-	//m_destRot.y = atan2f(-m_move.x, -m_move.z);
-#else
-
 	// 壁走りの更新
 	UpdateWallDash(rPos);
 
@@ -1029,8 +982,6 @@ CPlayer::EMotion CPlayer::UpdateMove(D3DXVECTOR3& rPos)
 
 	// プラス移動量を減算
 	m_fPlusMove += (0.0f - m_fPlusMove) * walldash::REV_PLUSMOVE;
-
-#endif
 
 	// 移動モーションを返す
 	return MOTION_MOVE;
@@ -1175,13 +1126,43 @@ void CPlayer::UpdateJump(void)
 	CInputPad		*pPad		= CManager::GetInstance()->GetPad();		// パッド
 	CInputMouse		*pMouse		= CManager::GetInstance()->GetMouse();		// マウス
 
+	if (m_bJumpControl)
+	{ // ジャンプ操作が行われている場合
+
+		// ジャンプ管理カウンターを加算
+		m_nCounterJump++;
+
+		if (m_nCounterJump >= basic::JUMP_SAVECONTROL_CNT)
+		{ // 操作情報を削除するフレーム数が経過した場合
+
+			// ジャンプ管理カウンターを初期化
+			m_nCounterJump = 0;
+
+			// ジャンプ操作が行われた情報を初期化
+			m_bJumpControl = false;
+		}
+	}
+
+	if (pKeyboard->IsTrigger(DIK_W)
+	||  pPad->IsTrigger(CInputPad::KEY_B)
+	||  pMouse->IsTrigger(CInputMouse::KEY_LEFT))
+	{ // ジャンプの操作が行われた場合
+
+		// ジャンプ操作が行われた情報を保存
+		m_bJumpControl = true;
+	}
+
 	if (!m_bJump && !m_bWallDash)
 	{ // ジャンプと壁走りをしていない場合
 
-		if (pKeyboard->IsTrigger(DIK_W)
-		||  pPad->IsTrigger(CInputPad::KEY_B)
-		||  pMouse->IsTrigger(CInputMouse::KEY_LEFT))
+		if (m_bJumpControl)
 		{ // ジャンプの操作が行われた場合
+
+			// ジャンプ管理カウンターを初期化
+			m_nCounterJump = 0;
+
+			// ジャンプ操作が行われた情報を初期化
+			m_bJumpControl = false;
 
 			// カウンターを初期化
 			m_nCounterSlide = 0;
