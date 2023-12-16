@@ -24,52 +24,8 @@ int CObject::m_nNumAll = 0;					// オブジェクトの総数
 //============================================================
 //	コンストラクタ
 //============================================================
-CObject::CObject()
+CObject::CObject() : CObject(LABEL_NONE, DEFAULT_PRIO) // 委譲コンストラクタ
 {
-	if (m_apCur[DEFAULT_PRIO] != NULL)
-	{ // 最後尾が存在する場合
-
-		// 現在の最後尾オブジェクトの次オブジェクトを自身に設定
-		m_apCur[DEFAULT_PRIO]->m_pNext = this;
-
-		// 前オブジェクトを設定
-		m_pPrev = m_apCur[DEFAULT_PRIO];	// 現在の最後尾オブジェクト
-
-		// 次オブジェクトをクリア
-		m_pNext = NULL;
-
-		// 自身の情報アドレスを最後尾に設定
-		m_apCur[DEFAULT_PRIO] = this;
-	}
-	else
-	{ // 最後尾が存在しない場合
-
-		// 自身の情報アドレスを先頭に設定
-		m_apTop[DEFAULT_PRIO] = this;
-
-		// 自身の情報アドレスを最後尾に設定
-		m_apCur[DEFAULT_PRIO] = this;
-
-		// 前オブジェクトのクリア
-		m_pPrev = NULL;
-
-		// 次オブジェクトのクリア
-		m_pNext = NULL;
-	}
-
-	// 自身の情報をクリア
-	m_label		= LABEL_NONE;	// オブジェクトラベル
-	m_nPriority	= DEFAULT_PRIO;	// 優先順位
-	m_dwID		= m_dwNextID;	// 自身のユニークID
-	m_bUpdate	= true;			// 自身の更新状況
-	m_bDraw		= true;			// 自身の描画状況
-	m_bDeath	= false;		// 自身の死亡フラグ
-
-	// ユニークIDを加算
-	m_dwNextID++;
-
-	// オブジェクトの総数を加算
-	m_nNumAll++;
 }
 
 //============================================================

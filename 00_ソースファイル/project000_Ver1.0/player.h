@@ -158,7 +158,7 @@ private:
 	EMotion UpdateNormal(void);	// 通常状態時の更新
 	EMotion UpdateDamage(void);	// ダメージ状態時の更新
 	EMotion UpdateUnion(void);	// 合流状態時の更新
-	void UpdateClear(void);	// ゲームクリア状態時の更新
+	void UpdateClear(void);		// ゲームクリア状態時の更新
 
 	void UpdateOldPosition(void);			// 過去位置の更新
 	EMotion UpdateMove(D3DXVECTOR3& rPos);	// 移動量・壁走りの更新

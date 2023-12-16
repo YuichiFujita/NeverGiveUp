@@ -337,9 +337,6 @@ void CCamera::SetDestFollow(void)
 		D3DXVECTOR3 posPlayer = CScene::GetPlayer()->GetVec3Position();	// プレイヤー位置
 		D3DXVECTOR3 rotPlayer = CScene::GetPlayer()->GetVec3Rotation();	// プレイヤー向き
 		D3DXVECTOR3 posLook  = VEC3_ZERO;	// 位置
-		D3DXVECTOR3 diffPosV = VEC3_ZERO;	// 視点の差分位置
-		D3DXVECTOR3 diffPosR = VEC3_ZERO;	// 注視点の差分位置
-		D3DXVECTOR3 diffRot  = VEC3_ZERO;	// 差分向き
 
 		// カメラの見る位置を調整
 		posLook.x = posPlayer.x + sinf(rotPlayer.y + D3DX_PI) * follow::LOOK_ADD_FORWARD;
