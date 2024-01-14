@@ -46,7 +46,7 @@ public:
 
 private:
 	// メンバ関数
-	HRESULT CRenderer::CreateDevice(HWND hWnd, D3DPRESENT_PARAMETERS d3dpp);	// デバイス生成
+	HRESULT CreateDevice(HWND hWnd, D3DPRESENT_PARAMETERS d3dpp);	// デバイス生成
 
 	// メンバ変数
 	LPDIRECT3D9			m_pD3D;			// Direct3Dオブジェクト
